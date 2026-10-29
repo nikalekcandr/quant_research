@@ -20,3 +20,21 @@ Favourite–longshot bias in executed trades: takers who buy the cheap side lose
 (5–10¢, t −6.5), −9.8¢ (10–20¢, t −4.3) per contract; takers who buy the favourite at 90–100¢ win +1.9…+5.3¢
 (t 3.9…11.8). The resting side of lottery-ticket buys earns +1.9¢ (t 19.5) after the maker fee.
 Only October 2026 so far; the 220-day sample is downloading (`jobs/hist_kx15_trades_sample_now.py`).
+
+## 4. Where the taker losses come from (`studies/kx15_flow_deep.py`, 146 markets, 3.1 M prints, 10–29 Oct)
+* Longshot buyers (paid ≤ 20¢) lose −4.8¢ per contract (t −6.2); without the 5 worst markets −4.4¢; leave-one-day-out
+  −4.7 … −5.2¢. At ≤ 5¢: 98.6% of markets negative. Not a few whales: per print, per contract and per market
+  (equal weight) give the same picture.
+* Paid 10–20¢: average price 15.4¢, win rate 5.4% → −10.8¢. Markout: the price keeps moving against these buyers,
+  −2…−3¢ within 1–3 minutes (t −3): they buy the cheap side while it is falling.
+* Favourite buyers at 65–95¢ win +4.5…+7.7¢ and their markouts are positive (+1.6…+2.3¢ in 1 minute, t 2–3.3):
+  fast takers who react to spot before the resting quotes move.
+* Fixed-time book calibration (candles, Jan–Aug) shows only a ±0.5–1 pp bias: the mispricing is in *when* trades
+  happen, not in the average price. A taker selling wings at a random moment (W01) earns ≈ 0; the resting side of
+  the people who come to buy them earns. Market making must cancel when spot moves (the favourite side gets picked off).
+
+## 5. 15-minute market vs hourly ladder on the same settlement (`studies/kx_15m_vs_hourly.py`)
+The 15-minute market closing on the hour and the hourly ladder settle on the identical BRTI value (2 788 of 2 788).
+Pure no-arbitrage violations after fees: 13 minutes in 10 of 1 206 markets (~2¢). Relative value: each book prices
+its own contract better (15m mid Brier 0.186 vs ladder-interpolated 0.193, t −2.4; ladder 0.191 vs 15m-implied
+0.203, t −2.8); trading either toward the other loses or is noise. The two Kalshi products are consistent.
