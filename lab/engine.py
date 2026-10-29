@@ -18,6 +18,7 @@ import config
 from lab import feeds, markets as mk, signals
 from lab.flow import Flow
 from lab.maker import Maker
+from lab.tape import Tape
 from lab.core import (FAST, HEARTBEAT, LAB, MARKETS, PERP_FEE, TICKS, Book, Order, append_rows, atomic_write, day_file,
                       lab_http, log, log_exc, utcnow)
 from lab.history import Minutes
@@ -91,6 +92,7 @@ class Lab:
         self.fast = deque(maxlen=80)
         self.flow = Flow()
         self.maker = Maker()
+        self.tape = Tape()
         self.http_mk = lab_http()
         self.markets = None
         self.last_report = None
@@ -177,6 +179,10 @@ class Lab:
                 self.maker.step(ctx, self)
             except Exception:
                 log_exc("maker")
+            try:
+                self.tape.step(ctx, self)
+            except Exception:
+                log_exc("tape")
             self.book.save()
         self.heartbeat(now, time.time() - t0)
 

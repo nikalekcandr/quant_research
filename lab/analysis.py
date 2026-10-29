@@ -20,7 +20,7 @@ from lab.core import FAST, LAB, MARKETS, RESULTS, day_file, read_ledger, utcnow
 
 MARKETS_FAST = LAB / "markets_fast"
 OUT_MD = config.REPORTS / "lab_analysis.md"
-BIN_FAMS = ("P", "V", "A", "W", "M")
+BIN_FAMS = ("P", "V", "A", "W", "M", "T")
 
 
 def _read(folder, days=3, cols=None):

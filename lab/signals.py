@@ -404,6 +404,35 @@ def m02(ctx):
     return []
 
 
+@hyp("M03", "M", "Lottery seller on Kalshi (maker, queue-aware)", "15-min market and hourly-ladder strikes: when a side "
+     "costs 2–20¢ and ≥ 2 min are left, join its best offer with 1 contract; filled by prints through our price or by "
+     "taker volume at our price beyond the displayed queue; held to settlement; maker fee", "takers who buy longshots "
+     "lose ~5¢ per contract (studies/kx15_flow_deep.py)", frozen="2026-10-29 17:40")
+def m03(ctx):
+    return []          # run by Lab.tape (needs the trade tape)
+
+
+@hyp("M04", "M", "Lottery seller, cancels on spot moves", "as M03; the quote is cancelled at the first 15-s sample in "
+     "which Binance moved ≥ 3 bp toward the cheap side winning", "avoid being picked off by fast takers",
+     frozen="2026-10-29 17:40")
+def m04(ctx):
+    return []
+
+
+@hyp("T01", "T", "Copy the favourite buyer", "Kalshi 15-min: ≥ 200 contracts bought by takers on the favourite side at "
+     "65–95¢ in the last 60 s → buy the favourite at the book ask; one per market", "fast takers who buy favourites "
+     "win (positive markouts)", frozen="2026-10-29 17:40")
+def t01(ctx):
+    return []
+
+
+@hyp("T02", "T", "Fade the lottery burst", "Kalshi 15-min: ≥ 500 contracts bought by takers on the cheap side at "
+     "≤ 20¢ in the last 60 s → buy the favourite at the book ask; one per market", "lottery buyers lose, the price "
+     "keeps moving against them", frozen="2026-10-29 17:40")
+def t02(ctx):
+    return []
+
+
 # ================================================================== P: fair value of short-dated binaries
 FAIR_MODELS = ("ln", "t4", "kxiv", "dvol", "rv1h")
 
@@ -1122,4 +1151,4 @@ def f01(ctx):
 
 
 FAMILIES = {"D": "Directional BTC", "P": "Prediction markets: fair value", "V": "Short binaries every 15 s: fair-value models",
-            "A": "No-arbitrage (binaries)", "W": "Selling cheap wings", "M": "Maker quotes on Kalshi (simulated fills)", "O": "Options", "F": "Funding"}
+            "A": "No-arbitrage (binaries)", "W": "Selling cheap wings", "T": "Kalshi trade tape (taker)", "M": "Maker quotes on Kalshi (simulated fills)", "O": "Options", "F": "Funding"}
