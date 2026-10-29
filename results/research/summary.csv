@@ -1,0 +1,23 @@
+id,hypothesis,effect,post-freeze effect,post-freeze n,unit,t,p,n,regime-stable sign,Holm p,BH q,verdict
+R1,Intraday/weekly volatility seasonality is stable and predicts out of sample,0.9705125684229181,0.2156600527448291,3,slope,38.5594417798447,0.0,24771,yes,0.0,0.0,CONFIRMED (survives Holm)
+R2,BTC returns accrue outside US trading hours (post-ETF),21.32222671644744,,0,bp/day,2.1574112239165264,0.030973637468729963,701,yes,0.46460456203094946,0.0851775030390074,likely (FDR 10%)
+R3,Intraday momentum: the first half hour predicts the last half hour,0.9259269743864721,,0,bp/trade,0.652530287737917,0.514059140673974,958,83% of states,1.0,0.6931868228329799,not supported
+R4,Time-series momentum at the weekly horizon,-6.872730429800851,-147.3002173960758,1,bp/week,-0.15958007493619128,0.873211875713963,196,33% of states,1.0,0.9207167819235985,not supported
+R5,Day-of-week: Monday returns are higher,30.243485041946197,,0,bp/day,1.412203758453385,0.15788997417288597,199,83% of states,1.0,0.29540497775933755,not supported
+R6,Pre-FOMC drift,-3.769372514338076,,0,bp/event,-0.10828554388619391,0.9137691894916983,31,yes,1.0,0.9207167819235985,not supported
+R7,Volatility-managed exposure beats buy-and-hold on a risk-adjusted basis,1.8993642928232182,,0,bp/day,0.55600980003612,0.5782041553320647,1216,67% of states,1.0,0.706693967628079,not supported
+R8a,Variance risk premium: implied variance exceeds subsequent realised variance,314.4480972766113,,0,"var. points (ann., ×100²)",2.5824221530687903,0.009810949333341713,1369,83% of states,0.1667861386668091,0.035973480888919614,likely (FDR 10%)
+R8b,The variance risk premium predicts returns,16.360502213226248,,0,bp/30d (per 1 sd),0.0995308661486658,0.9207167819235985,1249,50% of states,1.0,0.9207167819235985,not supported
+R9,Prediction-market ladders know the direction,0.1551321956369135,,0,bp/occasion (per 1 s),1.3545056887932372,0.17557509969440277,6451,60% of states,1.0,0.29712709179052776,not supported
+R10,Crash insurance is overpriced in prediction-market ladders,2.6255048235028515,,0,pp,5.262106539784419,1.424141976952774e-07,6109,yes,2.7058697562102706e-06,7.832780873240257e-07,CONFIRMED (survives Holm)
+R11,Perpetual funding predicts returns (crowded longs lose),-29.388679383770924,,0,bp/7d (per 1 sd),-0.6922626645067698,0.48877239203155176,1295,50% of states,1.0,0.6931868228329799,not supported
+R12,Implied-volatility changes lead BTC returns,1.1200974187075152,-26.59276987041974,1,bp/hour (per 1 sd),2.7456584870163474,0.006038959096555216,33026,yes,0.1087012637379939,0.026571420024842952,likely (FDR 10%)
+R13,Volatility spikes in the first minute of the hour (and at funding times),0.098857598687824,-0.468921128048705,1,log ratio,5.869989654290446,4.358223344638433e-09,1398,83% of states,8.716446689276866e-08,3.196030452734851e-08,CONFIRMED (survives Holm)
+R14,'CME gaps always fill',3.9634379552039114,,0,pp,1.5758994119272962,0.11504898654496334,189,83% of states,1.0,0.28123085599879927,not supported
+R15,Round numbers act as support/resistance,-1.8251700729858382,,0,bp/approach,-0.6194129333753627,0.5356443630982117,542,50% of states,1.0,0.6931868228329799,not supported
+R16,Turn-of-the-month effect,-25.92616077644734,,0,bp/day,-1.4644149211325435,0.14308061364862953,46,yes,1.0,0.29540497775933755,not supported
+R17,Bad volatility predicts future volatility more than good volatility,-0.0003760896728968164,,0,QLIKE gain,-0.1426031093697538,0.8866036416603591,1012,60% of states,1.0,0.9207167819235985,not supported
+R18,Does the ladder's information gain depend on the volatility regime?,-0.0049669222996373726,,0,CRPS gain,-1.4012812432331783,0.16112998786872956,6555,0% of states,1.0,0.29540497775933755,not supported
+R19,A regime-aware HAR forecasts daily volatility better,-0.015519769803817762,,0,QLIKE gain,-2.2448934462943084,0.024774973776006584,1012,yes,0.39639958041610535,0.0778642032960207,likely (FDR 10%)
+R20,Machine learning predicts the next-hour BTC return,0.3789839467639913,29.221382612050206,1,bp/hour,1.1948060325156593,0.23216282286113954,24024,80% of states,1.0,0.364827293067505,not supported
+R21,Does anything beat HAR? Daily volatility model zoo,0.0999170832854576,,0,QLIKE,8.730043277023707,2.54575192194722e-18,997,yes,5.346079036089162e-17,2.800327114141942e-17,CONFIRMED (survives Holm)

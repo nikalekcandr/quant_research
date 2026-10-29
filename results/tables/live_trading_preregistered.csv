@@ -1,0 +1,3 @@
+horizon,source,threshold,n_snapshots_live,n_trades,n_snapshots_traded,pnl_per_contract,pnl_total,pnl_per_snapshot,t_stat,median_spread
+kx1h,hyb_harx_d,0.05,0,0,0,,0.0,,,
+kx1h,hyb_harx_all,0.05,0,0,0,,0.0,,,

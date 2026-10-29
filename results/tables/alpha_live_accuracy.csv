@@ -1,0 +1,3 @@
+comparison,quotes,events,brier_market_mid,brier_fair,mean_gap_mid_minus_fair
+Polymarket ladder vs Deribit smile,1468,10,0.03986825102179836,0.039111596990462974,0.0001631547248373236
+other Bitcoin markets vs Deribit smile,18,16,0.14754255555555554,0.14477694804415245,-0.0071890408243886796
