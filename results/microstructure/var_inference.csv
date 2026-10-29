@@ -1,0 +1,8 @@
+binary_kind,n_obs,lags_chosen,spot_to_mid_F,spot_to_mid_p,mid_to_spot_F,mid_to_spot_p,spot_leads,mid_leads,feedback,representative_market,error
+kx_15m,2075.0,4.0,15.46825468862615,1.4528300879332847e-12,2.479376943784422,0.042006121023718326,False,False,True,KXBTC15M-26OCT290600-00,
+kx_ladder_1h,,,,,,,,,,,Cannot test Granger Causality in a model with 0 lags.
+pm_ladder_1h,,,,,,,,,,,Cannot test Granger Causality in a model with 0 lags.
+pm_updown_15m,2551.0,4.0,1.6645941866896659,0.15526296111638957,14.276369933504608,1.3640031173645605e-11,False,True,False,btc-updown-15m-1793267100,
+pm_updown_1h,,,,,,,,,,,Cannot test Granger Causality in a model with 0 lags.
+pm_updown_4h,909.0,4.0,0.013440512593526077,0.99964473354667,6.680109565388071,2.4643770594810314e-05,False,True,False,btc-updown-4h-1793246400,
+pm_updown_5m,2486.0,1.0,22.774737317586975,1.8736952744878664e-06,7.139253558608428,0.0075660765586489775,False,False,True,btc-updown-5m-1793262600,
