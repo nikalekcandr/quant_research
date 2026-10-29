@@ -48,7 +48,11 @@ Language: code and comments in English, most docs (`README.md`, `RUN_ME.md`, rep
 6. **Lab hypotheses are frozen.** Never change the rule of an existing ID in `lab/signals.py`; add a new ID with
    a `frozen=` date. The ledger (`data/lab/ledger.csv`) is append-only and hash-chained (`verify_ledger`).
    Trades produced by buggy code are excluded in `lab/report.py` (`VOID`, `KALSHI_LISTING_VERSIONS`), never deleted.
-7. **Statistics.** Cluster t-stats by market / entry hour (trades on one market are not independent), HAC for
+7. **Never compare quotes taken at different moments.** Three fake "alphas" so far had one cause: the Kalshi
+   listing vs the live book, a 10-minute option snapshot vs the live perpetual (O02: $6,139 from one $200 move,
+   29.10 13:33 UTC), stale Kalshi sides. Check the age of every quote; if the underlying moved more than the edge
+   since the oldest one, skip. Many trades from one snapshot are one observation, not many.
+8. **Statistics.** Cluster t-stats by market / entry hour (trades on one market are not independent), HAC for
    time series, Holm / BH for many hypotheses, deflated Sharpe for strategy search, train/test split in time.
 
 ## Where things stand (29.10.2026)
