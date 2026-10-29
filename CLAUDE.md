@@ -64,6 +64,9 @@ Language: code and comments in English, most docs (`README.md`, `RUN_ME.md`, rep
   years of minutes beats HAR by 23–27% QLIKE intraday (2024–2026, every year) and, averaged with the ladder, is the
   best variance forecast over Jan–Oct 2026 (CRPS −2.4% vs the ladder, t −5.3); not significant on the last two
   weeks. `results/studies/vol_models_summary.md`.
+* **Short lags (recommendation):** adding the RV of the last 15 and 5 minutes to the hourly HAR improves CRPS
+  by 1.2% (t −5.5); the last 1 h and 4 h help the daily HAR (−3.7%, t −1.9); nothing once the ladder is in the
+  model. `studies/short_lags.py`.
 * **Probabilities of strikes:** the market price beats every model on Brier (Kalshi hourly ladder and 15-minute
   market, 20 317 markets): better variance does not beat the book.
 * **Alpha:** nothing survives. Taker vs model, wings, lead–lag, Kyle-λ flow, 15m vs hourly ladder, Kalshi vs
