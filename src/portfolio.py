@@ -1,5 +1,10 @@
 """Portfolio construction: position sizing, risk limits, and drawdown control.
 
+OFFLINE ANALYSIS ONLY. Do not hook this into lab/engine.py: the lab's hypotheses are frozen and must be tested
+independently, one unit each (a drawdown brake would make every rule depend on the P&L of the others).
+P&L units differ across hypotheses ($/contract for binaries, return for perps, $ for options), so portfolio-level
+numbers are computed per unit; voided trades (lab/report.py: void_mask) are excluded.
+
 Every signal in lab/signals.py returns a raw Order with price and edge. This
 module turns a batch of raw orders into sized orders that respect:
 
@@ -68,16 +73,20 @@ def _ann_vol(returns: pd.Series, window: int = VOL_WINDOW_DAYS) -> float:
 
 
 def _max_drawdown(cum: pd.Series) -> float:
-    """Current drawdown as fraction (0 = no DD, 0.15 = 15% off the peak)."""
+    """Current drawdown as fraction of peak notional (0 = no DD, 0.15 = 15%)."""
     if len(cum) < 2:
         return 0.0
-    peak = cum.cummax()
-    dd = (peak - cum) / (1 + cum) if cum.iloc[-1] > -0.99 else peak - cum
-    # Simple: (peak - current) / (1 + peak) for log-returns, or price ratio for levels
-    # Our ledger is in return units, so cum is cumulative log return
-    cur_dd = float((peak.iloc[-1] - cum.iloc[-1]))
-    # Convert log DD to arithmetic: 1 - exp(-log_dd)
-    return max(0.0, 1 - math.exp(-cur_dd)) if cur_dd > 0 else 0.0
+    s = pd.Series(cum).dropna().sort_index()
+    if len(s) < 2:
+        return 0.0
+    peak = s.cummax()
+    # cum is cumulative log-return (or additive P&L in return units) — DD in log terms
+    cur_dd_log = float(peak.iloc[-1] - s.iloc[-1])
+    if cur_dd_log <= 0:
+        return 0.0
+    # Convert log-DD to arithmetic drawdown: 1 - exp(-logDD)
+    # Cap at 99% to avoid overflow on huge DDs
+    return float(1 - math.exp(-min(cur_dd_log, 5.0)))
 
 
 def _kelly_fraction(
@@ -101,7 +110,9 @@ class Portfolio:
         ledger: pd.DataFrame | None = None,
         target_vol: float = TARGET_VOL_ANN,
         kelly_fraction: float = KELLY_FRACTION,
+        unit: str | None = "$/contract",
     ):
+        self.unit = unit                       # one P&L unit per portfolio (None = mix, not meaningful)
         self.target_vol = target_vol
         self.kelly_fraction = kelly_fraction
         # Per-hypothesis stats: mean, var, n (from closed trades only)
@@ -117,6 +128,13 @@ class Portfolio:
         """Build per-hypothesis and portfolio-level stats from a ledger.csv."""
         # Only settled trades (CLOSE/INSTANT) with finite pnl
         done = ledger[ledger["event"].isin(["CLOSE", "INSTANT"])].copy()
+        try:                                   # drop trades of buggy code versions (listing quotes, empty sides)
+            from lab.report import void_mask
+            done = done[~void_mask(done)]
+        except Exception:
+            pass
+        if self.unit is not None and "unit" in done:
+            done = done[done["unit"].astype(str) == self.unit]
         if done.empty:
             return
         done["pnl"] = pd.to_numeric(done["pnl"], errors="coerce")
@@ -283,12 +301,17 @@ class Portfolio:
 
 # ------------------------------------------------------------------ CLI backtest
 def _load_ledger(path: str) -> pd.DataFrame:
-    import lab.core as core
-
+    # lab.core imports requests (absent in some CI envs) — fall back gracefully
     try:
+        import lab.core as core  # type: ignore
+
         return core.read_ledger()
     except Exception:
+        pass
+    try:
         return pd.read_csv(path, parse_dates=["ts"])
+    except FileNotFoundError:
+        return pd.DataFrame()
 
 
 def main(argv=None):

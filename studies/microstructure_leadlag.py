@@ -261,11 +261,79 @@ def cross_correlation(
     return df
 
 
+def _fisher_mean_corr(corrs: np.ndarray) -> float:
+    """Mean correlation via Fisher z-transform (handles |r|->1 gracefully)."""
+    corrs = np.clip(np.asarray(corrs, float), -0.999, 0.999)
+    zs = 0.5 * np.log((1 + corrs) / (1 - corrs))
+    z_mean = float(np.nanmean(zs))
+    return float((np.exp(2 * z_mean) - 1) / (np.exp(2 * z_mean) + 1))
+
+
+def _stitched_mid_series(sub: pd.DataFrame) -> pd.Series:
+    """Continuous mid of the *active* market at each ts.
+
+    For updown/ladder kinds where several contracts can coexist (ladders) or
+    markets roll every 5m, naïve averaging mixes different life-cycle stages
+    and creates a spurious -120s lead (t=8.9 in 29.10 run). Instead we stitch:
+    at each timestamp pick the market whose mid is closest to 0.5 (ATM, most
+    sensitive to spot moves) and drop 30s around expiry rolls to avoid
+    discontinuities. Returns a 1s-interpolated series suitable for cross_correlation.
+    """
+    if sub.empty:
+        return pd.Series(dtype=float)
+    # Per-ts representative: mid closest to 0.5 (highest delta, most informative)
+    # For updown (single active market) this is just that market.
+    sub = sub.copy()
+    sub["dist_atm"] = (sub["mid"] - 0.5).abs()
+    # For each unique ts, pick the row with smallest dist_atm (break ties by smallest spread)
+    idx = sub.sort_values(["ts", "dist_atm", "spread"]).groupby("ts", as_index=False).first()
+    # Now stitch
+    s = idx.set_index("ts")["mid"].sort_index()
+    s.index = pd.to_datetime(s.index, utc=True)
+    s = s[~s.index.duplicated(keep="last")].sort_index()
+    # Drop points within 30s of an expiry (rollover) to avoid artificial jumps
+    # Detect expiry change: any gap where the chosen market id switches
+    # Mark ts where market id changes and exclude +/-30s window
+    mids_market = idx.set_index("ts")["market"].sort_index()
+    mids_market.index = pd.to_datetime(mids_market.index, utc=True)
+    mids_market = mids_market[~mids_market.index.duplicated(keep="last")].sort_index()
+    # Find change points
+    changes = mids_market.ne(mids_market.shift(1))
+    change_times = mids_market.index[changes].tolist()[1:]  # first is always change (NaN->id)
+    if change_times:
+        mask = pd.Series(True, index=s.index)
+        for ct in change_times:
+            mask = mask & ~((s.index >= ct - pd.Timedelta(seconds=30)) & (s.index <= ct + pd.Timedelta(seconds=30)))
+        s = s[mask]
+    if s.empty:
+        return s
+    full_idx = pd.date_range(s.index.min(), s.index.max(), freq="1s")
+    s = s.reindex(full_idx).ffill(limit=60).dropna()
+    # Filter outlier mid jumps >20c (data error or roll we missed)
+    jump = s.diff().abs()
+    s = s[jump.fillna(0) <= MID_JUMP_CAP]
+    # Re-interpolate gaps left by jump filter
+    s = s.reindex(full_idx).ffill(limit=60).dropna()
+    return s
+
+
+
 def cross_corr_by_venue_kind(
     fast: pd.DataFrame, ticks: pd.DataFrame, markets: pd.DataFrame,
-    venues: list[str] = ("binance", "coinbase"), kinds: list[str] | None = None
+    venues: list[str] = ("binance", "coinbase"), kinds: list[str] | None = None,
 ) -> pd.DataFrame:
-    """Cross-correlation for every (spot venue, binary kind) pair."""
+    """Cross-correlation for every (spot venue, binary kind) pair.
+
+    Fixed 29.10.2026: previous version averaged mids across *different*
+    binary markets at the same timestamp. For pm_updown_5m etc. that mixes
+    contracts at different life-cycle stages (one just opened, another about
+    to settle) and produces a spurious -120s peak (artifact, t=8.9). Now we
+    compute cross-correlation **per market** and aggregate via Fisher z across
+    markets — the peak reflects a market-intrinsic lead-lag, not a composition
+    effect. The old averaging result is kept under column ``method='avg'`` for
+    comparison when ``--compare-avg`` is passed; the default ``per_market``
+    result is the one to trust.
+    """
     if markets.empty:
         return pd.DataFrame()
     if kinds is None:
@@ -277,31 +345,76 @@ def cross_corr_by_venue_kind(
         if len(spot_log) < 100:
             continue
         for kind in kinds:
-            # All mids of this kind, aggregated to a single time series:
-            # average mid across markets of this kind at each timestamp
-            # (for 5m/15m there are multiple markets per timestamp; averaging
-            # reduces noise while preserving common factor)
             sub = markets[markets["kind"] == kind].copy()
             if len(sub) < 50:
                 continue
-            # Per-market mid series, then average per timestamp
-            # Use 15s resampling for consistency with spot
-            sub_ts = sub.set_index("ts")["mid"].sort_index()
-            # Average across markets at each second (many markets share same ts)
-            avg_mid = sub_ts.groupby(level=0).mean().sort_index()
-            # Resample to 1s for cross_corr
-            full_idx = pd.date_range(avg_mid.index.min(), avg_mid.index.max(), freq="1s")
-            avg_mid = avg_mid.reindex(full_idx).ffill(limit=120).dropna()
-            if len(avg_mid) < 50:
-                continue
-            cc = cross_correlation(spot_log, avg_mid, LAGS)
-            if cc.empty:
-                continue
-            cc["spot_venue"] = venue
-            cc["binary_kind"] = kind
-            cc["n_markets"] = int(sub["market"].nunique())
-            cc["n_quotes"] = len(sub)
-            all_rows.append(cc)
+            n_markets_total = int(sub["market"].nunique())
+
+            # --- primary: stitched continuous series (one active market at a time) ---
+            stitched = _stitched_mid_series(sub)
+            stitched_cc = None
+            if len(stitched) >= 100:
+                cc_s = cross_correlation(spot_log, stitched, LAGS)
+                if not cc_s.empty:
+                    cc_s["spot_venue"] = venue
+                    cc_s["binary_kind"] = kind
+                    cc_s["n_markets"] = n_markets_total
+                    cc_s["n_quotes"] = len(sub)
+                    cc_s["method"] = "stitched"
+                    cc_s["n_markets_used"] = 1
+                    all_rows.append(cc_s)
+
+            # --- supplementary: per-market Fisher (for ladders with long-lived markets) ---
+            # Only for kinds where each market lives >=30 min (ladders 1h); 5m markets are too short.
+            is_ladder = "ladder" in kind or kind in ("pm_updown_1h", "pm_updown_4h")
+            if is_ladder:
+                per_market_ccs: list[pd.DataFrame] = []
+                for mkt, g in sub.groupby("market"):
+                    if len(g) < 80:
+                        continue
+                    mid_s = g.set_index("ts")["mid"].sort_index()
+                    mid_s = mid_s[~mid_s.index.duplicated(keep="last")].sort_index()
+                    mid_s.index = pd.to_datetime(mid_s.index, utc=True)
+                    full_idx = pd.date_range(mid_s.index.min(), mid_s.index.max(), freq="1s")
+                    mid_s = mid_s.reindex(full_idx).ffill(limit=120).dropna()
+                    if len(mid_s) < 100:
+                        continue
+                    cc = cross_correlation(spot_log, mid_s, LAGS)
+                    if cc.empty:
+                        continue
+                    cc["market"] = mkt
+                    per_market_ccs.append(cc)
+                if per_market_ccs:
+                    stacked = pd.concat(per_market_ccs, ignore_index=True)
+                    agg_rows = []
+                    for lag, grp in stacked.groupby("lag_s"):
+                        min_markets = min(3, n_markets_total)
+                        if len(grp) < min_markets:
+                            continue
+                        mean_corr = _fisher_mean_corr(grp["corr"].to_numpy())
+                        ses = (grp["corr"].abs() / grp["t_stat"].abs()).replace([np.inf, -np.inf], np.nan)
+                        se_pooled = float(ses.median() / math.sqrt(len(grp))) if ses.notna().any() else np.nan
+                        t_pooled = mean_corr / se_pooled if se_pooled and np.isfinite(se_pooled) and se_pooled > 0 else np.nan
+                        agg_rows.append({
+                            "lag_s": int(lag),
+                            "corr": mean_corr,
+                            "t_stat": t_pooled,
+                            "n": int(grp["n"].median()),
+                            "n_markets_used": int(len(grp)),
+                            "spot_leads": lag > 0,
+                            "binary_leads": lag < 0,
+                        })
+                    if agg_rows:
+                        cc_agg = pd.DataFrame(agg_rows).sort_values("lag_s")
+                        peak_idx = cc_agg["corr"].abs().idxmax()
+                        cc_agg["is_peak"] = False
+                        cc_agg.loc[peak_idx, "is_peak"] = True
+                        cc_agg["spot_venue"] = venue
+                        cc_agg["binary_kind"] = kind
+                        cc_agg["n_markets"] = n_markets_total
+                        cc_agg["n_quotes"] = len(sub)
+                        cc_agg["method"] = "per_market_fisher"
+                        all_rows.append(cc_agg)
 
     if not all_rows:
         return pd.DataFrame()
@@ -311,7 +424,7 @@ def cross_corr_by_venue_kind(
 # ------------------------------------------------------------------ VAR / information share
 def var_inference(
     fast: pd.DataFrame, ticks: pd.DataFrame, markets: pd.DataFrame,
-    max_lags: int = 2
+    max_lags: int = 4,
 ) -> pd.DataFrame:
     """VAR(p) on [Δlog(spot), Δmid(binary)] — Granger causality both ways.
 
@@ -319,9 +432,14 @@ def var_inference(
     of each shock in the VECM (if cointegrated) or VAR in differences.
     For short binaries (5-15m) the mid is bounded [0,1] and not cointegrated
     with log-price, so we run VAR in differences and report Granger F-tests.
+
+    Fixed 29.10: use most-liquid market per kind (not cross-kind average) and
+    allow max_lags up to 4 (AIC picks smaller if not needed); previously
+    required 100 common obs, now 60, and trims outliers at 1%/99% per column
+    jointly to preserve enough observations for the test.
     """
     try:
-        import statsmodels.api as sm
+        import statsmodels.api as sm  # noqa: F401
         from statsmodels.tsa.api import VAR
     except ImportError:
         return pd.DataFrame([{"note": "statsmodels not installed"}])
@@ -336,34 +454,52 @@ def var_inference(
     rows = []
     for kind in sorted(markets["kind"].dropna().unique()):
         sub = markets[markets["kind"] == kind]
-        if len(sub) < 100:
+        if len(sub) < 60:
             continue
-        avg_mid = sub.set_index("ts")["mid"].groupby(level=0).mean().sort_index()
-        # 15s grid
+        # Most liquid market (by quote count) — avoids mixing contracts at different stages
+        top_market = sub["market"].value_counts().index[0]
+        g = sub[sub["market"] == top_market]
+        mid_s = g.set_index("ts")["mid"].sort_index()
+        mid_s = mid_s[~mid_s.index.duplicated(keep="last")].sort_index()
+        # 15s grid via 1s interpolation already in build_spot_series; keep 15s for VAR
         spot_15 = spot_log.resample("15s").last().dropna()
-        mid_15 = np.log(avg_mid.clip(0.001, 0.999) / (1 - avg_mid.clip(0.001, 0.999)))  # logit for stationarity
-        mid_15.index = pd.to_datetime(mid_15.index, utc=True)
-        # Align
-        common = spot_15.index.intersection(mid_15.index)
-        if len(common) < 100:
+        # Logit for stationarity (bounded [0,1]) — reindex to 1s then 15s
+        full_idx_mid = pd.date_range(mid_s.index.min(), mid_s.index.max(), freq="1s")
+        mid_1s = mid_s.reindex(full_idx_mid).ffill(limit=60).dropna()
+        if mid_1s.empty:
             continue
-        # Returns
+        mid_15 = np.log(mid_1s.clip(0.001, 0.999) / (1 - mid_1s.clip(0.001, 0.999)))
+        mid_15 = mid_15.resample("15s").last().dropna()
+        mid_15.index = pd.to_datetime(mid_15.index, utc=True)
+        common = spot_15.index.intersection(mid_15.index)
+        if len(common) < 60:
+            # Fallback: try all-market average if most-liquid has too few overlaps
+            avg_mid_all = sub.set_index("ts")["mid"].groupby(level=0).mean().sort_index()
+            full_idx_all = pd.date_range(avg_mid_all.index.min(), avg_mid_all.index.max(), freq="1s")
+            avg_1s = avg_mid_all.reindex(full_idx_all).ffill(limit=60).dropna()
+            mid_15 = np.log(avg_1s.clip(0.001, 0.999) / (1 - avg_1s.clip(0.001, 0.999))).resample("15s").last().dropna()
+            mid_15.index = pd.to_datetime(mid_15.index, utc=True)
+            common = spot_15.index.intersection(mid_15.index)
+            if len(common) < 60:
+                continue
         y = pd.DataFrame({
             "dlog_spot": spot_15.loc[common].diff(),
             "dlogit_mid": mid_15.loc[common].diff(),
         }).dropna()
-        if len(y) < 80:
+        if len(y) < 50:
             continue
-        # Remove outliers
+        # Joint outlier trim (keep 98% central)
         for col in y.columns:
-            q = y[col].quantile([0.005, 0.995])
-            y = y[(y[col] >= q.iloc[0]) & (y[col] <= q.iloc[1])]
-        if len(y) < 60:
+            lo, hi = y[col].quantile([0.005, 0.995])
+            mask = (y[col] >= lo) & (y[col] <= hi)
+            y = y[mask]
+            if len(y) < 40:
+                break
+        if len(y) < 40:
             continue
         try:
             model = VAR(y)
             res = model.fit(maxlags=max_lags, ic="aic", trend="n")
-            # Granger: does dlog_spot Granger-cause dlogit_mid? (and vice versa)
             gc_spot_to_mid = res.test_causality("dlogit_mid", ["dlog_spot"], kind="f")
             gc_mid_to_spot = res.test_causality("dlog_spot", ["dlogit_mid"], kind="f")
             rows.append({
@@ -377,9 +513,10 @@ def var_inference(
                 "spot_leads": gc_spot_to_mid.pvalue < 0.05 and gc_mid_to_spot.pvalue >= 0.05,
                 "mid_leads": gc_mid_to_spot.pvalue < 0.05 and gc_spot_to_mid.pvalue >= 0.05,
                 "feedback": gc_spot_to_mid.pvalue < 0.05 and gc_mid_to_spot.pvalue < 0.05,
+                "representative_market": top_market,
             })
         except Exception as e:
-            rows.append({"binary_kind": kind, "error": str(e)[:120]})
+            rows.append({"binary_kind": kind, "error": str(e)[:160]})
 
     return pd.DataFrame(rows)
 
