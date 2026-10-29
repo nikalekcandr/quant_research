@@ -49,3 +49,15 @@ whole contracts only; a haircut per contract models slippage / edge decay. Sep�
 Without compounding ($10 collateral per trade): W03 +$186 on 427 trades, W04 +$189 on 980 trades (Sep–Oct).
 The edge is 2–4% of collateral per trade; ten to twenty trades a day compound it. One cent of slippage per contract
 halves the result, two cents remove W04's edge.
+
+## Improvements tested for W05/W06 (`results/studies/wings_improve.csv`), one strike per hour, taker
+| Window | Fair value | Hours | Jul–Aug ¢ (t) | Sep–Oct ¢ (t) |
+|---|---|---|---|---|
+| 10–20¢, 5–15 min | EWMA (W03) | all | +1.6 (0.7) | +3.6 (2.5) |
+| 10–20¢, 5–15 min | EWMA | no US open (13–15 UTC) | +4.2 (1.8) | +5.2 (3.4) |
+| 10–20¢, 5–15 min | **EWMA·GBM blend** | **no US open** | +8.3 (4.4) | **+4.6 (2.9)** |
+| 10–20¢, 5–15 min | blend | calm vol only | +11.3 (6.9) | +3.2 (1.5) — overfit |
+| 6–10¢, 15–30 min | EWMA (W04 uses t4) | all | +0.7 (0.6) | +1.5 (1.7) |
+| 6–10¢, 15–30 min | **EWMA·GBM blend** | **no US open** | +2.7 (2.1) | **+3.5 (4.5)** |
+Excluding the US-open hours helps in every window and half; the blended variance helps the 6–10¢ window most; a
+calm-volatility filter looks great in sample and does not hold. W05/W06 = blend + no US open + maker-first.

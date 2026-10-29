@@ -85,6 +85,7 @@ RETIRED = {
     "D19": "no signal in 30 h",
     "D20": "−0.09% per trade; Binance flow reverses by 0.1 bp — far below fees",
     "V06": "−12.3¢ per trade on 7 trades; stale quotes are caught within 15 s",
+    "W02": "4 months of Kalshi ladder candles: −$23.5 per contract on 5 707 trades (−0.41¢, t −0.9); live +30/30 was October",
 }
 
 
@@ -979,6 +980,21 @@ def w03(ctx):
      frozen="2026-10-29 20:00")
 def w04(ctx):
     return _wings_opt(ctx, "W04", 0.06, 0.10, 15, 30, "t4", 0.0)
+
+
+@hyp("W05", "W", "Wings 10–20¢ — blended fair value, no US open, maker first", "Kalshi hourly ladder, 5–15 min left, "
+     "hours not settling 13–15 UTC: best strike by edge vs a fair value with variance = sqrt(lab EWMA × gbm_long); "
+     "offer the cheap side at its ask (paper post-only, queue-aware fills from the tape); at 7 min left take the bid "
+     "if the edge is still ≥ 1¢; one per hour", "Sep–Oct test of the same filters: +4.6¢ per hour, t 2.9 "
+     "(taker); run by lab/wings.py", frozen="2026-10-29 22:00")
+def w05(ctx):
+    return []
+
+
+@hyp("W06", "W", "Wings 6–10¢ — blended fair value, no US open, maker first", "as W05 with cheap bids 6–10¢, 15–30 min "
+     "left, edge ≥ 0, fallback at 17 min", "Sep–Oct test: +3.5¢ per hour, t 4.5 (taker)", frozen="2026-10-29 22:00")
+def w06(ctx):
+    return []
 
 
 # ================================================================== O: options (latest 10-minute snapshots)
