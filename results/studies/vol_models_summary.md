@@ -42,3 +42,19 @@ price per ladder (positive = worse than the market):
 
 Strike probabilities depend first on where spot is relative to the strike and only second on the variance; the
 book sees BRTI and the order flow in real time. A 2–3% better variance forecast does not beat the price.
+
+## 4. Ladder vs Deribit: why the ladder wins at one hour, and is it tradeable?
+Annualised vol by hour of the day (UTC), Kalshi hourly window, Dec 2025 – Oct 2026 (6 115 hours):
+
+| Hour UTC | 0–2 | 4–11 | 13–15 (US open) | 16–19 |
+|---|---|---|---|---|
+| Deribit IV mapped to the hour | 42.5 | 42.6 | 42.6 | 42.6 |
+| Kalshi ladder | 33 | 29–30 | 45–52 | 37–44 |
+| Realised | 35–40 | 30–34 | 51–59 | 36–45 |
+
+The Deribit forecast is flat across the day (a daily option's IV spread evenly over its life); the ladder knows the
+intraday seasonality. That is a limit of mapping daily IV to an hour, not a mispricing of Deribit options.
+At 24 hours (Polymarket ladder vs Deribit, 353 days) the two agree (40.4 vs 40.8%, spread sd 3.2 vol points),
+realised vol lands halfway between them when they differ (slope 0.53), and selling variance loses −3 vol points per
+day (t −3): no relative-value or variance-premium trade. The possible trade is intraday gamma timing (long
+delta-hedged daily straddles into the US open, short into the Asian night); it needs intraday option prices to test.
