@@ -227,17 +227,60 @@ def write(lab_obj, now):
     except Exception:
         hb = {}
     figs = charts(led)
+    # --- Portfolio / Risk panel (src/portfolio.py + src/risk.py) ---
+    try:
+        from src.portfolio import Portfolio
+        from src.risk import risk_summary, drawdown_stats
+        pf = Portfolio(ledger=led)
+        pf_note = pf.portfolio_stats()
+        pf_tbl = pf.summary()
+        rs_tbl = risk_summary(led)
+        # Build a daily series for drawdown_stats
+        done_dd = led[led["event"].isin(["CLOSE", "INSTANT"])].copy()
+        done_dd["pnl"] = pd.to_numeric(done_dd["pnl"], errors="coerce")
+        done_dd["day"] = pd.to_datetime(done_dd["ts"], utc=True).dt.floor("D")
+        daily = done_dd.groupby("day")["pnl"].sum().sort_index()
+        if len(daily) >= 2:
+            full = pd.date_range(daily.index.min(), daily.index.max(), freq="D")
+            daily = daily.reindex(full, fill_value=0.0)
+            dd_info = drawdown_stats(daily.cumsum())
+        else:
+            dd_info = {}
+        # Log a one-liner to heartbeat (visible even when report.html not checked)
+        try:
+            from lab.core import log as _log
+            _log(f"risk: DD {pf_note.get('drawdown',0):.1%} vol {pf_note.get('realised_vol_ann',0):.1%} "
+                 f"vs target {pf_note.get('target_vol',0):.0%} vol_scale {pf_note.get('vol_scale',1):.2f} dd_scale {pf_note.get('dd_scale',1):.2f}")
+        except Exception:
+            pass
+    except Exception as _e:
+        pf_note, pf_tbl, rs_tbl, dd_info = {}, pd.DataFrame(), pd.DataFrame(), {}
+
     show = lb[["family", "hypothesis", "unit", "trades", "clusters", "open", "mean net", "t", "Holm p", "hit rate", "total net",
                "mean gross", "DSR", "verdict"]]
     up = (now - lab_obj.started).total_seconds() / 3600
     n_closed = int(led["event"].isin(["CLOSE", "INSTANT"]).sum())
     head = (f"Updated {now:%Y-%m-%d %H:%M} UTC · lab running {up:.1f} h · rules frozen {FROZEN} (version {lab_obj.book.code}) · "
             f"{n_closed} settled trades, {len(lab_obj.book.pos)} open · last loop {hb.get('loop_seconds', '—')} s")
+    # Portfolio tables for markdown
+    if pf_tbl is not None and len(pf_tbl):
+        pf_line = (f"Target vol {pf_note.get('target_vol',0):.0%} · realised vol {pf_note.get('realised_vol_ann',0):.1%} "
+                   f"→ vol_scale {pf_note.get('vol_scale',1):.2f} · current DD {pf_note.get('drawdown',0):.1%} → dd_scale {pf_note.get('dd_scale',1):.2f} "
+                   f"· maxDD {dd_info.get('max_drawdown',0):.2%} ({dd_info.get('max_dd_days',0)}d) · Calmar {dd_info.get('calmar',0):.2f}")
+        pf_md = md(pf_tbl[["hyp", "n", "mean", "var", "hit", "sharpe", "kelly"]].round(4))
+        rs_md = md(rs_tbl) if len(rs_tbl) else "_(nothing yet)_\n"
+    else:
+        pf_line = "Portfolio stats: not enough history yet."
+        pf_md = "_(nothing yet)_\n"
+        rs_md = "_(nothing yet)_\n" if rs_tbl is None or rs_tbl.empty else md(rs_tbl)
+
     L = ["# Alpha lab — live paper trading\n", f"_{head}_\n",
          "Every rule was written down before its first live trade. Entry and exit at the real bid/ask, real fees, "
          "binaries held to the venue's own settlement. Holm controls the family-wise error over all hypotheses with "
          "≥ 10 trades; DSR is the probability that the per-trade Sharpe beats the best of as many zero-skill rules.\n",
          "## Leaderboard\n", md(show), "\n## Families\n", md(fam),
+         "## Portfolio sizing (Kelly / vol / drawdown)\n", pf_line + "\n\n", pf_md,
+         "\n## Risk by family (VaR/ES per trade, net)\n", rs_md,
          "\n## Model vs market: who forecasts short-dated binaries better?\n",
          "Brier score (lower is better) of our fair value and of the market mid over every quoted minute, averaged per "
          "market; t > 2 means our model is significantly better calibrated than the market.\n", md(cal),

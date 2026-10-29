@@ -68,16 +68,20 @@ def _ann_vol(returns: pd.Series, window: int = VOL_WINDOW_DAYS) -> float:
 
 
 def _max_drawdown(cum: pd.Series) -> float:
-    """Current drawdown as fraction (0 = no DD, 0.15 = 15% off the peak)."""
+    """Current drawdown as fraction of peak notional (0 = no DD, 0.15 = 15%)."""
     if len(cum) < 2:
         return 0.0
-    peak = cum.cummax()
-    dd = (peak - cum) / (1 + cum) if cum.iloc[-1] > -0.99 else peak - cum
-    # Simple: (peak - current) / (1 + peak) for log-returns, or price ratio for levels
-    # Our ledger is in return units, so cum is cumulative log return
-    cur_dd = float((peak.iloc[-1] - cum.iloc[-1]))
-    # Convert log DD to arithmetic: 1 - exp(-log_dd)
-    return max(0.0, 1 - math.exp(-cur_dd)) if cur_dd > 0 else 0.0
+    s = pd.Series(cum).dropna().sort_index()
+    if len(s) < 2:
+        return 0.0
+    peak = s.cummax()
+    # cum is cumulative log-return (or additive P&L in return units) — DD in log terms
+    cur_dd_log = float(peak.iloc[-1] - s.iloc[-1])
+    if cur_dd_log <= 0:
+        return 0.0
+    # Convert log-DD to arithmetic drawdown: 1 - exp(-logDD)
+    # Cap at 99% to avoid overflow on huge DDs
+    return float(1 - math.exp(-min(cur_dd_log, 5.0)))
 
 
 def _kelly_fraction(
@@ -283,12 +287,17 @@ class Portfolio:
 
 # ------------------------------------------------------------------ CLI backtest
 def _load_ledger(path: str) -> pd.DataFrame:
-    import lab.core as core
-
+    # lab.core imports requests (absent in some CI envs) — fall back gracefully
     try:
+        import lab.core as core  # type: ignore
+
         return core.read_ledger()
     except Exception:
+        pass
+    try:
         return pd.read_csv(path, parse_dates=["ts"])
+    except FileNotFoundError:
+        return pd.DataFrame()
 
 
 def main(argv=None):

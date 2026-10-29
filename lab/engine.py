@@ -24,6 +24,11 @@ from lab.history import Minutes
 from lab.ml import ML
 from lab.volzoo import VolZoo
 
+try:
+    from src.portfolio import Portfolio  # optional — absent in minimal CI, fall back to 1× sizing
+except Exception:  # pragma: no cover
+    Portfolio = None  # type: ignore
+
 RESOLUTIONS = LAB / "resolutions.json"
 MARKETS_FAST = LAB / "markets_fast"
 
@@ -101,6 +106,20 @@ class Lab:
             self.res = json.loads(RESOLUTIONS.read_text(encoding="utf-8"))
         except Exception:
             self.res = {}
+        # Portfolio sizing (Kelly/vol/DD/corr/gross — src/portfolio.py)
+        self.portfolio = None
+        self._portfolio_mtime = 0.0
+        if Portfolio is not None:
+            try:
+                from lab.core import read_ledger
+                led = read_ledger()
+                self.portfolio = Portfolio(ledger=led)
+                ps = self.portfolio.portfolio_stats()
+                self._portfolio_mtime = time.time()
+                log(f"portfolio: loaded {len(led)} ledger rows, vol={ps.get('realised_vol_ann',0):.1%} "
+                    f"vol_scale={ps.get('vol_scale',1):.2f} dd_scale={ps.get('dd_scale',1):.2f}")
+            except Exception as e:
+                log(f"portfolio: init failed ({e}) — running at 1x")
         log(f"lab: started, {len(self.book.pos)} open positions, rules version {self.book.code}, "
             f"minutes until {self.minutes.df.index[-1] if len(self.minutes.df) else 'none'}")
 
@@ -118,6 +137,43 @@ class Lab:
         t = pd.concat(parts, ignore_index=True)
         t["ts"] = pd.to_datetime(t["ts"], utc=True)
         return t
+
+    def _refresh_portfolio(self):
+        """Reload ledger into Portfolio every 60 min (captures newly settled trades)."""
+        if self.portfolio is None or time.time() - self._portfolio_mtime < 3600:
+            return
+        try:
+            from lab.core import read_ledger
+            led = read_ledger()
+            self.portfolio.ingest_ledger(led)
+            self._portfolio_mtime = time.time()
+            ps = self.portfolio.portfolio_stats()
+            log(f"portfolio: refreshed DD={ps.get('drawdown',0):.1%} vol_scale={ps.get('vol_scale',1):.2f} dd_scale={ps.get('dd_scale',1):.2f}")
+        except Exception as e:
+            log(f"portfolio refresh failed: {e}")
+
+    def _scale_orders(self, orders: list, ctx) -> list:
+        """Apply Portfolio sizing: annotates orders with .size multiplier and filters 0-sized."""
+        if not orders or self.portfolio is None:
+            return orders
+        try:
+            sized = self.portfolio.scale(orders, ctx)
+            out = []
+            for o, sz in sized:
+                if sz.final <= 1e-9:
+                    continue  # DD freeze or zero Kelly
+                # Persist sizing on order for ledger/audit (Book.submit stores o.info)
+                o.info = {**(o.info or {}), "portfolio_size": sz.final, "portfolio_reason": sz.reason}
+                # Keep original Order but annotate; Book sizes 1 unit, engine sizes notional via size field
+                # For perps, amount scales; for binaries, contracts scale — handled downstream
+                o.size = sz.final  # dynamic attribute, Book ignores but report can read
+                out.append(o)
+            if len(out) != len(orders):
+                log(f"portfolio: filtered {len(orders)-len(out)} orders (size=0), DD={self.portfolio.dd_scale():.2f}")
+            return out
+        except Exception as e:
+            log(f"portfolio scale failed ({e}) — passing through unscaled")
+            return orders
 
     # ============================================================== the minute
     def minute(self, now):
@@ -160,19 +216,29 @@ class Lab:
                 except Exception:
                     self.errors.append(f"{now:%H:%M} {step.__name__}")
                     log_exc(step.__name__)
-            n_new = 0
+            self._refresh_portfolio()
+            # Gather all candidate orders, apply portfolio sizing in one pass (corr across hyps)
+            candidates: list = []
+            fam_by_order: dict[int, str] = {}
             for h in signals.REGISTRY:
                 if h.loop != "minute":
                     continue
                 try:
                     for o in h.fn(ctx) or []:
-                        if self.book.submit(o, now, h.family):
-                            n_new += 1
-                            log(f"OPEN {o.hyp} {o.side} {o.instrument} @ {o.price:.4f}" +
-                                (f" edge {o.edge:.4f}" if o.edge is not None else ""))
+                        fam_by_order[id(o)] = h.family
+                        candidates.append(o)
                 except Exception:
                     self.errors.append(f"{now:%H:%M} {h.id}")
                     log_exc(f"rule {h.id}")
+            candidates = self._scale_orders(candidates, ctx)
+            n_new = 0
+            for o in candidates:
+                if self.book.submit(o, now, fam_by_order.get(id(o), "U")):
+                    n_new += 1
+                    sz = getattr(o, "size", 1.0)
+                    extra = f" size {sz:.2f}x" if abs(sz - 1.0) > 0.02 else ""
+                    log(f"OPEN {o.hyp} {o.side} {o.instrument} @ {o.price:.4f}" +
+                        (f" edge {o.edge:.4f}" if o.edge is not None else "") + extra)
             try:
                 self.maker.step(ctx, self)
             except Exception:
@@ -315,17 +381,25 @@ class Lab:
         m["spot_bn"], m["spot_usd"] = r["bn"], usd
         append_rows(day_file(MARKETS_FAST, now), m.to_dict("records"))
         with self.lock:
+            cands: list = []
+            fam_by: dict[int, str] = {}
             for h in signals.REGISTRY:
                 if h.loop != "fast":
                     continue
                 try:
                     for o in h.fn(ctx) or []:
-                        if self.book.submit(o, now, h.family):
-                            log(f"OPEN {o.hyp} {o.side} {o.instrument} @ {o.price:.4f}" +
-                                (f" edge {o.edge:.4f}" if o.edge is not None else ""))
+                        fam_by[id(o)] = h.family
+                        cands.append(o)
                 except Exception:
                     self.errors.append(f"{now:%H:%M:%S} {h.id}")
                     log_exc(f"rule {h.id}")
+            cands = self._scale_orders(cands, ctx)
+            for o in cands:
+                if self.book.submit(o, now, fam_by.get(id(o), "V")):
+                    sz = getattr(o, "size", 1.0)
+                    extra = f" size {sz:.2f}x" if abs(sz - 1.0) > 0.02 else ""
+                    log(f"OPEN {o.hyp} {o.side} {o.instrument} @ {o.price:.4f}" +
+                        (f" edge {o.edge:.4f}" if o.edge is not None else "") + extra)
             self.book.save()
         mids = {row["market"]: (row["bid"] + row["ask"]) / 2 for _, row in m.iterrows()
                 if np.isfinite(row["bid"]) and np.isfinite(row["ask"])}
@@ -352,7 +426,10 @@ class Lab:
             side = "long" if d > 0 else "short"
             o = Order(hyp="D09", kind="fastperp", venue="binance", instrument="BTCUSDT", side=side, price=b["bn"],
                       fee=PERP_FEE, hold_min=1, unit="return", key=f"D09|{now.floor('s')}", info={"gap": d})
-            self.book.submit(o, now, "D")
+            # Portfolio sizing on the fastperp as well (DD brake can mute D09 in drawdown)
+            o_list = self._scale_orders([o], None)
+            if o_list and self.book.submit(o_list[0], now, "D"):
+                log(f"OPEN D09 {side} gap {d*1e4:.1f}bp size {getattr(o_list[0],'size',1):.2f}x")
             self.book.save()
 
     # ============================================================== hourly and reports
