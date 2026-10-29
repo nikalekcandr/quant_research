@@ -22,3 +22,14 @@ read on Sep–Oct.
   rules do; mean test result of all rules −0.24¢, of the top ten +1.6¢. The selection carries information, but one
   rule at t 2.5 out of 435 would not survive Holm. W03 and W04 are frozen for a live test (one trade per hour,
   ≈ 10–20 trades a day): a verdict needs about a month.
+
+## P&L of the three live wing rules on the whole history (1 contract per trade, Kalshi fees included)
+
+| Rule | Trades | Total | Per trade | t (hours) | Hit | Worst hour | Max drawdown | Jul / Aug / Sep / Oct |
+|---|---|---|---|---|---|---|---|---|
+| W02 (2–6¢, ≥ 15 min, edge ≥ 1¢, all strikes) | 5 707 | −$23.5 | −0.41¢ | −0.9 | 96% | −$11.1 | −$35.7 | −4.7 / −10.9 / −18.8 / +10.9 |
+| W03 (10–20¢, 5–15 min, edge ≥ 1¢, 1/hour) | 645 | +$20.4 | +3.17¢ | 2.6 | 89% | −$0.91 | −$4.7 | +0.7 / +4.1 / +9.6 / +6.0 |
+| W04 (6–10¢, 15–30 min, t4, 1/hour) | 1 665 | +$25.6 | +1.54¢ | 2.7 | 94% | −$0.95 | −$6.9 | +8.9 / −0.6 / +9.8 / +7.5 |
+
+W03 and W04 were chosen on Jul–Aug: only Sep–Oct is out of sample (W03 +$15.6 on 427 trades, W04 +$17.4 on 980).
+Equity curves: `wings_equity.csv`.
