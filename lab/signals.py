@@ -904,8 +904,28 @@ def _options_snapshot(ctx):
     # an option is worth at least its intrinsic value: a bid far below it is a stale or broken quote
     intr = np.where(o["cp"] == "C", o["F"] - o["strike"], o["strike"] - o["F"]).clip(min=0)
     o = o[o["ask"] >= 0.9 * intr]
+    # option quotes are a snapshot taken minutes ago, the perpetual and spot are live: if BTC moved more than 5 bp
+    # since a venue's snapshot, every parity / straddle comparison on it is a timing artifact (29.10 13:33 UTC:
+    # a $200 drop between the 13:30 snapshot and 13:33 made 129 fake parity "arbitrages" worth $6 139).
+    o = o[_snapshot_fresh(ctx, o)]
     ctx.cache["opt"] = (ctx.opt_stamp(), o)
     return o
+
+
+MAX_SNAPSHOT_MOVE = 5e-4
+
+
+def _snapshot_fresh(ctx, o):
+    t = ctx.ticks
+    now_px = (ctx.tick or {}).get("bn_mid")
+    if t is None or len(t) == 0 or "bn_mid" not in t or not now_px:
+        return pd.Series(False, index=o.index)
+    s = t.set_index("ts")["bn_mid"].sort_index()
+    ok = {}
+    for st in o["snap_ts"].unique():
+        past = s[:pd.Timestamp(st) + pd.Timedelta(seconds=30)]
+        ok[st] = bool(len(past)) and abs(math.log(now_px / past.iloc[-1])) <= MAX_SNAPSHOT_MOVE
+    return o["snap_ts"].map(ok).astype(bool)
 
 
 # Settlement index: Deribit and OKX settle on a BTC-USD index, Binance and Bybit on a BTC-USDT index. Across the

@@ -54,10 +54,16 @@ VOID = {"O01": {"960e7aaff561", "1af1b0747705"}, "O02": {"960e7aaff561", "1af1b0
 KALSHI_LISTING_VERSIONS = {"960e7aaff561", "1af1b0747705", "a407e66e6bc5", "44e7f70ebc1e", "81270e2e4c26"}
 
 
+# option rules compared minutes-old option snapshots with the live perpetual until this fix
+VOID_BEFORE = {h: pd.Timestamp("2026-10-29 14:00", tz="UTC") for h in ("O01", "O02", "O03", "O04")}
+
+
 def void_mask(led: pd.DataFrame) -> pd.Series:
     by_rule = pd.Series([str(c) in VOID.get(h, ()) for h, c in zip(led["hyp"], led["code"])], index=led.index, dtype=bool)
     kalshi = led["venue"].astype(str).str.contains("kalshi") & led["code"].astype(str).isin(KALSHI_LISTING_VERSIONS)
-    return by_rule | kalshi
+    ts = pd.to_datetime(led["ts"], utc=True, format="mixed")
+    before = pd.Series([h in VOID_BEFORE and t < VOID_BEFORE[h] for h, t in zip(led["hyp"], ts)], index=led.index, dtype=bool)
+    return by_rule | kalshi | before
 
 
 def leaderboard(led: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
