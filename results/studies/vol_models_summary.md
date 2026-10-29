@@ -28,3 +28,17 @@ ladder). DM < 0 = better than the reference.
 Over nine months the long-history GBM is as good as the ladder on its own, and averaging it with the ladder is
 the best forecast (−2.4% CRPS vs the ladder, t −5.3). On the last two weeks (342 hours) `harx_all` is best and
 the combinations are within noise.
+
+## 3. Does the better variance forecast give better strike probabilities? No.
+Brier per strike of the Kalshi hourly ladder (`src/evaluate.py: ladder_eval`, same snapshots), DM vs the market
+price per ladder (positive = worse than the market):
+
+| Source | Brier 15.01–12.10 (38 051 strikes, 5 744 ladders) | DM | Brier 13–28.10 (2 366 / 342) | DM |
+|---|---|---|---|---|
+| **Market price** | **0.10254** | — | **0.09158** | — |
+| GBM + ladder centre | 0.10263 | +0.8 | 0.09223 | +1.7 |
+| `harx_all` | 0.10272 | +1.4 | 0.09197 | +0.8 |
+| GBM alone | 0.10276 | +1.8 | 0.09280 | +2.8 |
+
+Strike probabilities depend first on where spot is relative to the strike and only second on the variance; the
+book sees BRTI and the order flow in real time. A 2–3% better variance forecast does not beat the price.
