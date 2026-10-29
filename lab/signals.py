@@ -728,6 +728,83 @@ def a12f(ctx):
     return _a12(ctx, "A12F")
 
 
+# ================================================================== V07: the 60-second settlement average (frozen 29.10 16:40 MSK)
+PROXY_SD = 4e-4          # BRTI vs our USD proxy, basis anchored 15 min earlier: drift + noise, log units
+
+
+def _avg_fair(ctx, r, samples):
+    """P(60-s average of BRTI before the close > strike), with the part of the window already printed.
+    Level: our USD proxy shifted by this market's own basis (strike = BRTI at the start vs proxy at the start)."""
+    end, start = pd.Timestamp(r["end"]), pd.Timestamp(r["end"]) - pd.Timedelta(minutes=15)
+    K = r["strike"]
+    if not (np.isfinite(K) and K > 0) or not samples:
+        return None
+    ts = np.array([t.value for t, _ in samples])
+    px = np.array([v for _, v in samples])
+    i0 = np.argmin(np.abs(ts - start.value))
+    if abs(ts[i0] - start.value) > 20e9:              # no proxy sample within 20 s of the window start
+        return None
+    b = math.log(K / px[i0])
+    S = px[-1] * math.exp(b)
+    w0 = end - pd.Timedelta(seconds=60)
+    left = (end - ctx.now).total_seconds()
+    if left <= 0:
+        return None
+    if left > 60:                                     # averaging not started: drift to w0, then a full average
+        var = ctx.minutes.forecast_var(ctx.now, w0) + ctx.minutes.forecast_var(w0, end) / 3
+        mean = S
+    else:
+        inw = ts >= w0.value
+        known = float(np.mean(px[inw] * math.exp(b))) if inw.any() else S
+        r_ = left / 60
+        mean = (1 - r_) * known + r_ * S
+        var = r_ ** 2 * ctx.minutes.forecast_var(ctx.now, end) / 3
+    if not np.isfinite(var) or var <= 0:
+        return None
+    return float(stats.norm.cdf(math.log(mean / K) / math.sqrt(var + PROXY_SD ** 2)))
+
+
+@hyp("V07", "V", "Kalshi 15-min: the settlement average already printed", "Kalshi settles on the average of the last "
+     "60 s of BRTI; in the last 75 s part of that average is known. Fair = P(average > strike) with the printed part, "
+     "the rest as a Brownian average, level = our USD proxy shifted by the market's own start basis; take the book "
+     "when edge ≥ 3¢ after fee, ≥ 10 s left", "does the 15-minute book price the averaging window?", loop="fast",
+     frozen="2026-10-29 16:40")
+def v07(ctx):
+    m = ctx.markets
+    usd = (ctx.tick or {}).get("usd_mid")
+    sam = ctx.cache.setdefault("v07_proxy", [])
+    if usd is not None and np.isfinite(usd):
+        sam.append((ctx.now, float(usd)))
+    cut = ctx.now - pd.Timedelta(minutes=20)
+    while sam and sam[0][0] < cut:
+        sam.pop(0)
+    if m is None or m.empty:
+        return []
+    out = []
+    for _, r in m[m["kind"] == "kx_15m"].iterrows():
+        left = (pd.Timestamp(r["end"]) - ctx.now).total_seconds()
+        if not (10 <= left <= 75):
+            continue
+        bid, ask = r["bid"], r["ask"]
+        if not (np.isfinite(bid) and np.isfinite(ask)):
+            continue
+        p = _avg_fair(ctx, r, sam)
+        if p is None:
+            continue
+        leg = {"venue": "kalshi", "kind": r["kind"], "market": r["market"], "event": r["event"]}
+        e_yes, no_px = p - ask - kalshi_fee(ask), 1 - bid
+        e_no = (1 - p) - no_px - kalshi_fee(no_px)
+        for side, px, e, fair in (("yes", ask, e_yes, p), ("no", no_px, e_no, 1 - p)):
+            if e >= MARGIN and 0.02 <= px <= 0.98:
+                out.append(Order(hyp="V07", kind="binary", venue="kalshi", instrument=r["market"], side=side, price=px,
+                                 fee=kalshi_fee(px), fair=fair, edge=e, settle_ts=str(r["end"]), unit="$/contract",
+                                 key=f"V07|{r['market']}|{side}",
+                                 info={"legs": [{**leg, "side": side, "price": px, "fee": kalshi_fee(px)}],
+                                       "mid": (bid + ask) / 2, "left_min": round(left / 60, 2),
+                                       "size": r.get("ask_size") if side == "yes" else r.get("bid_size")}))
+    return out
+
+
 # ================================================================== W: selling the cheap wings (frozen 29.10 14:45 MSK)
 def _wings(ctx, hid, model_filter):
     m = ctx.markets

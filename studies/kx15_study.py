@@ -22,10 +22,12 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm, t as student_t
 
-RAW = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("data/raw")
-OUT = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("results/studies")
+_ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+RAW = Path(_ARGS[0]) if len(_ARGS) > 0 else Path("data/raw")
+OUT = Path(_ARGS[1]) if len(_ARGS) > 1 else Path("results/studies")
 TAUS = (14, 12, 10, 8, 6, 4, 2, 1)       # minutes left at the decision point
 MAX_SPREAD = 0.05
+SPOT_BINANCE = "--binance" in sys.argv
 
 
 def kalshi_fee(p):
@@ -39,8 +41,14 @@ def load():
     mk["y"] = (mk["result"] == "yes").astype(float)
     c = pd.concat([pd.read_csv(f) for f in sorted((RAW / "kx15" / "candles").glob("*.csv")) if f.stat().st_size > 10])
     c["ts"] = pd.to_datetime(c["end_ts"], unit="s", utc=True)
-    cb = pd.concat([pd.read_csv(f) for f in sorted((RAW / "coinbase_1m").glob("*.csv"))])
-    cb["ts"] = pd.to_datetime(cb["t"], unit="s", utc=True) + pd.Timedelta(minutes=1)    # close time of the candle
+    cbf = sorted((RAW / "coinbase_1m").glob("*.csv"))
+    if cbf and not SPOT_BINANCE:
+        cb = pd.concat([pd.read_csv(f) for f in cbf])
+        cb["ts"] = pd.to_datetime(cb["t"], unit="s", utc=True) + pd.Timedelta(minutes=1)    # close time of the candle
+    else:                     # Binance BTC/USDT minutes (the USDT/USD and venue basis is estimated from the strikes)
+        cb = pd.read_parquet(RAW.parent / "interim" / "minutes.parquet", columns=["open_time", "close"])
+        cb["ts"] = pd.to_datetime(cb["open_time"], utc=True) + pd.Timedelta(minutes=1)
+        cb = cb[cb["ts"] >= mk["open_time"].min() - pd.Timedelta(days=40)]
     cb = cb.drop_duplicates("ts").set_index("ts").sort_index()
     return mk, c, cb
 
@@ -97,6 +105,14 @@ def build(mk, c, cb):
         c[name + "_t4"] = student_t.cdf(x / np.sqrt(c["var"] / 2), 4)      # t4 with the same variance
     c["mid"] = (c["bid"] + c["ask"]) / 2
     c["spread"] = c["ask"] - c["bid"]
+    # what moved in the last minute: spot return and the market's own mid change (same market, previous candle)
+    c["ret1"] = np.log(c["S"] / c["S_lag1"])
+    c["ret1_z"] = c["ret1"] / np.sqrt(c["lvl"] * c["sea"])
+    c = c.sort_values(["ticker", "ts"])
+    c["mid_prev"] = c.groupby("ticker")["mid"].shift(1)
+    c.loc[c.groupby("ticker")["tau"].shift(1) != c["tau"] + 2, "mid_prev"] = np.nan      # TAUS are 2 min apart
+    c["hour_et"] = c["ts"].dt.tz_convert("America/New_York").dt.hour
+    c["weekend"] = c["ts"].dt.tz_convert("America/New_York").dt.dayofweek >= 5
     ok = c["bid"].gt(0) & c["ask"].lt(1) & c["spread"].le(MAX_SPREAD) & c["model"].notna()
     return c[ok].copy(), st
 
@@ -166,6 +182,73 @@ def calibration(d, col="mid"):
     return g.reset_index()
 
 
+def calib_tau(d):
+    """Favourite–longshot by time left: outcome frequency vs price, and the taker P&L of buying the cheap and the
+    dear side in each bucket (one observation per market and decision point)."""
+    rows = []
+    bins = [0, 0.05, 0.10, 0.20, 0.35, 0.50, 0.65, 0.80, 0.90, 0.95, 1.0]
+    for tau, g in d.groupby("tau"):
+        b = pd.cut(g["mid"], bins)
+        for k, h in g.groupby(b, observed=True):
+            if len(h) < 30:
+                continue
+            buy_yes = h["y"] - h["ask"] - kalshi_fee(h["ask"])
+            buy_no = (1 - h["y"]) - (1 - h["bid"]) - kalshi_fee(1 - h["bid"])
+            se = math.sqrt(h["y"].mean() * (1 - h["y"].mean()) / len(h)) or np.nan
+            rows.append({"tau": tau, "bucket": str(k), "n": len(h), "mid": h["mid"].mean(), "outcome": h["y"].mean(),
+                         "gap, pp": 100 * (h["y"].mean() - h["mid"].mean()), "t gap": (h["y"].mean() - h["mid"].mean()) / se,
+                         "buy YES, ¢": 100 * buy_yes.mean(), "t YES": buy_yes.mean() / (buy_yes.std() / math.sqrt(len(h))),
+                         "buy NO, ¢": 100 * buy_no.mean(), "t NO": buy_no.mean() / (buy_no.std() / math.sqrt(len(h)))})
+    return pd.DataFrame(rows)
+
+
+def underreaction(d, split):
+    """Does information that is already public at the decision minute predict the outcome beyond the market mid?
+    logit P(y) = a + b·logit(mid) + c·(last-minute spot return, in sd) + e·(last-2-minute change of the mid) + f·(model − mid).
+    Fitted per time-left group on the first half; the second half is scored."""
+    import statsmodels.api as sm
+    lg = lambda p: np.log(clip(p) / (1 - clip(p)))
+    out = []
+    for grp, g in (("tau ≥ 8", d[d["tau"] >= 8]), ("tau 2–6", d[d["tau"].between(2, 6)]), ("tau 1", d[d["tau"] == 1])):
+        g = g.dropna(subset=["ret1_z", "mid_prev"]) if grp != "tau 1" else g.dropna(subset=["ret1_z"])
+        X = pd.DataFrame({"const": 1.0, "logit_mid": lg(g["mid"]), "ret1_z": g["ret1_z"].clip(-6, 6),
+                          "model_minus_mid": g["model"] - g["mid"]})
+        if grp != "tau 1":
+            X["dmid_2m"] = g["mid"] - g["mid_prev"]
+        tr = g["ts"] < split
+        try:
+            res = sm.GLM(g.loc[tr, "y"], X[tr], family=sm.families.Binomial()).fit(
+                cov_type="cluster", cov_kwds={"groups": g.loc[tr, "ticker"].astype("category").cat.codes})
+        except Exception as e:
+            out.append({"group": grp, "error": str(e)[:80]})
+            continue
+        p = res.predict(X[~tr])
+        te = g[~tr]
+        b_m = ((te["mid"] - te["y"]) ** 2).mean()
+        b_c = ((p - te["y"]) ** 2).mean()
+        diff = ((te["mid"] - te["y"]) ** 2 - (p - te["y"]) ** 2).groupby(te["ticker"]).mean()
+        rec = {"group": grp, "n train": int(tr.sum()), "n test": int((~tr).sum()), "Brier mid (test)": b_m,
+               "Brier fitted (test)": b_c, "t gain (test)": diff.mean() / (diff.std() / math.sqrt(len(diff)))}
+        for k in res.params.index:
+            rec[f"b {k}"] = res.params[k]
+            rec[f"t {k}"] = res.tvalues[k]
+        out.append(rec)
+    return pd.DataFrame(out)
+
+
+def segments(d):
+    """Brier gain of the model over the market by hour (ET), weekend and spread."""
+    rows = []
+    for name, key in (("weekend", d["weekend"]), ("hour ET", d["hour_et"] // 4 * 4),
+                      ("spread ¢", (100 * d["spread"]).round().clip(upper=5))):
+        for k, g in d.groupby(key):
+            per = ((g["mid"] - g["y"]) ** 2 - (g["model"] - g["y"]) ** 2).groupby(g["ticker"]).mean()
+            if len(per) >= 50:
+                rows.append({"cut": name, "value": k, "markets": len(per), "Brier gain model vs mid": per.mean(),
+                             "t": per.mean() / (per.std() / math.sqrt(len(per)))})
+    return pd.DataFrame(rows)
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     mk, c, cb = load()
@@ -190,6 +273,9 @@ def main():
     tabs["calibration_market"] = calibration(d, "mid")
     tabs["calibration_model"] = calibration(d, "model")
     tabs["trading"] = trading(d, split)
+    tabs["calibration_by_tau"] = calib_tau(d)
+    tabs["underreaction"] = underreaction(d, split)
+    tabs["segments"] = segments(d)
     for k, v in tabs.items():
         v.to_csv(OUT / f"kx15_{k}.csv", index=k.startswith("enc"))
         print(f"\n== {k}\n{v.round(4).to_string()}")
