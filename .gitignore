@@ -1,0 +1,10 @@
+# caches and environments only: code AND data are versioned in this repository
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+logs/
+_export/
+data/lab/heartbeat.json
