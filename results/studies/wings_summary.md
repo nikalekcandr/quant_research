@@ -33,3 +33,19 @@ read on Sep–Oct.
 
 W03 and W04 were chosen on Jul–Aug: only Sep–Oct is out of sample (W03 +$15.6 on 427 trades, W04 +$17.4 on 980).
 Equity curves: `wings_equity.csv`.
+
+## $100 of capital, compounding (theoretical)
+Each hour a strategy commits a share f of current equity as collateral (the side we buy costs px per contract),
+whole contracts only; a haircut per contract models slippage / edge decay. Sep–Oct is out of sample.
+
+| Strategy | f | Sep–Oct, no haircut | −1¢ | −2¢ | max drawdown |
+|---|---|---|---|---|---|
+| W03 | 5% | $222 | $177 | $143 | −19% |
+| W03 | 10% | $458 | $285 | $172 | −37% |
+| W04 | 5% | $222 | $137 | $86 | −25% |
+| W04 | 10% | $468 | $159 | $57 | −45% |
+| W03 + W04 | 5% each | $516 | $243 | $110 | −34% |
+
+Without compounding ($10 collateral per trade): W03 +$186 on 427 trades, W04 +$189 on 980 trades (Sep–Oct).
+The edge is 2–4% of collateral per trade; ten to twenty trades a day compound it. One cent of slippage per contract
+halves the result, two cents remove W04's edge.
