@@ -1,11 +1,11 @@
 # Strategy catalogue — alpha lab
 
-_29.10.2026 18:30 MSK. Live: settled trades / clusters (entry hours), mean per trade, t over clusters; voided trades excluded. Rules are frozen; a changed rule gets a new ID. Retired rules no longer run; their trades stay in the ledger._
+_29.10.2026 20:00 MSK. Live: settled trades / clusters (entry hours), mean per trade, t over clusters; voided trades excluded. Rules are frozen; a changed rule gets a new ID. Retired rules no longer run (their data feeds are switched off where nothing else needs them); their trades stay in the ledger._
 
-**Bottom line:** no rule has survived the full history after fees. The durable result of the project is forecasting (see `results/studies/vol_models_summary.md`).
+**Bottom line:** no rule has survived the full history after fees and multiple testing. The lab now runs only rules with live or historical promise.
 
 
-## Active (33)
+## Active (19)
 
 
 ### A — No-arbitrage (binaries)
@@ -13,7 +13,7 @@ _29.10.2026 18:30 MSK. Live: settled trades / clusters (entry hours), mean per t
 | ID | Strategy | Rule | Frozen | Live | History / backtest |
 |---|---|---|---|---|---|
 | A11 | Ladder monotonicity (Polymarket hourly, Kalshi hourly) | K1 < K2 and bid(K2) − ask(K1) > fees → buy YES K1, buy NO K2: pays ≥ 0 in every state | 2026-10-29 | 1 / 1 cl., 0.01349 $/pair |  |
-| A12 | Kalshi 15-min vs Polymarket 15-min | same quarter-hour window: Polymarket Up ask + Kalshi NO (1 − yes bid) + fees < 1 (or the mirror) → buy both: pays 1 unless the two references disagree | 2026-10-29 | 5 / 4 cl., 0.06878 $/pair, t 1.5 | history not measurable (20–40 s timestamp offset); simultaneous books: pair cost < $1 in 3.7% of samples, best 98.2¢ |
+| A12 | Kalshi 15-min vs Polymarket 15-min | same quarter-hour window: Polymarket Up ask + Kalshi NO (1 − yes bid) + fees < 1 (or the mirror) → buy both: pays 1 unless the two references disagree | 2026-10-29 | 5 / 4 cl., 0.06878 $/pair, t 1.5 | history not measurable (20–40 s timestamp offset); simultaneous books: pair < $1 in 3.7% of samples |
 | A12F | Kalshi 15-min vs Polymarket 15-min, every 15 s | as A12, sampled every 15 s | 2026-10-29 11:00 | 10 / 4 cl., 0.02805 $/pair, t 1.9 | see A12 |
 | A13 | Kalshi hourly ladder vs Polymarket hourly ladder | same settlement hour: Polymarket 'above K' (Binance close) vs the Kalshi strike K' = K × USDT/USD within $30 (CF BRTI average); YES on the cheap venue + NO on the dear one for < 1 − fees − 1¢ → pays 1 unless the two settlement prices land on different sides | 2026-10-29 11:00 | 4 / 1 cl., 0.01873 $/pair |  |
 
@@ -21,24 +21,9 @@ _29.10.2026 18:30 MSK. Live: settled trades / clusters (entry hours), mean per t
 
 | ID | Strategy | Rule | Frozen | Live | History / backtest |
 |---|---|---|---|---|---|
-| D01 | Hourly reversal | at HH:00 take the opposite side of the last hour's return; hold 60 min | 2026-10-29 | 14 / 14 cl., -0.00201 return, t -1.3 |  |
-| D02 | Long outside US hours | long at 16:00 ET on NYSE days, exit at the next 09:30 ET open | 2026-10-29 | — |  |
-| D03 | Short during US hours | short at 09:30 ET on NYSE days, exit at 16:00 ET | 2026-10-29 | — |  |
-| D04 | Fade extreme funding | 30 min before each Binance funding: predicted rate > 0.015% → short, < 0.005% → long; hold 8 h | 2026-10-29 | — |  |
-| D05 | Fade the perpetual premium | HH:30: z-score of the Binance premium index (last 7 days, hourly) > 2 → short, < −2 → long; hold 60 min | 2026-10-29 | 3 / 3 cl., -0.003478 return, t -2.3 |  |
-| D08 | Coinbase premium momentum | every 15 min: change over 60 min of Coinbase BTC-USD / (Binance BTC-USDT × USDT-USD) > +5 bp → long 60 min, < −5 bp → short | 2026-10-29 | — |  |
-| D09 | Coinbase → Binance lead-lag (15 s) | every 15 s: Coinbase BTC-USD moved more than Binance BTC-USDT over the last 15 s by > 3 bp → bet Binance follows for 60 s (run by the fast loop) | 2026-10-29 | 9 / 5 cl., -0.002025 return, t -2.2 |  |
-| D10 | Open interest × price | HH:01: open interest up > 1% in the last hour → follow the hour's price move; hold 60 min | 2026-10-29 | — |  |
-| D11 | Fade retail positioning | every 4 h: z-score (last 7 days, hourly) of Binance's global long/short account ratio > 1.5 → short, < −1.5 → long; hold 4 h | 2026-10-29 | — |  |
-| D12 | Implied-vol momentum | HH:02: z-score of the last hourly change of log DVOL (last 30 days) > 1 → long 60 min, < −1 → short | 2026-10-29 | — |  |
-| D13 | Gradient boosting, next hour | HH:00: gradient-boosted trees on 20 price/volume/calendar features predict the next-hour return; > +15 bp → long, < −15 bp → short; retrained every 6 h on 180 days | 2026-10-29 | — |  |
-| D14 | Ridge regression, next hour | same features and thresholds as D13, linear ridge model | 2026-10-29 | — |  |
-| D15 | Weekly time-series momentum | 00:00 UTC: sign of the last 7-day return; hold 24 h | 2026-10-29 | — |  |
-| D16 | Kalshi ladder drift | HH:06: the Kalshi hourly ladder's implied drift (median + s²/2 − log spot, in units of s) > 0.25 → long to HH+1:00, < −0.25 → short | 2026-10-29 | 10 / 10 cl., -0.001323 return, t -0.6 |  |
-| D17 | Follow the Polymarket hourly crowd | HH:05: mid of Polymarket's hourly Up/Down market > 0.60 → long to the end of the hour, < 0.40 → short | 2026-10-29 | 3 / 3 cl., -5.243e-05 return, t -0.1 |  |
-| D18 | Regime-conditioned trend | 00:05 UTC: bull trend (price > 200-day mean) and low-vol Markov state → long 24 h; bear and high-vol → short; otherwise flat | 2026-10-29 | — |  |
-| D19 | Fade liquidation cascades | every minute: forced-order notional of the last 5 min on one side > max($3M, 4 × its 6-hour 95th percentile) → bet on a rebound (long after long liquidations); hold 30 min | 2026-10-29 11:00 | — |  |
-| D20 | Aggressive-flow momentum (1 min) | every minute: (taker buys − taker sells)/(sum) of the last minute > 0.5 with notional > 3 × the 6-hour median minute → follow for 5 min (mirror for sells) | 2026-10-29 11:00 | 4 / 2 cl., -0.0009215 return |  |
+| D02 | Long outside US hours | long at 16:00 ET on NYSE days, exit at the next 09:30 ET open | 2026-10-29 | — | R2 likely (+21 bp/day outside US hours) |
+| D03 | Short during US hours | short at 09:30 ET on NYSE days, exit at 16:00 ET | 2026-10-29 | — | R2 |
+| D12 | Implied-vol momentum | HH:02: z-score of the last hourly change of log DVOL (last 30 days) > 1 → long 60 min, < −1 → short | 2026-10-29 | — | R12 likely (IV changes lead returns) |
 
 ### F — Funding
 
@@ -51,7 +36,7 @@ _29.10.2026 18:30 MSK. Live: settled trades / clusters (entry hours), mean per t
 | ID | Strategy | Rule | Frozen | Live | History / backtest |
 |---|---|---|---|---|---|
 | O01 | Cross-venue option arbitrage | same expiry/strike/type: bid on venue B − ask on venue A − both fees > 0 → buy A, sell B (identical payoff; settlement indices differ slightly) | 2026-10-29 | — |  |
-| O02 | Put–call parity | expiries ≤ 7 days, each venue: (C − P + K) vs the perpetual on the same index (Deribit perp for Deribit/OKX, Binance perp for Binance/Bybit) minus the expected funding until expiry; a gap larger than option fees + 2 perp fees → trade the synthetic against the perp | 2026-10-29 | — | voided before the snapshot-age fix |
+| O02 | Put–call parity | expiries ≤ 7 days, each venue: (C − P + K) vs the perpetual on the same index (Deribit perp for Deribit/OKX, Binance perp for Binance/Bybit) minus the expected funding until expiry; a gap larger than option fees + 2 perp fees → trade the synthetic against the perp | 2026-10-29 | — |  |
 | O03 | Static arbitrage of the smile | each venue and expiry: call/put prices non-monotone in the strike, or a negative-cost butterfly, after fees | 2026-10-29 | — |  |
 | O04 | ATM straddle vs our volatility forecast | each venue, nearest daily expiry 3–30 h away, ATM strike: fair = E/S_T − K/ under our variance forecast; fair − ask − fees > 10% of the ask → buy; bid − fair − fees > 10% → sell; one trade per venue and expiry; settles on the 30-min average before 08:00 UTC | 2026-10-29 | — |  |
 
@@ -67,22 +52,38 @@ _29.10.2026 18:30 MSK. Live: settled trades / clusters (entry hours), mean per t
 
 | ID | Strategy | Rule | Frozen | Live | History / backtest |
 |---|---|---|---|---|---|
-| V06 | Stale-quote sniping (15 s) | as V01, but only when spot moved ≥ 4 bp in the last 15 s and the binary's mid moved ≤ 1¢ | 2026-10-29 11:00 | 7 / 5 cl., -12.33¢, t -0.9 |  |
-| V07 | Kalshi 15-min: the settlement average already printed | Kalshi settles on the average of the last 60 s of BRTI; in the last 75 s part of that average is known. Fair = P(average > strike) with the printed part, the rest as a Brownian average, level = our USD proxy shifted by the market's own start basis; take the book when edge ≥ 3¢ after fee, ≥ 10 s left | 2026-10-29 16:40 | — | live only; in the last minute the book is usually already at 0.1/99.9¢ |
+| V07 | Kalshi 15-min: the settlement average already printed | Kalshi settles on the average of the last 60 s of BRTI; in the last 75 s part of that average is known. Fair = P(average > strike) with the printed part, the rest as a Brownian average, level = our USD proxy shifted by the market's own start basis; take the book when edge ≥ 3¢ after fee, ≥ 10 s left | 2026-10-29 16:40 | — | live only |
 
 ### W — Selling cheap wings
 
 | ID | Strategy | Rule | Frozen | Live | History / backtest |
 |---|---|---|---|---|---|
-| W02 | Sell cheap wings our model also calls overpriced | as W01, only if our fair value is ≥ 1¢ + fee below the wing's price | 2026-10-29 14:45 | 30 / 4 cl., 3.47¢, t 2.1 | history: selling ≤ 5¢ as taker ≈ 0; the model filter is the live question |
+| W02 | Sell cheap wings our model also calls overpriced | as W01, only if our fair value is ≥ 1¢ + fee below the wing's price | 2026-10-29 14:45 | 30 / 4 cl., 3.47¢, t 2.1 | history (Kalshi ladder Jul–Oct): 2–6¢ wings with a model filter — in the grid, near 0 |
+| W03 | Sell the most overpriced 10–20¢ wing, last 5–15 min (Kalshi hourly) | Kalshi hourly ladder, 5–15 minutes before the hour: among strikes whose cheap side bids 10–20¢, sell the one whose bid exceeds our fair value + fee by the most, if by ≥ 1¢; one per hour; held to settlement | 2026-10-29 20:00 | — | chosen on Jul–Aug: +3.0¢ (t 1.6); Sep–Oct test +3.6¢/hour (t 2.7) |
+| W04 | Sell the most overpriced 6–10¢ wing, 15–30 min left (Kalshi hourly) | as W03 with cheap bids 6–10¢, 15–30 minutes left, Student-t(4) fair value, edge ≥ 0 | 2026-10-29 20:00 | — | Jul–Aug +1.2¢ (t 1.3); Sep–Oct test +1.8¢ (t 2.5) |
 
 
-## Retired 29.10 (18) — losing or disproved
+## Retired (34)
 
 | ID | Strategy | Why retired | Live at retirement |
 |---|---|---|---|
+| D01 | Hourly reversal | −0.20% per trade on 14 trades; R3/R4 not supported | 14 trades, -0.00201 return |
+| D04 | Fade extreme funding | R11 not supported (funding does not predict returns) | — |
+| D05 | Fade the perpetual premium | −0.35% per trade on 3 trades | 3 trades, -0.003478 return |
 | D06 | Order-book imbalance | loses: −10 bp per trade, t −8.7, hit 8% | 142 trades, -0.001009 return |
 | D07 | Taker-flow momentum | loses: t −2.8 | 38 trades, -0.0007532 return |
+| D08 | Coinbase premium momentum | no signal in 30 h, no historical support | — |
+| D09 | Coinbase → Binance lead-lag (15 s) | −0.20% per trade on 9 trades (Coinbase→Binance lead is contemporaneous) | 9 trades, -0.002025 return |
+| D10 | Open interest × price | no signal, no historical support | — |
+| D11 | Fade retail positioning | no signal, no historical support | — |
+| D13 | Gradient boosting, next hour | R20: ML does not predict the next-hour return | — |
+| D14 | Ridge regression, next hour | R20: ML does not predict the next-hour return | — |
+| D15 | Weekly time-series momentum | R4 not supported (weekly momentum) | — |
+| D16 | Kalshi ladder drift | −0.13% per trade on 10 trades | 10 trades, -0.001323 return |
+| D17 | Follow the Polymarket hourly crowd | ≈ 0 on 3 trades; R9 not supported (ladders do not know the direction) | 3 trades, -5.243e-05 return |
+| D18 | Regime-conditioned trend | no signal, R19 negative | — |
+| D19 | Fade liquidation cascades | no signal in 30 h | — |
+| D20 | Aggressive-flow momentum (1 min) | −0.09% per trade; Binance flow reverses by 0.1 bp — far below fees | 4 trades, -0.0009215 return |
 | M01 | Maker quotes on Kalshi 15-min | symmetric maker at fair ± 4¢ gets picked off: −6.6¢, t −6.1; replaced by M03/M04 | 27 trades, -7.96¢ |
 | M02 | Maker quotes on Kalshi hourly ladder | as M01 on the hourly ladder: −3.1¢; replaced by M03/M04 | 39 trades, -1.03¢ |
 | M03 | Lottery seller on Kalshi (maker, queue-aware) | 220-day backtest −1.9¢ (t −1.7), October +8.5¢ was the outlier month; ladder strikes uncapped (5 correlated losses in one hour live) | 21 trades, -16.15¢ |
@@ -98,4 +99,5 @@ _29.10.2026 18:30 MSK. Live: settled trades / clusters (entry hours), mean per t
 | V03 | 15-s fair value: variance implied by the Kalshi hourly ladder | −1.8¢ on 157 trades | 161 trades, -2.55¢ |
 | V04 | 15-s fair value: DVOL level | ≈ 0 on 197 trades | 201 trades, -0.99¢ |
 | V05 | 15-s fair value: realised variance of the last hour | −0.6¢ on 211 trades | 215 trades, -1.35¢ |
-| W01 | Sell every cheap wing (hourly ladders) | −9.9¢ live (12 losses of 94), ≈ 0 on history; W02 keeps the model-filtered version | 94 trades, -9.87¢ |
+| V06 | Stale-quote sniping (15 s) | −12.3¢ per trade on 7 trades; stale quotes are caught within 15 s | 7 trades, -12.33¢ |
+| W01 | Sell every cheap wing (hourly ladders) | −9.9¢ live (12 losses of 94), ≈ 0 on history; 4 months of Kalshi ladder candles: −0.9¢, t −4.4 | 94 trades, -9.87¢ |

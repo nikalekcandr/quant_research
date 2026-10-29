@@ -282,7 +282,8 @@ class Lab:
                 r = feeds.fast_tick(self.http_fast)
                 self.fast.append(r)
                 append_rows(day_file(FAST, r["ts"]), [r])
-                self.lead_lag(r)
+                if "D09" not in signals.RETIRED:
+                    self.lead_lag(r)
             except Exception:
                 log_exc("fast tick")
             time.sleep(max(0.5, nxt - time.time()))
@@ -393,7 +394,8 @@ class Lab:
         except Exception:
             log_exc("volzoo")
         try:
-            self.ml.maybe_train(self.minutes, now)
+            if not {"D13", "D14"} <= set(signals.RETIRED):     # ML is only used by D13/D14
+                self.ml.maybe_train(self.minutes, now)
         except Exception:
             log_exc("ml")
         try:

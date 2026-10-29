@@ -62,7 +62,11 @@ def main(argv=None):
         log("lab: one cycle done")
         return
     stop = threading.Event()
-    for target in (lab.fast_loop, lab.fast_markets_loop, lab.flow.run):
+    from lab.signals import RETIRED
+    loops = [lab.fast_loop, lab.fast_markets_loop]
+    if not {"D19", "D20"} <= set(RETIRED):          # the trade-flow websocket serves only D19/D20
+        loops.append(lab.flow.run)
+    for target in loops:
         threading.Thread(target=target, args=(stop,), daemon=True).start()
     lab.report(utcnow(), force=True)
     while True:

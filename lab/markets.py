@@ -191,7 +191,8 @@ def kalshi_book(http, ticker):
 def snapshot(http, now, fast=False) -> pd.DataFrame:
     """fast=True: only the 5/15-minute markets (the 15-second loop)."""
     rows = []
-    jobs = (("polymarket", lambda h, n: polymarket_short(h, n, ("pm_updown_5m", "pm_updown_15m"))),
+    # the 15-s loop serves A12F (Kalshi vs Polymarket 15-min) and V07; the 5-minute markets are no longer used there
+    jobs = (("polymarket", lambda h, n: polymarket_short(h, n, ("pm_updown_15m",))),
             ("kalshi", lambda h, n: kalshi_short(h, n, hourly=False))) if fast else \
         (("polymarket", polymarket_short), ("kalshi", kalshi_short))
     for name, fn in jobs:

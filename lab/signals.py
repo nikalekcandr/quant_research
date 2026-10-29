@@ -66,7 +66,25 @@ RETIRED = {
     "M04": "as M03: −2.0¢ (t −1.8) on 1 192 markets",
     "T01": "220-day backtest −3.7¢ (t −2.9)",
     "T02": "220-day backtest −2.4¢ (t −2.3)",
-    "W01": "−9.9¢ live (12 losses of 94), ≈ 0 on history; W02 keeps the model-filtered version",
+    "W01": "−9.9¢ live (12 losses of 94), ≈ 0 on history; 4 months of Kalshi ladder candles: −0.9¢, t −4.4",
+    # retired 29.10.2026 20:00 MSK to free requests and CPU: losing live, no signal in 30 hours, or the idea is
+    # not supported on history (research.py R3–R20); D02/D03 (R2 likely), D12 (R12 likely) stay
+    "D01": "−0.20% per trade on 14 trades; R3/R4 not supported",
+    "D04": "R11 not supported (funding does not predict returns)",
+    "D05": "−0.35% per trade on 3 trades",
+    "D08": "no signal in 30 h, no historical support",
+    "D09": "−0.20% per trade on 9 trades (Coinbase→Binance lead is contemporaneous)",
+    "D10": "no signal, no historical support",
+    "D11": "no signal, no historical support",
+    "D13": "R20: ML does not predict the next-hour return",
+    "D14": "R20: ML does not predict the next-hour return",
+    "D15": "R4 not supported (weekly momentum)",
+    "D16": "−0.13% per trade on 10 trades",
+    "D17": "≈ 0 on 3 trades; R9 not supported (ladders do not know the direction)",
+    "D18": "no signal, R19 negative",
+    "D19": "no signal in 30 h",
+    "D20": "−0.09% per trade; Binance flow reverses by 0.1 bp — far below fees",
+    "V06": "−12.3¢ per trade on 7 trades; stale quotes are caught within 15 s",
 }
 
 
@@ -460,7 +478,9 @@ def t02(ctx):
 
 
 # ================================================================== P: fair value of short-dated binaries
-FAIR_MODELS = ("ln", "t4", "kxiv", "dvol", "rv1h")
+# recorded for every quoted binary (calibration table); kxiv / dvol / rv1h dropped 29.10 to save CPU — the book beats
+# every one of them (studies/kx15_study.py) and fair_value() still computes them on request
+FAIR_MODELS = ("ln", "t4")
 
 
 def _level(ctx, model):
@@ -906,6 +926,59 @@ def w01(ctx):
      "the wing's price", "", frozen="2026-10-29 14:45")
 def w02(ctx):
     return _wings(ctx, "W02", True)
+
+
+# ================================================================== W03/W04: wings chosen on history (frozen 29.10 20:00 MSK)
+def _wings_opt(ctx, hid, lo, hi, l0, l1, model, margin):
+    """Kalshi hourly ladder, one trade per hour: among strikes whose cheap side bids lo..hi with l0..l1 minutes
+    left, sell the cheap side with the largest model edge if edge ≥ margin (studies/wings_ladder.py)."""
+    m = ctx.markets
+    if m is None or m.empty:
+        return []
+    k = m[(m["venue"] == "kalshi") & (m["kind"] == "kx_ladder_1h")]
+    best = None
+    for _, r in k.iterrows():
+        bid, ask = r["bid"], r["ask"]
+        if not (np.isfinite(bid) and np.isfinite(ask)) or ask - bid > 0.03:
+            continue
+        left = (pd.Timestamp(r["end"]) - ctx.now).total_seconds() / 60
+        if not (l0 <= left <= l1) or ctx.book.has_key(f"{hid}|{r['event']}"):
+            continue
+        p = fair_value(ctx, r, model)
+        if p is None:
+            continue
+        for cheap, c_bid, fair in (("yes", bid, p), ("no", 1 - ask, 1 - p)):
+            if not (lo <= c_bid <= hi):
+                continue
+            px = 1 - c_bid
+            edge = c_bid - fair - kalshi_fee(px)
+            if edge >= margin and (best is None or edge > best[0]):
+                best = (edge, r, cheap, px, fair, left)
+    if best is None:
+        return []
+    edge, r, cheap, px, fair, left = best
+    side = "no" if cheap == "yes" else "yes"
+    leg = {"venue": "kalshi", "kind": r["kind"], "market": r["market"], "event": r["event"], "side": side, "price": px,
+           "fee": kalshi_fee(px)}
+    return [Order(hyp=hid, kind="binary", venue="kalshi", instrument=r["market"], side=side, price=px, fee=kalshi_fee(px),
+                  fair=1 - fair, edge=edge, settle_ts=str(r["end"]), unit="$/contract", key=f"{hid}|{r['event']}",
+                  info={"legs": [leg], "mid": (r["bid"] + r["ask"]) / 2, "left_min": round(left, 1),
+                        "wing_price": 1 - px, "size": r.get("bid_size") if cheap == "yes" else r.get("ask_size")})]
+
+
+@hyp("W03", "W", "Sell the most overpriced 10–20¢ wing, last 5–15 min (Kalshi hourly)", "Kalshi hourly ladder, 5–15 "
+     "minutes before the hour: among strikes whose cheap side bids 10–20¢, sell the one whose bid exceeds our fair "
+     "value + fee by the most, if by ≥ 1¢; one per hour; held to settlement", "chosen on Jul–Aug 2026 ladder candles, "
+     "Sep–Oct test +3.6¢ per hour (t 2.5); studies/wings_ladder.py", frozen="2026-10-29 20:00")
+def w03(ctx):
+    return _wings_opt(ctx, "W03", 0.10, 0.20, 5, 15, "ln", 0.01)
+
+
+@hyp("W04", "W", "Sell the most overpriced 6–10¢ wing, 15–30 min left (Kalshi hourly)", "as W03 with cheap bids 6–10¢, "
+     "15–30 minutes left, Student-t(4) fair value, edge ≥ 0", "Sep–Oct test +1.8¢ per hour (t 2.5)",
+     frozen="2026-10-29 20:00")
+def w04(ctx):
+    return _wings_opt(ctx, "W04", 0.06, 0.10, 15, 30, "t4", 0.0)
 
 
 # ================================================================== O: options (latest 10-minute snapshots)
