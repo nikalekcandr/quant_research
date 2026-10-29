@@ -52,18 +52,25 @@ Language: code and comments in English, most docs (`README.md`, `RUN_ME.md`, rep
    listing vs the live book, a 10-minute option snapshot vs the live perpetual (O02: $6,139 from one $200 move,
    29.10 13:33 UTC), stale Kalshi sides. Check the age of every quote; if the underlying moved more than the edge
    since the oldest one, skip. Many trades from one snapshot are one observation, not many.
-8. **Statistics.** Cluster t-stats by market / entry hour (trades on one market are not independent), HAC for
+8. **One month is not a sample.** The maker-on-longshots edge (+8.7¢, t 3.4 on October) was −2¢ on Mar–Oct.
+   Validate every finding on the longest history available before freezing a rule.
+9. **Statistics.** Cluster t-stats by market / entry hour (trades on one market are not independent), HAC for
    time series, Holm / BH for many hypotheses, deflated Sharpe for strategy search, train/test split in time.
 
-## Where things stand (29.10.2026)
+## Where things stand (29.10.2026 18:30)
 
-* Main result (13–28 Oct, 344 hourly windows, out of sample): ladder-based vol forecasts beat Deribit options on
-  CRPS (0.333 vs 0.357, p < 0.001); tie with the ladder centre; Brier of our probabilities ≈ the market's.
-* Kalshi 15-minute: our model "beat" the market on Brier only against the lagged listing; against quotes one minute
-  later the gap disappears (t −0.26) and near expiry the market is better. Clean re-test on book candles:
-  `studies/kx15_study.py` on `data/raw/kx15/` (download job `jobs/hist_short_binaries.py`).
-* Selling cheap wings (≤ 5¢): wins 97–99% of the time, ≈ 0 or negative after spread and fees. Live test W01/W02.
-* Research layer: confirmed R1, R10, R13, R21 (see `reports/research.md`); nothing tradeable after costs yet.
+* **Volatility forecasting (the course question):** out of sample on the Kalshi hourly window the ladder centre
+  CRPS 0.336 beats Deribit 0.699 (p < 0.001) and ties our HAR-X + ladder. Gradient boosting trained on three
+  years of minutes beats HAR by 23–27% QLIKE intraday (2024–2026, every year) and, averaged with the ladder, is the
+  best variance forecast over Jan–Oct 2026 (CRPS −2.4% vs the ladder, t −5.3); not significant on the last two
+  weeks. `results/studies/vol_models_summary.md`.
+* **Probabilities of strikes:** the market price beats every model on Brier (Kalshi hourly ladder and 15-minute
+  market, 20 317 markets): better variance does not beat the book.
+* **Alpha:** nothing survives. Taker vs model, wings, lead–lag, Kyle-λ flow, 15m vs hourly ladder, Kalshi vs
+  Polymarket, maker on longshots (October only), copy/fade the tape — all ≈ 0 or negative after fees on the full
+  samples. Several fake edges were timing artifacts (rule 7). `STRATEGIES.md` lists active and retired rules.
+* Still live: W02, A12/A12F (cross-venue on simultaneous books), V07 (60-s settlement average), O-family with the
+  snapshot-age guard, D/F families.
 
 ## Good next tasks
 

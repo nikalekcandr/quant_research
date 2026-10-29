@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 
 from lab.core import Order, kalshi_fee, log
+from lab.signals import RETIRED
 
 KALSHI = "https://api.elections.kalshi.com/trade-api/v2"
 CHEAP = (0.02, 0.20)
@@ -129,6 +130,8 @@ class Tape:
     # ------------------------------------------------------------------ new quotes and taker signals
     def step(self, ctx, lab):
         self._settle_quotes(ctx, lab)
+        if all(h in RETIRED for h in ("M03", "M04", "T01", "T02")):
+            return
         m = ctx.markets
         if m is None or m.empty:
             return

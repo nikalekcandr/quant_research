@@ -75,6 +75,31 @@ class VolZoo:
                 out["gbm"] = (g, float(np.mean(np.exp(res))))
         except Exception as e:
             log(f"volzoo: gbm fit failed ({str(e)[:80]})")
+        # gbm_long: the same trees on three years of hourly RV (data/interim/minutes.parquet + the live buffer);
+        # studies/vol_horserace.py: −21% QLIKE vs HAR at one hour, 2024–2026 out of sample
+        try:
+            from sklearn.ensemble import HistGradientBoostingRegressor
+            f = config.INTERIM / "minutes.parquet"
+            if f.exists():
+                mm = pd.read_parquet(f, columns=["open_time", "close"])
+                mm = mm.set_index(pd.to_datetime(mm["open_time"], utc=True))["close"]
+                mm = pd.concat([mm, minutes.close]).sort_index()
+                mm = mm[~mm.index.duplicated(keep="last")]
+                r2 = np.log(mm).diff() ** 2
+                h = r2.groupby(r2.index.floor("h")).agg(["sum", "count"])
+                h = h[(h["count"] >= 50) & (h["sum"] > 0)]["sum"]
+                h = np.log(h)
+                nxt = h.index + pd.Timedelta(hours=1)
+                F = pd.DataFrame({"l1": h, "l_day": h.rolling(24).mean(), "l_week": h.rolling(168).mean(),
+                                  "hour": nxt.hour, "dow": nxt.dayofweek, "y": h.shift(-1)}, index=h.index).dropna()
+                g = HistGradientBoostingRegressor(max_iter=300, learning_rate=0.05, max_leaf_nodes=31,
+                                                  min_samples_leaf=200, l2_regularization=1.0, random_state=0)
+                X = F[["l1", "l_day", "l_week", "hour", "dow"]].values
+                g.fit(X, F["y"].values)
+                res = F["y"].values - g.predict(X)
+                out["gbm_long"] = (g, float(np.mean(np.exp(res))), h)
+        except Exception as e:
+            log(f"volzoo: gbm_long fit failed ({str(e)[:80]})")
         self.fits = out
         self.fit_at = now
         log(f"volzoo: refitted {', '.join(out)}")
@@ -135,6 +160,16 @@ class VolZoo:
                         tot += math.exp(g.predict(x)[0]) * smear
                     frac = n / (len(hrs) * 60)
                     fc["gbm_vol"] = float(tot * frac)
+            if "gbm_long" in self.fits:
+                g, smear, hh = self.fits["gbm_long"]
+                hlog = np.log(rv) if len(rv) >= 168 else None
+                if hlog is not None:
+                    hrs = pd.date_range(t.floor("h"), end, freq="h", inclusive="left")
+                    tot = 0.0
+                    for h_ in hrs:
+                        x = np.array([[hlog.iloc[-1], hlog.iloc[-24:].mean(), hlog.iloc[-168:].mean(), h_.hour, h_.dayofweek]])
+                        tot += math.exp(g.predict(x)[0]) * smear
+                    fc["gbm_long"] = float(tot * n / (len(hrs) * 60))
             vals = [v for v in fc.values() if v is not None and np.isfinite(v) and v > 0]
             if vals:
                 fc["combo"] = float(math.exp(np.mean(np.log(vals))))

@@ -113,6 +113,41 @@ def follow(tr, side_filter, lo, hi, min_contracts, buy):
     return s
 
 
+def grid(tr, spot):
+    """Lottery seller by price band × minutes left, with and without the spot filter; one fill per market per cell.
+    Chosen on the first half of the sample (by date), reported on the second half."""
+    split = tr.close_time.quantile(0.5)
+    rows = []
+    for lo, hi in ((0.01, 0.05), (0.05, 0.10), (0.10, 0.20), (0.02, 0.20)):
+        for l0, l1 in ((2, 4), (5, 8), (9, 14), (2, 14)):
+            for sp in (False, True):
+                c = tr[(tr.paid.between(lo, hi)) & (tr.left.between(l0, l1))].copy()
+                if sp and spot is not None:
+                    c["ret"] = spot.reindex(c.minute).values
+                    adverse = np.where(c.side == "yes", c.ret, -c.ret)
+                    c = c[~(adverse >= 3e-4) & np.isfinite(c.ret)]
+                c = c.sort_values(["ticker", "left"], ascending=[True, False]).groupby("ticker").head(1)
+                won = np.where(c.side == "yes", c.y, 1 - c.y)
+                c["pnl"] = c.paid - won - maker_fee(c.paid)
+                rec = {"price": f"{lo:.2f}–{hi:.2f}", "minutes left": f"{l0}–{l1}", "spot filter": sp}
+                for half, g in (("first", c[c.close_time < split]), ("second", c[c.close_time >= split])):
+                    x = g.pnl.values
+                    rec[f"n {half}"] = len(x)
+                    rec[f"¢ {half}"] = 100 * x.mean() if len(x) else np.nan
+                    rec[f"t {half}"] = x.mean() / (x.std(ddof=1) / math.sqrt(len(x))) if len(x) > 2 and x.std() > 0 else np.nan
+                rows.append(rec)
+    g = pd.DataFrame(rows)
+    best = g.sort_values("t first", ascending=False).head(1)
+    return g, best
+
+
+def by_month(tr, spot):
+    c = m03(tr, spot)
+    c["month"] = c.close_time.dt.strftime("%Y-%m")
+    return c.groupby("month").pnl.agg(trades="size", mean_c=lambda x: 100 * x.mean(), worst=lambda x: 100 * x.min(),
+                                      hit=lambda x: (x > 0).mean()).round(2)
+
+
 def main():
     tr = load()
     spot = spot_moves(tr)
@@ -125,9 +160,14 @@ def main():
     rows += summarize("T02 fade lottery burst (taker)", follow(tr, "cheap", 0.0, 0.20, 500, "fav"))
     d = pd.DataFrame(rows)
     print(d.round(3).to_string(index=False))
+    g, best = grid(tr, spot)
+    print("\n== lottery seller grid (choose on the first half, read the second)\n", g.round(2).to_string(index=False))
+    print("\nchosen on the first half:\n", best.round(2).to_string(index=False))
+    print("\n== M04 by month\n", by_month(tr, spot).to_string())
     out = RAW.parent.parent / "results" / "studies"
     out.mkdir(parents=True, exist_ok=True)
     d.to_csv(out / "tape_strategies.csv", index=False)
+    g.to_csv(out / "tape_lottery_grid.csv", index=False)
 
 
 if __name__ == "__main__":

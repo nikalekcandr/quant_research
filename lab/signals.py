@@ -60,6 +60,13 @@ RETIRED = {
     "V03": "−1.8¢ on 157 trades",
     "V04": "≈ 0 on 197 trades",
     "V05": "−0.6¢ on 211 trades",
+    # retired 29.10.2026 18:25 MSK on the 220-day print sample (1 303 markets, studies/tape_strategies.py): the
+    # October edge of the lottery seller was one month; over Mar–Oct makers break even and takers lose the fee
+    "M03": "220-day backtest −1.9¢ (t −1.7), October +8.5¢ was the outlier month; ladder strikes uncapped (5 correlated losses in one hour live)",
+    "M04": "as M03: −2.0¢ (t −1.8) on 1 192 markets",
+    "T01": "220-day backtest −3.7¢ (t −2.9)",
+    "T02": "220-day backtest −2.4¢ (t −2.3)",
+    "W01": "−9.9¢ live (12 losses of 94), ≈ 0 on history; W02 keeps the model-filtered version",
 }
 
 

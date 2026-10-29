@@ -38,3 +38,19 @@ The 15-minute market closing on the hour and the hourly ladder settle on the ide
 Pure no-arbitrage violations after fees: 13 minutes in 10 of 1 206 markets (~2¢). Relative value: each book prices
 its own contract better (15m mid Brier 0.186 vs ladder-interpolated 0.193, t −2.4; ladder 0.191 vs 15m-implied
 0.203, t −2.8); trading either toward the other loses or is noise. The two Kalshi products are consistent.
+
+## 6. Full sample reverses the October picture (29.10 18:20; 1 303 markets, 23.03–28.10, 18 M prints)
+* Longshot buyers (≤ 20¢): −0.5¢ (t −0.7) instead of −4.8¢; ≤ 5¢: −0.8¢ (t −2.0). Makers net ≈ 0 in every month
+  (−0.4 … +0.3¢); takers lose roughly the fee (−0.9 … −1.6¢ per contract, gross ≈ −0.3¢).
+* Lottery seller backtest (`studies/tape_strategies.py`): M03 −1.9¢ (t −1.7), M04 −2.0¢ (t −1.8); by month
+  −9.2 … +8.5¢, October the best month. T01 −3.7¢ (t −2.9), T02 −2.4¢ (t −2.3). Grid of price × time left chosen
+  on the first half: nothing survives in the second.
+* Lesson: one month (and one day of 40 markets) is not a sample. M03/M04/T01/T02 retired; live they lost $3.4 each
+  in one hour: five adjacent ladder strikes sold in the same hour = one bet on BTC direction.
+
+## 7. Kalshi 15m vs Polymarket 15m (`studies/kx_pm_15m_arb.py`, 4 272 windows 14.09–28.10)
+Outcomes agree in 98.6% of windows (strikes differ by a median $2.5: BRTI vs Chainlink). History shows a fake
+"arbitrage" (+2…+8¢, t 10–19): Polymarket history points are stamped at :20–:24 s, Kalshi candles at :00, and a
+30-second offset alone gives a 4¢ gap sd (13¢ at 1 minute). Simultaneous books from the lab (same second, 669
+samples, 16 windows): gap sd 1.8¢, cost of the pair < $1 in 3.7% of samples, best 98.2¢ — below the 1.4%
+disagreement risk. No cross-venue arbitrage after fees.
