@@ -1,0 +1,14 @@
+2026-10-28 22:10:04+00:00 kalshi_other
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\live.py", line 98, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\live.py", line 85, in <lambda>
+    "kalshi_other": lambda: venues.kalshi_other(http, snap, kalshi_series(http)),
+                            ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\venues.py", line 87, in kalshi_other
+    res = http.get(f"{KALSHI}/markets", params) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\utils.py", line 66, in get
+    raise RuntimeError(f"GET failed after {self.retries} attempts: {url} {params} ({err})")
+RuntimeError: GET failed after 3 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTCMAX90', 'status': 'open', 'limit': 1000} (HTTP 429)
+

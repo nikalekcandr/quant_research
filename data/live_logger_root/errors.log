@@ -1,0 +1,406 @@
+2026-10-26 07:08:48+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=KXBTCD-26OCT2604&limit=1000
+
+2026-10-26 07:10:00+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=KXBTCD-26OCT2604&limit=1000
+
+2026-10-26 07:20:00+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=KXBTCD-26OCT2604&limit=1000
+
+2026-10-26 07:30:00+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=KXBTCD-26OCT2604&limit=1000
+
+2026-10-26 07:40:00+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=KXBTCD-26OCT2604&limit=1000
+
+2026-10-26 07:50:00+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=KXBTCD-26OCT2604&limit=1000
+
+2026-10-26 08:00:00+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 57, in get
+    raise RuntimeError(f"GET failed after {self.retries} attempts: {url} {params} ({err})")
+RuntimeError: GET failed after 6 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'event_ticker': 'KXBTCD-26OCT2605', 'limit': 1000} (ConnectionError(ProtocolError('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))))
+
+2026-10-26 08:11:09+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=KXBTCD-26OCT2605&limit=1000
+
+2026-10-26 08:20:00+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=KXBTCD-26OCT2605&limit=1000
+
+2026-10-26 08:30:00+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=KXBTCD-26OCT2605&limit=1000
+
+2026-10-26 08:40:00+00:00 kalshi
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 39, in <lambda>
+    "kalshi": lambda: kalshi.snapshot(http, snap),
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\kalshi.py", line 142, in snapshot
+    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
+          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=KXBTCD-26OCT2605&limit=1000
+
+2026-10-26 11:29:30+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 11:30:00+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 11:40:00+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 11:50:00+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 12:00:00+00:00 deribit_chain
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 38, in <lambda>
+    "deribit_chain": lambda: deribit.snapshot_chain(http, snap),
+                             ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\deribit.py", line 122, in snapshot_chain
+    res = http.get(f"{LIVE}/get_book_summary_by_currency", {"currency": "BTC", "kind": "option"})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 521 Server Error: <none> for url: https://www.deribit.com/api/v2/public/get_book_summary_by_currency?currency=BTC&kind=option
+
+2026-10-26 12:00:00+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 12:10:00+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 12:20:00+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 12:30:01+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 12:40:01+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 13:25:02+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 13:30:00+00:00 binance
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 40, in <lambda>
+    "binance": lambda: pd.DataFrame([{"snap_ts": snap, "price": float(http.get(
+                                                                      ~~~~~~~~^
+        "https://api.binance.com/api/v3/ticker/price", {"symbol": "BTCUSDT"})["price"])}]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 52, in get
+    r.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 451 Client Error:  for url: https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
+
+2026-10-26 14:10:00+00:00 pm_books
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 37, in <lambda>
+    "pm_books": lambda: polymarket.snapshot_books(http, pm_events, snap),
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\polymarket.py", line 193, in snapshot_books
+    bk = books(http, list(lad["yes_token"]))
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\polymarket.py", line 183, in books
+    b = http.get(f"{CLOB}/book", {"token_id": t})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 57, in get
+    raise RuntimeError(f"GET failed after {self.retries} attempts: {url} {params} ({err})")
+RuntimeError: GET failed after 6 attempts: https://clob.polymarket.com/book {'token_id': '90610657038182493627434564976470032478305021660840953136162300972504598965549'} (SSLError(MaxRetryError("HTTPSConnectionPool(host='clob.polymarket.com', port=443): Max retries exceeded with url: /book?token_id=90610657038182493627434564976470032478305021660840953136162300972504598965549 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)')))")))
+
+2026-10-26 14:40:00+00:00 pm_books
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 46, in snapshot
+    df = job()
+  File "C:\Users\Administrator\Downloads\btcvol_logger\live.py", line 37, in <lambda>
+    "pm_books": lambda: polymarket.snapshot_books(http, pm_events, snap),
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\polymarket.py", line 193, in snapshot_books
+    bk = books(http, list(lad["yes_token"]))
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\download\polymarket.py", line 183, in books
+    b = http.get(f"{CLOB}/book", {"token_id": t})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\src\utils.py", line 57, in get
+    raise RuntimeError(f"GET failed after {self.retries} attempts: {url} {params} ({err})")
+RuntimeError: GET failed after 6 attempts: https://clob.polymarket.com/book {'token_id': '90610657038182493627434564976470032478305021660840953136162300972504598965549'} (SSLError(MaxRetryError("HTTPSConnectionPool(host='clob.polymarket.com', port=443): Max retries exceeded with url: /book?token_id=90610657038182493627434564976470032478305021660840953136162300972504598965549 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)')))")))
+
