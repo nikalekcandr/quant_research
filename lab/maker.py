@@ -88,6 +88,8 @@ class Maker:
                 fr.sort(key=lambda x: abs(x[0] - 0.5))
                 cands += [("M02", r) for _, r in fr[:4]]
         for hid, r in cands:
+            if hid in signals.RETIRED:
+                continue
             if (pd.Timestamp(r["end"]) - now).total_seconds() < 120:
                 continue
             p = signals.fair_value(ctx, r)

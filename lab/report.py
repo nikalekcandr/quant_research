@@ -102,6 +102,8 @@ def leaderboard(led: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     lb["DSR"] = [dsr(r["SR/trade"], r["trades"], r["skew"], r["kurt"], len(tested)) for _, r in lb.iterrows()]
 
     def verdict(r):
+        if r.name in signals.RETIRED or r.get("hypothesis") in signals.RETIRED:
+            return "retired"
         if r["trades"] < 10 or r["clusters"] < 3:
             return "collecting" if r["trades"] or r["open"] else "no signal yet"
         if r["Holm p"] < 0.05 and r["mean net"] > 0:

@@ -39,14 +39,33 @@ class Hyp:
     fn: object
     loop: str = "minute"      # "minute" (60-s loop) or "fast" (15-s loop of the short binaries)
     frozen: str = "2026-10-29"
+    retired: str = ""         # non-empty = no longer run (reason); its trades stay in the ledger and the report
 
 
 REGISTRY: list[Hyp] = []
 
+# Retired 29.10.2026 17:45 MSK: significantly losing live, or the idea is disproved on history (taker against our
+# fair value: studies/kx15_study.py, 20 317 Kalshi 15-minute markets, model worse than the book, t −19)
+RETIRED = {
+    "D06": "loses: −10 bp per trade, t −8.7, hit 8%",
+    "D07": "loses: t −2.8",
+    "M01": "symmetric maker at fair ± 4¢ gets picked off: −6.6¢, t −6.1; replaced by M03/M04",
+    "M02": "as M01 on the hourly ladder: −3.1¢; replaced by M03/M04",
+    "P01": "taker against our fair value: disproved on history (kx15_study)",
+    "P04": "loses: −15¢, t −2.3",
+    "P06": "taker against our fair value on Kalshi 15m: −2…−3¢ on 20 317 markets",
+    "P07": "loses: −3.9¢, t −2.1",
+    "V01": "15-s fair value, ≈ 0 on 203 trades; the book is better than the model",
+    "V02": "−0.9¢ on 205 trades",
+    "V03": "−1.8¢ on 157 trades",
+    "V04": "≈ 0 on 197 trades",
+    "V05": "−0.6¢ on 211 trades",
+}
+
 
 def hyp(id, family, title, rule, source, loop="minute", frozen="2026-10-29"):
     def deco(fn):
-        REGISTRY.append(Hyp(id, family, title, rule, source, fn, loop, frozen))
+        REGISTRY.append(Hyp(id, family, title, rule, source, fn, loop, frozen, RETIRED.get(id, "")))
         return fn
     return deco
 

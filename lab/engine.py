@@ -164,7 +164,7 @@ class Lab:
                     log_exc(step.__name__)
             n_new = 0
             for h in signals.REGISTRY:
-                if h.loop != "minute":
+                if h.loop != "minute" or h.retired:
                     continue
                 try:
                     for o in h.fn(ctx) or []:
@@ -322,7 +322,7 @@ class Lab:
         append_rows(day_file(MARKETS_FAST, now), m.to_dict("records"))
         with self.lock:
             for h in signals.REGISTRY:
-                if h.loop != "fast":
+                if h.loop != "fast" or h.retired:
                     continue
                 try:
                     for o in h.fn(ctx) or []:
