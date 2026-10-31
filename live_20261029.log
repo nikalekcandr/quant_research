@@ -1,0 +1,193 @@
+[01:05:36] live forecast kx1h t=2026-10-28 22:05: 14 models, 7 strikes, expected vol 29% annualized
+[01:10:04] polymarket: 7 open ladders
+[01:10:07] kalshi: 69 Bitcoin series: BITCOINMAXY, BTC, BTCATH, BTCD, BTCD-B, BTCETHATH, BTCETHRETURN, BTCMAX100, BTCMAXM, BTCMAXY, BTCMINMAXY, BTCMINY, KXBCH, KXBCH15M, KXBCHD, KXBITCOIN25, KXBITCOINMAXY, KXBTC, KXBTC100, KXBTC15M, KXBTC2025100, KXBTC2026200, KXBTC2026250, KXBTC25ATTEND, KXBTC50VS100, KXBTC60VS100, KXBTC70VS100, KXBTC75VS100, KXBTCATH, KXBTCD, KXBTCD-B, KXBTCDOM, KXBTCE, KXBTCETHATH, KXBTCETHRETURN, KXBTCEU, KXBTCHALF, KXBTCMAX100, KXBTCMAX100INAUG, KXBTCMAX125, KXBTCMAX130, KXBTCMAX150, KXBTCMAX90, KXBTCMAXD, KXBTCMAXM, KXBTCMAXMON, KXBTCMAXQ, KXBTCMAXW, KXBTCMAXY, KXBTCMINMAXY, KXBTCMINMON, KXBTCMINY, KXBTCPRICE, KXBTCQ, KXBTCRESERVECOUNTRY, KXBTCVSETH, KXBTCVSHYPE, KXBTCVSSOL, KXBTCY, KXBTCYEAR, KXCOUNTRYBTC, KXDJBTC, KXDJTBTC, KXELSALVADORBTC, KXHARDFORKBTC, KXMAG7BTC, KXPRCBTC, KXSATOSHIBTCYEAR, KXSNSBTC
+[01:10:44] snapshot 2026-10-28 22:10 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=ERROR RuntimeError("GET failed after 3 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker':, pm_other=734, binance_options=220, okx_options=532, bybit_options=270, limitless=63
+[01:20:46] snapshot 2026-10-28 22:20 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=532, bybit_options=270, limitless=63
+[01:30:39] snapshot 2026-10-28 22:30 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=532, bybit_options=270, limitless=63
+[01:40:40] snapshot 2026-10-28 22:40 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=754, binance_options=220, okx_options=532, bybit_options=270, limitless=63
+[01:50:38] snapshot 2026-10-28 22:50 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=753, binance_options=220, okx_options=532, bybit_options=270, limitless=63
+[02:00:34] snapshot 2026-10-28 23:00 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=532, bybit_options=270, limitless=60
+[02:05:23] live forecast kx1h t=2026-10-28 23:05: 14 models, 6 strikes, expected vol 26% annualized
+[02:10:39] snapshot 2026-10-28 23:10 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=220, okx_options=532, bybit_options=270, limitless=63
+[02:20:06] polymarket: 7 open ladders
+[02:20:45] snapshot 2026-10-28 23:20 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=534, bybit_options=270, limitless=63
+[02:30:34] snapshot 2026-10-28 23:30 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=534, bybit_options=270, limitless=63
+[02:40:20] snapshot 2026-10-28 23:40 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=220, okx_options=534, bybit_options=270, limitless=63
+[02:50:19] snapshot 2026-10-28 23:50 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=753, binance_options=220, okx_options=534, bybit_options=270, limitless=63
+[03:00:21] snapshot 2026-10-29 00:00 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=732, binance_options=220, okx_options=534, bybit_options=270, limitless=62
+[03:05:11] live forecast kx1h t=2026-10-29 00:05: 14 models, 6 strikes, expected vol 25% annualized
+[03:10:20] snapshot 2026-10-29 00:10 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=220, okx_options=534, bybit_options=270, limitless=63
+[03:20:43] snapshot 2026-10-29 00:20 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=534, bybit_options=270, limitless=63
+[03:30:04] polymarket: 7 open ladders
+[03:30:20] snapshot 2026-10-29 00:30 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=534, bybit_options=270, limitless=63
+[03:40:17] snapshot 2026-10-29 00:40 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=220, okx_options=534, bybit_options=270, limitless=63
+[03:50:25] snapshot 2026-10-29 00:50 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=753, binance_options=220, okx_options=534, bybit_options=270, limitless=63
+[04:00:22] snapshot 2026-10-29 01:00 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=534, bybit_options=270, limitless=60
+[04:05:11] live forecast kx1h t=2026-10-29 01:05: 14 models, 6 strikes, expected vol 28% annualized
+[04:10:18] snapshot 2026-10-29 01:10 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=220, okx_options=536, bybit_options=270, limitless=63
+[04:20:22] snapshot 2026-10-29 01:20 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=536, bybit_options=270, limitless=63
+[04:30:04] polymarket: 7 open ladders
+[04:30:35] snapshot 2026-10-29 01:30 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=538, bybit_options=270, limitless=63
+[04:40:19] snapshot 2026-10-29 01:40 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=220, okx_options=538, bybit_options=270, limitless=63
+[04:50:19] snapshot 2026-10-29 01:50 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=753, binance_options=220, okx_options=538, bybit_options=270, limitless=63
+[05:00:20] snapshot 2026-10-29 02:00 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=731, binance_options=220, okx_options=538, bybit_options=270, limitless=63
+[05:05:11] live forecast kx1h t=2026-10-29 02:05: 14 models, 10 strikes, expected vol 42% annualized
+[05:10:17] snapshot 2026-10-29 02:10 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=220, okx_options=540, bybit_options=274, limitless=63
+[05:20:17] snapshot 2026-10-29 02:20 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=542, bybit_options=274, limitless=63
+[05:30:04] polymarket: 7 open ladders
+[05:30:22] snapshot 2026-10-29 02:30 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=220, okx_options=544, bybit_options=276, limitless=63
+[05:40:19] snapshot 2026-10-29 02:40 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=544, bybit_options=314, limitless=63
+[05:50:20] snapshot 2026-10-29 02:50 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=753, binance_options=228, okx_options=544, bybit_options=314, limitless=63
+[06:00:18] snapshot 2026-10-29 03:00 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=544, bybit_options=314, limitless=63
+[06:05:13] live forecast kx1h t=2026-10-29 03:05: 14 models, 8 strikes, expected vol 33% annualized
+[06:10:15] snapshot 2026-10-29 03:10 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=546, bybit_options=314, limitless=63
+[06:20:18] snapshot 2026-10-29 03:20 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=546, bybit_options=314, limitless=63
+[06:30:18] snapshot 2026-10-29 03:30 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=550, bybit_options=314, limitless=63
+[06:40:03] polymarket: 7 open ladders
+[06:40:18] snapshot 2026-10-29 03:40 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=550, bybit_options=314, limitless=62
+[06:50:17] snapshot 2026-10-29 03:50 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=753, binance_options=228, okx_options=550, bybit_options=314, limitless=62
+[07:00:18] snapshot 2026-10-29 04:00 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=716, binance_options=228, okx_options=550, bybit_options=314, limitless=45
+[07:05:10] live forecast kx1h t=2026-10-29 04:05: 14 models, 6 strikes, expected vol 24% annualized
+[07:10:17] snapshot 2026-10-29 04:10 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=550, bybit_options=314, limitless=64
+[07:20:18] snapshot 2026-10-29 04:20 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=550, bybit_options=314, limitless=64
+[07:30:19] snapshot 2026-10-29 04:30 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=554, bybit_options=316, limitless=64
+[07:40:03] polymarket: 7 open ladders
+[07:40:16] snapshot 2026-10-29 04:40 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=554, bybit_options=316, limitless=64
+[07:50:17] snapshot 2026-10-29 04:50 pm_books=77, deribit_chain=882, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=753, binance_options=228, okx_options=554, bybit_options=316, limitless=64
+[08:00:16] snapshot 2026-10-29 05:00 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=554, bybit_options=316, limitless=64
+[08:05:09] live forecast kx1h t=05:05 failed: ['strike']
+[08:10:54] snapshot 2026-10-29 05:10 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=554, bybit_options=316, limitless=64
+[08:20:17] snapshot 2026-10-29 05:20 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=554, bybit_options=316, limitless=64
+[08:30:55] snapshot 2026-10-29 05:30 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=554, bybit_options=316, limitless=64
+[08:40:03] polymarket: 7 open ladders
+[08:40:18] snapshot 2026-10-29 05:40 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=554, bybit_options=316, limitless=64
+[08:50:17] snapshot 2026-10-29 05:50 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=753, binance_options=228, okx_options=554, bybit_options=316, limitless=64
+[09:00:16] snapshot 2026-10-29 06:00 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=554, bybit_options=316, limitless=61
+[09:05:05] live forecast kx1h t=06:05 failed: ['strike']
+[09:10:20] snapshot 2026-10-29 06:10 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=556, bybit_options=316, limitless=64
+[09:20:17] snapshot 2026-10-29 06:20 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=556, bybit_options=316, limitless=64
+[09:30:22] snapshot 2026-10-29 06:30 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=556, bybit_options=316, limitless=64
+[09:40:04] polymarket: 7 open ladders
+[09:40:17] snapshot 2026-10-29 06:40 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=558, bybit_options=316, limitless=64
+[09:50:18] snapshot 2026-10-29 06:50 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=753, binance_options=228, okx_options=558, bybit_options=316, limitless=64
+[10:00:18] snapshot 2026-10-29 07:00 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=558, bybit_options=316, limitless=64
+[10:05:05] live forecast kx1h t=07:05 failed: ['strike']
+[10:10:18] snapshot 2026-10-29 07:10 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=558, bybit_options=316, limitless=64
+[10:20:19] snapshot 2026-10-29 07:20 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=558, bybit_options=316, limitless=64
+[10:30:18] snapshot 2026-10-29 07:30 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=228, okx_options=558, bybit_options=316, limitless=64
+[10:40:04] polymarket: 7 open ladders
+[10:40:19] snapshot 2026-10-29 07:40 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=734, binance_options=228, okx_options=558, bybit_options=316, limitless=64
+[10:50:21] snapshot 2026-10-29 07:50 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=753, binance_options=228, okx_options=558, bybit_options=316, limitless=64
+[11:00:20] snapshot 2026-10-29 08:00 pm_books=77, deribit_chain=882, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=732, binance_options=228, okx_options=558, bybit_options=266, limitless=64
+[11:05:06] live forecast kx1h t=08:05 failed: ['strike']
+[11:10:21] snapshot 2026-10-29 08:10 pm_books=77, deribit_chain=988, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=454, bybit_options=266, limitless=64
+[11:20:24] snapshot 2026-10-29 08:20 pm_books=77, deribit_chain=990, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=454, bybit_options=266, limitless=64
+[11:30:19] snapshot 2026-10-29 08:30 pm_books=77, deribit_chain=990, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=522, bybit_options=266, limitless=62
+[11:40:17] snapshot 2026-10-29 08:40 pm_books=77, deribit_chain=990, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=524, bybit_options=266, limitless=63
+[11:50:04] polymarket: 7 open ladders
+[11:50:21] snapshot 2026-10-29 08:50 pm_books=77, deribit_chain=990, kalshi=0, kalshi_range=0, binance=1, kalshi_other=17, pm_other=753, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[12:00:20] snapshot 2026-10-29 09:00 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[12:05:13] live forecast kx1h t=2026-10-29 09:05: 14 models, 6 strikes, expected vol 29% annualized
+[12:10:18] snapshot 2026-10-29 09:10 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[12:20:20] snapshot 2026-10-29 09:20 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=526, bybit_options=266, limitless=63
+[12:30:18] snapshot 2026-10-29 09:30 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[12:40:21] snapshot 2026-10-29 09:40 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[12:50:04] polymarket: 7 open ladders
+[12:50:22] snapshot 2026-10-29 09:50 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=753, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[13:00:19] snapshot 2026-10-29 10:00 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[13:05:12] live forecast kx1h t=2026-10-29 10:05: 14 models, 6 strikes, expected vol 24% annualized
+[13:10:23] snapshot 2026-10-29 10:10 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[13:20:18] snapshot 2026-10-29 10:20 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[13:30:21] snapshot 2026-10-29 10:30 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[13:40:22] snapshot 2026-10-29 10:40 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[13:50:04] polymarket: 7 open ladders
+[13:50:23] snapshot 2026-10-29 10:50 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=753, binance_options=200, okx_options=526, bybit_options=266, limitless=63
+[14:00:26] snapshot 2026-10-29 11:00 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[14:05:16] live forecast kx1h t=2026-10-29 11:05: 14 models, 6 strikes, expected vol 23% annualized
+[14:10:22] snapshot 2026-10-29 11:10 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[14:20:22] snapshot 2026-10-29 11:20 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[14:30:22] snapshot 2026-10-29 11:30 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=526, bybit_options=266, limitless=62
+[14:40:20] snapshot 2026-10-29 11:40 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=63
+[14:50:05] polymarket: 7 open ladders
+[14:50:23] snapshot 2026-10-29 11:50 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=753, binance_options=200, okx_options=526, bybit_options=266, limitless=63
+[15:00:23] snapshot 2026-10-29 12:00 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=733, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[15:05:28] live forecast kx1h t=2026-10-29 12:05: 14 models, 9 strikes, expected vol 36% annualized
+[15:10:21] snapshot 2026-10-29 12:10 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=735, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[15:20:14] kalshi_other KXBTCPRICE: GET failed after 3 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTCPRICE', 'stat
+[15:20:26] snapshot 2026-10-29 12:20 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[15:30:25] snapshot 2026-10-29 12:30 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[15:40:21] snapshot 2026-10-29 12:40 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=735, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[15:50:32] snapshot 2026-10-29 12:50 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=754, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[16:00:04] polymarket: 7 open ladders
+[16:00:28] snapshot 2026-10-29 13:00 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[16:05:13] live forecast kx1h t=2026-10-29 13:05: 14 models, 11 strikes, expected vol 49% annualized
+[16:10:20] snapshot 2026-10-29 13:10 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=735, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[16:20:29] snapshot 2026-10-29 13:20 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[16:30:27] snapshot 2026-10-29 13:30 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[16:40:28] snapshot 2026-10-29 13:40 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=755, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[16:50:31] snapshot 2026-10-29 13:50 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=ERROR RuntimeError("GET failed after 3 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'event_ticker': , binance=1, kalshi_other=17, pm_other=754, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[17:00:21] snapshot 2026-10-29 14:00 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=17, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=61
+[17:05:15] live forecast kx1h t=2026-10-29 14:05: 14 models, 11 strikes, expected vol 56% annualized
+[17:10:07] polymarket: 7 open ladders
+[17:10:32] snapshot 2026-10-29 14:10 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=735, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[17:20:23] snapshot 2026-10-29 14:20 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=734, binance_options=200, okx_options=526, bybit_options=266, limitless=64
+[17:30:25] snapshot 2026-10-29 14:30 pm_books=77, deribit_chain=990, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=734, binance_options=200, okx_options=526, bybit_options=270, limitless=64
+[17:40:13] kalshi_other KXBTCMAX100: GET failed after 3 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTCMAX100', 'sta
+[17:40:21] kalshi_other KXBTCMAXMON: GET failed after 3 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTCMAXMON', 'sta
+[17:40:34] snapshot 2026-10-29 14:40 pm_books=77, deribit_chain=994, kalshi=188, kalshi_range=188, binance=1, kalshi_other=8, pm_other=755, binance_options=200, okx_options=528, bybit_options=272, limitless=64
+[17:50:15] kalshi_other KXBTCMAX100: GET failed after 3 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTCMAX100', 'sta
+[17:50:32] snapshot 2026-10-29 14:50 pm_books=77, deribit_chain=994, kalshi=188, kalshi_range=188, binance=1, kalshi_other=15, pm_other=754, binance_options=200, okx_options=528, bybit_options=272, limitless=64
+[18:00:22] snapshot 2026-10-29 15:00 pm_books=77, deribit_chain=994, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=733, binance_options=200, okx_options=528, bybit_options=272, limitless=64
+[18:05:20] live forecast kx1h t=2026-10-29 15:05: 14 models, 12 strikes, expected vol 60% annualized
+[18:10:27] snapshot 2026-10-29 15:10 pm_books=77, deribit_chain=994, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=735, binance_options=200, okx_options=530, bybit_options=280, limitless=64
+[18:20:06] polymarket: 7 open ladders
+[18:20:27] snapshot 2026-10-29 15:20 pm_books=77, deribit_chain=994, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=734, binance_options=200, okx_options=530, bybit_options=280, limitless=64
+[18:30:24] snapshot 2026-10-29 15:30 pm_books=77, deribit_chain=994, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=734, binance_options=200, okx_options=530, bybit_options=280, limitless=64
+[18:40:24] snapshot 2026-10-29 15:40 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=735, binance_options=200, okx_options=538, bybit_options=280, limitless=64
+[18:50:23] snapshot 2026-10-29 15:50 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=754, binance_options=200, okx_options=538, bybit_options=280, limitless=64
+[19:00:28] live forecast pm24h t=2026-10-29 16:00: 15 models, 8 strikes, expected vol 44% annualized
+[19:00:48] live forecast pm6d t=2026-10-29 16:00: 15 models, 11 strikes, expected vol 38% annualized
+[19:01:05] snapshot 2026-10-29 16:00 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=732, binance_options=200, okx_options=538, bybit_options=280, limitless=63
+[19:05:11] live forecast kx1h t=2026-10-29 16:05: 14 models, 10 strikes, expected vol 45% annualized
+[19:10:21] snapshot 2026-10-29 16:10 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=735, binance_options=200, okx_options=538, bybit_options=282, limitless=64
+[19:20:27] snapshot 2026-10-29 16:20 pm_books=66, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=735, binance_options=200, okx_options=538, bybit_options=282, limitless=64
+[19:30:04] polymarket: 7 open ladders
+[19:30:23] snapshot 2026-10-29 16:30 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=735, binance_options=200, okx_options=542, bybit_options=282, limitless=64
+[19:40:22] snapshot 2026-10-29 16:40 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=544, bybit_options=282, limitless=64
+[19:50:28] snapshot 2026-10-29 16:50 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=755, binance_options=200, okx_options=544, bybit_options=282, limitless=64
+[20:00:22] snapshot 2026-10-29 17:00 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=544, bybit_options=282, limitless=61
+[20:05:17] live forecast kx1h t=2026-10-29 17:05: 14 models, 8 strikes, expected vol 38% annualized
+[20:10:22] snapshot 2026-10-29 17:10 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=737, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[20:20:49] snapshot 2026-10-29 17:20 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[20:30:04] polymarket: 7 open ladders
+[20:30:22] snapshot 2026-10-29 17:30 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[20:40:23] snapshot 2026-10-29 17:40 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=737, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[20:50:24] snapshot 2026-10-29 17:50 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=756, binance_options=200, okx_options=546, bybit_options=282, limitless=63
+[21:00:20] snapshot 2026-10-29 18:00 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[21:05:27] live forecast kx1h t=2026-10-29 18:05: 14 models, 8 strikes, expected vol 36% annualized
+[21:10:24] snapshot 2026-10-29 18:10 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=737, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[21:20:22] snapshot 2026-10-29 18:20 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[21:30:27] snapshot 2026-10-29 18:30 pm_books=77, deribit_chain=996, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[21:40:07] polymarket: 7 open ladders
+[21:40:29] snapshot 2026-10-29 18:40 pm_books=77, deribit_chain=998, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=757, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[21:50:34] snapshot 2026-10-29 18:50 pm_books=77, deribit_chain=998, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=756, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[22:00:26] snapshot 2026-10-29 19:00 pm_books=77, deribit_chain=998, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[22:05:13] live forecast kx1h t=2026-10-29 19:05: 14 models, 6 strikes, expected vol 28% annualized
+[22:10:21] snapshot 2026-10-29 19:10 pm_books=77, deribit_chain=998, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=737, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[22:20:24] snapshot 2026-10-29 19:20 pm_books=77, deribit_chain=998, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[22:30:44] snapshot 2026-10-29 19:30 pm_books=77, deribit_chain=998, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[22:40:24] snapshot 2026-10-29 19:40 pm_books=77, deribit_chain=998, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=737, binance_options=200, okx_options=546, bybit_options=282, limitless=64
+[22:50:08] polymarket: 7 open ladders
+[22:50:29] snapshot 2026-10-29 19:50 pm_books=77, deribit_chain=998, kalshi=188, kalshi_range=188, binance=1, kalshi_other=16, pm_other=756, binance_options=200, okx_options=546, bybit_options=282, limitless=63
+[23:00:26] snapshot 2026-10-29 20:00 pm_books=77, deribit_chain=998, kalshi=80, kalshi_range=80, binance=1, kalshi_other=16, pm_other=735, binance_options=200, okx_options=546, bybit_options=282, limitless=63
+[23:05:24] live forecast kx1h t=2026-10-29 20:05: 14 models, 7 strikes, expected vol 32% annualized
+[23:10:25] snapshot 2026-10-29 20:10 pm_books=77, deribit_chain=998, kalshi=80, kalshi_range=80, binance=1, kalshi_other=16, pm_other=737, binance_options=200, okx_options=546, bybit_options=282, limitless=63
+[23:20:26] snapshot 2026-10-29 20:20 pm_books=77, deribit_chain=998, kalshi=80, kalshi_range=80, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=548, bybit_options=282, limitless=64
+[23:30:22] snapshot 2026-10-29 20:30 pm_books=77, deribit_chain=998, kalshi=80, kalshi_range=80, binance=1, kalshi_other=16, pm_other=736, binance_options=200, okx_options=548, bybit_options=282, limitless=62
+[23:40:06] kalshi_other KXBTC15M: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[23:40:06] kalshi_other KXBTCMAX100: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[23:40:06] kalshi_other KXBTCMAXMON: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[23:40:06] kalshi_other KXBTCMINMON: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[23:40:07] kalshi_other KXBTCPRICE: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[23:40:37] snapshot 2026-10-29 20:40 pm_books=77, deribit_chain=998, kalshi=BLOCKED, retry in 1h, kalshi_range=BLOCKED, retry in 1h, binance=1, kalshi_other=0, pm_other=737, binance_options=200, okx_options=548, bybit_options=282, limitless=BLOCKED, retry in 1h
+[23:50:17] snapshot 2026-10-29 20:50 pm_books=77, deribit_chain=1004, kalshi=paused (blocked), kalshi_range=paused (blocked), binance=1, kalshi_other=16, pm_other=756, binance_options=200, okx_options=548, bybit_options=282, limitless=paused (blocked)

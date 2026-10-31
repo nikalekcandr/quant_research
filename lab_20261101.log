@@ -1,0 +1,50 @@
+[2026-11-01 00:00:22] OPEN P02 no btc-updown-15m-1793480400 @ 0.4500 edge 0.0319
+[2026-11-01 00:02:22] OPEN A13 pm_no+kx_yes bitcoin-above-77400-on-october-31-2026-6pm-et|KXBTCD-26OCT3118-T77299.99 @ 0.8800 edge 0.0845
+[2026-11-01 00:05:24] SETTLE P03 bitcoin-up-or-down-october-31-2026-4pm-e pays 1 pnl +0.706
+[2026-11-01 00:05:24] SETTLE P03 bitcoin-up-or-down-october-31-2026-4pm-e pays 0 pnl -0.366
+[2026-11-01 00:05:24] SETTLE P02 btc-updown-15m-1793479500 pays 1 pnl +0.573
+[2026-11-01 00:05:24] SETTLE A12 btc-updown-15m-1793479500|KXBTC15M-26OCT pays 1 pnl +0.033
+[2026-11-01 00:05:24] SETTLE A12F btc-updown-15m-1793479500|KXBTC15M-26OCT pays 1 pnl +0.014
+[2026-11-01 00:05:24] SETTLE P02 btc-updown-15m-1793479500 pays 0 pnl -0.294
+[2026-11-01 00:09:21] OPEN P03 yes bitcoin-up-or-down-october-31-2026-5pm-et @ 0.2200 edge 0.0534
+[2026-11-01 00:13:24] OPEN O01 arb 2026-11-01-78500-C @ 15.0000 edge 5.0000
+[2026-11-01 00:15:22] OPEN P02 no btc-updown-15m-1793481300 @ 0.4300 edge 0.0529
+[2026-11-01 00:17:21] SETTLE P02 btc-updown-15m-1793480400 pays 1 pnl +0.533
+[2026-11-01 00:25:00] OPEN A12F pm_no+kx_yes btc-updown-15m-1793481300|KXBTC15M-26OCT311730-30 @ 0.9320 edge 0.0560
+[2026-11-01 00:29:16] OPEN P05 no bitcoin-above-77400-on-october-31-2026-6pm-et @ 0.0600 edge 0.0922
+[2026-11-01 00:31:17] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-11-01 00:31:57] feed bybit failed: GET failed after 2 attempts: https://api.bybit.com/v5/market/tickers {'category': 'linear', 'symbol': 'BTCUSDT'} (ReadTimeout(ReadTimeoutErr
+[2026-11-01 00:32:31] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnectionPo
+[2026-11-01 00:33:13] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (ReadTimeout(ReadTimeoutError("HTTPSConnectionPo
+[2026-11-01 00:34:22] OPEN A12F pm_no+kx_yes btc-updown-15m-1793482200|KXBTC15M-26OCT311745-45 @ 0.9500 edge 0.0126
+[2026-11-01 00:35:23] SETTLE P02 btc-updown-15m-1793481300 pays 0 pnl -0.447
+[2026-11-01 00:35:23] SETTLE A12F btc-updown-15m-1793481300|KXBTC15M-26OCT pays 1 pnl +0.056
+[2026-11-01 00:35:23] OPEN P02 yes btc-updown-15m-1793482200 @ 0.3500 edge 0.0325
+[2026-11-01 00:35:24] OPEN W04 no KXBTCD-26OCT3118-T77499.99 @ 0.9400 edge 0.0032
+[2026-11-01 00:36:10] OPEN P02 no btc-updown-15m-1793482200 @ 0.5100 edge 0.0884
+[2026-11-01 00:38:00] OPEN A12F pm_yes+kx_no btc-updown-15m-1793482200|KXBTC15M-26OCT311745-45 @ 0.8800 edge 0.0825
+[2026-11-01 00:43:23] OPEN O01 arb 2026-11-01-78000-C @ 23.2214 edge 0.9676
+[2026-11-01 00:46:14] OPEN P02 no btc-updown-15m-1793483100 @ 0.3500 edge 0.0814
+[2026-11-01 00:47:23] SETTLE A12F btc-updown-15m-1793482200|KXBTC15M-26OCT pays 1 pnl +0.013
+[2026-11-01 00:47:23] SETTLE P02 btc-updown-15m-1793482200 pays 1 pnl +0.634
+[2026-11-01 00:47:23] SETTLE P02 btc-updown-15m-1793482200 pays 0 pnl -0.527
+[2026-11-01 00:47:23] SETTLE A12F btc-updown-15m-1793482200|KXBTC15M-26OCT pays 1 pnl +0.083
+[2026-11-01 00:50:09] OPEN P03 no bitcoin-up-or-down-october-31-2026-5pm-et @ 0.3100 edge 0.0436
+[2026-11-01 01:00:29] OPEN A13 pm_no+kx_yes bitcoin-above-77600-on-october-31-2026-7pm-et|KXBTCD-26OCT3119-T77499.99 @ 0.9000 edge 0.0662
+[2026-11-01 01:01:12] OPEN P03 yes bitcoin-up-or-down-october-31-2026-6pm-et @ 0.3900 edge 0.0336
+[2026-11-01 01:02:36] SETTLE A13 bitcoin-above-77400-on-october-31-2026-6 pays 1 pnl +0.085
+[2026-11-01 01:02:36] SETTLE P05 bitcoin-above-77400-on-october-31-2026-6 pays 0 pnl -0.064
+[2026-11-01 01:02:37] SETTLE W04 KXBTCD-26OCT3118-T77499.99 pays 0 pnl -0.950
+[2026-11-01 01:02:37] SETTLE P02 btc-updown-15m-1793483100 pays 0 pnl -0.366
+[2026-11-01 01:02:38] OPEN P02 no btc-updown-15m-1793484000 @ 0.2000 edge 0.1751
+[2026-11-01 01:02:38] OPEN P03 no bitcoin-up-or-down-october-31-2026-6pm-et @ 0.3700 edge 0.0593
+[2026-11-01 01:02:46] OPEN A12F pm_no+kx_yes btc-updown-15m-1793484000|KXBTC15M-26OCT311815-15 @ 0.9200 edge 0.0459
+[2026-11-01 01:05:18] SETTLE P03 bitcoin-up-or-down-october-31-2026-5pm-e pays 1 pnl +0.768
+[2026-11-01 01:05:18] SETTLE P03 bitcoin-up-or-down-october-31-2026-5pm-e pays 0 pnl -0.325
+[2026-11-01 01:05:19] OPEN P02 yes btc-updown-15m-1793484000 @ 0.8300 edge 0.0586
+[2026-11-01 01:05:19] OPEN A13 pm_no+kx_yes bitcoin-above-77800-on-october-31-2026-7pm-et|KXBTCD-26OCT3119-T77699.99 @ 0.9200 edge 0.0465
+[2026-11-01 01:08:18] OPEN A12 pm_no+kx_yes btc-updown-15m-1793484000|KXBTC15M-26OCT311815-15 @ 0.9300 edge 0.0392
+[2026-11-01 01:13:15] OPEN A12F pm_yes+kx_no btc-updown-15m-1793484000|KXBTC15M-26OCT311815-15 @ 0.9400 edge 0.0253
+[2026-11-01 01:14:00] OPEN V07 yes KXBTC15M-26OCT311815-15 @ 0.1500 edge 0.2480
+[2026-11-01 01:14:14] OPEN A12 pm_yes+kx_no btc-updown-15m-1793484000|KXBTC15M-26OCT311815-15 @ 0.9100 edge 0.0606
+[2026-11-01 01:15:22] OPEN P05 yes bitcoin-above-77800-on-october-31-2026-7pm-et @ 0.0900 edge 0.0316

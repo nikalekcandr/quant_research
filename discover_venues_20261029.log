@@ -1,0 +1,168 @@
+{
+ "kalshi_series": [
+  "BITCOINMAXY",
+  "BTC",
+  "BTCATH",
+  "BTCD",
+  "BTCD-B",
+  "BTCETHATH",
+  "BTCETHRETURN",
+  "BTCMAX100",
+  "BTCMAXM",
+  "BTCMAXY",
+  "BTCMINMAXY",
+  "BTCMINY",
+  "KXBCH",
+  "KXBCH15M",
+  "KXBCHD",
+  "KXBITCOIN25",
+  "KXBITCOINMAXY",
+  "KXBTC",
+  "KXBTC100",
+  "KXBTC15M",
+  "KXBTC2025100",
+  "KXBTC2026200",
+  "KXBTC2026250",
+  "KXBTC25ATTEND",
+  "KXBTC50VS100",
+  "KXBTC60VS100",
+  "KXBTC70VS100",
+  "KXBTC75VS100",
+  "KXBTCATH",
+  "KXBTCD",
+  "KXBTCD-B",
+  "KXBTCDOM",
+  "KXBTCE",
+  "KXBTCETHATH",
+  "KXBTCETHRETURN",
+  "KXBTCEU",
+  "KXBTCHALF",
+  "KXBTCMAX100",
+  "KXBTCMAX100INAUG",
+  "KXBTCMAX125",
+  "KXBTCMAX130",
+  "KXBTCMAX150",
+  "KXBTCMAX90",
+  "KXBTCMAXD",
+  "KXBTCMAXM",
+  "KXBTCMAXMON",
+  "KXBTCMAXQ",
+  "KXBTCMAXW",
+  "KXBTCMAXY",
+  "KXBTCMINMAXY",
+  "KXBTCMINMON",
+  "KXBTCMINY",
+  "KXBTCPRICE",
+  "KXBTCQ",
+  "KXBTCRESERVECOUNTRY",
+  "KXBTCVSETH",
+  "KXBTCVSHYPE",
+  "KXBTCVSSOL",
+  "KXBTCY",
+  "KXBTCYEAR",
+  "KXCOUNTRYBTC",
+  "KXDJBTC",
+  "KXDJTBTC",
+  "KXELSALVADORBTC",
+  "KXHARDFORKBTC",
+  "KXMAG7BTC",
+  "KXPRCBTC",
+  "KXSATOSHIBTCYEAR",
+  "KXSNSBTC"
+ ],
+ "kalshi_other_markets": 17,
+ "kalshi_other_by_series": {
+  "KXBTC15M": 1,
+  "KXBTCMAX100": 1,
+  "KXBTCMAXMON": 7,
+  "KXBTCMINMON": 7,
+  "KXBTCPRICE": 1
+ },
+ "pm_markets": 733,
+ "pm_by_kind": {
+  "above_ladder": 97,
+  "barrier": 91,
+  "other": 16,
+  "range": 88,
+  "updown": 51,
+  "updown_15m": 390
+ },
+ "pm_titles": {
+  "above_ladder": [
+   "Bitcoin above ___ on November 1?",
+   "Bitcoin above ___ on November 2?",
+   "Bitcoin above ___ on November 3?",
+   "Bitcoin above ___ on November 4?",
+   "Bitcoin above ___ on October 28, 7PM ET?",
+   "Bitcoin above ___ on October 29?"
+  ],
+  "barrier": [
+   "What price will Bitcoin hit October 26-November 1?",
+   "What price will Bitcoin hit in October?",
+   "What price will Bitcoin hit on October 28?",
+   "What price will ETH/BTC hit October 26-November 1?",
+   "What will the Bitcoin Implied Volatility Index hit by October 31?"
+  ],
+  "other": [
+   "Bitcoin ETF Flows on October 29?",
+   "Bitcoin ETF Flows on October 30?",
+   "Bitcoin difficulty adjustment at block 973,728?",
+   "Bitcoin green days week of October 26?"
+  ],
+  "range": [
+   "Bitcoin dominance on October 30?",
+   "Bitcoin hashprice: week of October 26?",
+   "Bitcoin price on November 1?",
+   "Bitcoin price on November 2?",
+   "Bitcoin price on November 3?",
+   "Bitcoin price on November 4?"
+  ],
+  "updown": [
+   "Bitcoin Up or Down - October 28, 10PM ET",
+   "Bitcoin Up or Down - October 28, 11PM ET",
+   "Bitcoin Up or Down - October 28, 6PM ET",
+   "Bitcoin Up or Down - October 28, 7PM ET",
+   "Bitcoin Up or Down - October 28, 8PM ET",
+   "Bitcoin Up or Down - October 28, 9PM ET"
+  ],
+  "updown_15m": [
+   "Bitcoin Up or Down - October 28, 10:00PM-10:05PM ET",
+   "Bitcoin Up or Down - October 28, 10:00PM-10:15PM ET",
+   "Bitcoin Up or Down - October 28, 10:05PM-10:10PM ET",
+   "Bitcoin Up or Down - October 28, 10:10PM-10:15PM ET",
+   "Bitcoin Up or Down - October 28, 10:15PM-10:20PM ET",
+   "Bitcoin Up or Down - October 28, 10:15PM-10:30PM ET"
+  ]
+ },
+ "pm_best_bid_present": 0.9631650750341064,
+ "binance_options": 220,
+ "binance_options_expiries": [
+  "2026-10-29 08:00:00+00:00",
+  "2026-10-30 08:00:00+00:00",
+  "2026-10-31 08:00:00+00:00",
+  "2026-11-06 08:00:00+00:00"
+ ],
+ "okx_options": 532,
+ "okx_options_expiries": [
+  "2026-10-29 08:00:00+00:00",
+  "2026-10-30 08:00:00+00:00",
+  "2026-10-31 08:00:00+00:00",
+  "2026-11-01 08:00:00+00:00",
+  "2026-11-06 08:00:00+00:00"
+ ],
+ "okx_options_iv_median": 0.378069612150585,
+ "bybit_options": 270,
+ "bybit_options_expiries": [
+  "2026-10-29 08:00:00+00:00",
+  "2026-10-30 08:00:00+00:00",
+  "2026-10-31 08:00:00+00:00",
+  "2026-11-06 08:00:00+00:00"
+ ],
+ "bybit_options_iv_median": 0.397,
+ "limitless": {
+  "/markets/active": "dict",
+  "/markets/active/crypto": "error: HTTPError('400 Client Error: Bad Request for url: https://api.limitless.exchange/markets/active/crypto?limit=25')",
+  "/markets": "NoneType"
+ }
+}
+[01:01:31] saved to C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\live\discovery

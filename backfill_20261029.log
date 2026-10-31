@@ -1,0 +1,266 @@
+[01:01:32] probe: earliest Polymarket daily ladder (scan from 2024-01) ...
+[01:01:55] polymarket: earliest daily ladder found on 2025-08-13
+[01:01:55] probe: earliest Kalshi KXBTCD hourly event (scan from 2023-01) ...
+[01:02:35] kalshi: earliest KXBTCD hourly event found on 2024-12-12
+[01:02:35] probe result: {"POLYMARKET_START": "2025-08-13", "KALSHI_START": "2024-12-12", "DERIBIT_START": "2025-06-01", "EVAL_START": "2025-03-01"}
+[01:02:35] written C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\manual\starts.json; config.py reads it from now on
+[01:02:40] history: Polymarket from 2025-08-13, Kalshi from 2026-01-01, Deribit trades from 2025-06-01, evaluation from 2025-03-01
+[01:02:40] --- downloading Binance 1-minute candles
+[01:02:54] --- Binance 1-minute candles: ok (0.2 min)
+[01:02:54] --- downloading Deribit DVOL
+[01:03:04] dvol: 33526 hourly points
+[01:03:04] --- Deribit DVOL: ok (0.2 min)
+[01:03:04] --- downloading Polymarket ladders
+[01:03:18] polymarket: 2025-09-18 done (20 events, 53 price files fetched)
+[01:03:18] polymarket: 2025-10-08 done (40 events, 53 price files fetched)
+[01:03:19] polymarket: 2025-10-28 done (60 events, 53 price files fetched)
+[01:03:19] polymarket: 2025-11-18 done (80 events, 53 price files fetched)
+[01:03:19] polymarket: 2025-12-08 done (100 events, 53 price files fetched)
+[01:03:20] polymarket: 2025-12-29 done (120 events, 53 price files fetched)
+[01:03:20] polymarket: 2026-01-18 done (140 events, 53 price files fetched)
+[01:03:20] polymarket: 2026-02-07 done (160 events, 53 price files fetched)
+[01:03:20] polymarket: 2026-02-27 done (180 events, 53 price files fetched)
+[01:03:21] polymarket: 2026-03-21 done (200 events, 53 price files fetched)
+[01:03:22] polymarket: 2026-04-10 done (220 events, 53 price files fetched)
+[01:03:22] polymarket: 2026-04-30 done (240 events, 53 price files fetched)
+[01:03:22] polymarket: 2026-05-20 done (260 events, 53 price files fetched)
+[01:03:22] polymarket: 2026-06-09 done (280 events, 53 price files fetched)
+[01:03:23] polymarket: 2026-06-29 done (300 events, 53 price files fetched)
+[01:03:23] polymarket: 2026-07-21 done (320 events, 53 price files fetched)
+[01:03:24] polymarket: 2026-08-12 done (340 events, 53 price files fetched)
+[01:03:24] polymarket: 2026-09-01 done (360 events, 53 price files fetched)
+[01:03:24] polymarket: 2026-09-21 done (380 events, 53 price files fetched)
+[01:03:25] polymarket: 2026-10-11 done (400 events, 53 price files fetched)
+[01:03:53] polymarket: finished, 418 events
+[01:03:53] --- Polymarket ladders: ok (0.8 min)
+[01:03:53] --- downloading Deribit option trades
+[01:03:58] deribit trades: 2026-10-24 (1134 trades)
+[01:03:59] deribit trades: finished
+[01:03:59] --- Deribit option trades: ok (0.1 min)
+[01:03:59] --- downloading Kalshi hourly ladders from 2026-10-13
+[01:03:59] kalshi: downloading KXBTCD hourly ladders 2026-10-13 .. 2026-10-27, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:03:59] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:03:59] --- Kalshi hourly ladders from 2026-10-13: ok (0.0 min)
+[01:03:59] --- downloading Kalshi hourly ladders 2026-01-01 .. 2026-10-13, newest month first
+[01:03:59] kalshi: downloading KXBTCD hourly ladders 2026-10-01 .. 2026-10-12, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:03:59] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:04:00] kalshi: downloading KXBTCD hourly ladders 2026-09-01 .. 2026-09-30, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:04:00] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:04:01] kalshi: downloading KXBTCD hourly ladders 2026-08-01 .. 2026-08-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:04:01] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:04:03] kalshi: downloading KXBTCD hourly ladders 2026-07-01 .. 2026-07-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:04:03] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:04:04] kalshi: downloading KXBTCD hourly ladders 2026-06-01 .. 2026-06-30, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:04:04] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:04:05] kalshi: downloading KXBTCD hourly ladders 2026-05-01 .. 2026-05-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:04:05] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:04:06] kalshi: downloading KXBTCD hourly ladders 2026-04-01 .. 2026-04-30, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:04:06] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:04:07] kalshi: downloading KXBTCD hourly ladders 2026-03-01 .. 2026-03-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:04:07] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:04:07] kalshi: 2026-03-01 was downloaded with too few strikes; downloading it again
+[01:05:04] kalshi: 2026-03-01 (1775 candle rows)
+[01:05:04] kalshi: 2026-03-02 was downloaded with too few strikes; downloading it again
+[01:06:04] kalshi: 2026-03-02 (1889 candle rows)
+[01:06:04] kalshi: 2026-03-03 was downloaded with too few strikes; downloading it again
+[01:07:03] kalshi: 2026-03-03 (1851 candle rows)
+[01:07:03] kalshi: 2026-03-04 was downloaded with too few strikes; downloading it again
+[01:08:07] kalshi: 2026-03-04 (1994 candle rows)
+[01:08:07] kalshi: 2026-03-05 was downloaded with too few strikes; downloading it again
+[01:09:02] kalshi: 2026-03-05 (1635 candle rows)
+[01:09:02] kalshi: 2026-03-06 was downloaded with too few strikes; downloading it again
+[01:10:00] kalshi: 2026-03-06 (1848 candle rows)
+[01:10:00] kalshi: 2026-03-07 was downloaded with too few strikes; downloading it again
+[01:11:09] kalshi: 2026-03-07 (1797 candle rows)
+[01:11:09] kalshi: 2026-03-08 was downloaded with too few strikes; downloading it again
+[01:12:07] kalshi: 2026-03-08 (1742 candle rows)
+[01:12:07] kalshi: 2026-03-09 was downloaded with too few strikes; downloading it again
+[01:13:07] kalshi: 2026-03-09 (1902 candle rows)
+[01:13:07] kalshi: 2026-03-10 was downloaded with too few strikes; downloading it again
+[01:14:09] kalshi: 2026-03-10 (1950 candle rows)
+[01:14:09] kalshi: 2026-03-11 was downloaded with too few strikes; downloading it again
+[01:15:11] kalshi: 2026-03-11 (1923 candle rows)
+[01:15:11] kalshi: 2026-03-12 was downloaded with too few strikes; downloading it again
+[01:16:04] kalshi: 2026-03-12 (1537 candle rows)
+[01:16:04] kalshi: 2026-03-13 was downloaded with too few strikes; downloading it again
+[01:17:04] kalshi: 2026-03-13 (1931 candle rows)
+[01:17:04] kalshi: 2026-03-14 was downloaded with too few strikes; downloading it again
+[01:18:07] kalshi: 2026-03-14 (1897 candle rows)
+[01:18:07] kalshi: 2026-03-15 was downloaded with too few strikes; downloading it again
+[01:19:10] kalshi: 2026-03-15 (1916 candle rows)
+[01:19:10] kalshi: 2026-03-16 was downloaded with too few strikes; downloading it again
+[01:20:22] kalshi: 2026-03-16 (2071 candle rows)
+[01:20:22] kalshi: 2026-03-17 was downloaded with too few strikes; downloading it again
+[01:21:32] kalshi: 2026-03-17 (2063 candle rows)
+[01:21:33] kalshi: downloading KXBTCD hourly ladders 2026-02-01 .. 2026-02-28, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:21:33] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:21:33] kalshi: 2026-02-01 was downloaded with too few strikes; downloading it again
+[01:22:38] kalshi: 2026-02-01 (2138 candle rows)
+[01:22:39] kalshi: 2026-02-02 was downloaded with too few strikes; downloading it again
+[01:23:45] kalshi: 2026-02-02 (2147 candle rows)
+[01:23:45] kalshi: 2026-02-03 was downloaded with too few strikes; downloading it again
+[01:24:52] kalshi: 2026-02-03 (2113 candle rows)
+[01:24:52] kalshi: 2026-02-04 was downloaded with too few strikes; downloading it again
+[01:25:55] kalshi: 2026-02-04 (2005 candle rows)
+[01:25:55] kalshi: 2026-02-05 was downloaded with too few strikes; downloading it again
+[01:26:48] kalshi: 2026-02-05 (1387 candle rows)
+[01:26:48] kalshi: 2026-02-06 was downloaded with too few strikes; downloading it again
+[01:27:48] kalshi: 2026-02-06 (1891 candle rows)
+[01:27:48] kalshi: 2026-02-07 was downloaded with too few strikes; downloading it again
+[01:28:48] kalshi: 2026-02-07 (1943 candle rows)
+[01:28:48] kalshi: 2026-02-08 was downloaded with too few strikes; downloading it again
+[01:29:48] kalshi: 2026-02-08 (1930 candle rows)
+[01:29:48] kalshi: 2026-02-09 was downloaded with too few strikes; downloading it again
+[01:31:04] kalshi: 2026-02-09 (1814 candle rows)
+[01:31:04] kalshi: 2026-02-10 was downloaded with too few strikes; downloading it again
+[01:32:04] kalshi: 2026-02-10 (1568 candle rows)
+[01:32:04] kalshi: 2026-02-11 was downloaded with too few strikes; downloading it again
+[01:33:05] kalshi: 2026-02-11 (1622 candle rows)
+[01:33:05] kalshi: 2026-02-12 was downloaded with too few strikes; downloading it again
+[01:34:02] kalshi: 2026-02-12 (1584 candle rows)
+[01:34:02] kalshi: 2026-02-13 was downloaded with too few strikes; downloading it again
+[01:35:01] kalshi: 2026-02-13 (1817 candle rows)
+[01:35:01] kalshi: 2026-02-14 was downloaded with too few strikes; downloading it again
+[01:36:03] kalshi: 2026-02-14 (1683 candle rows)
+[01:36:03] kalshi: 2026-02-15 was downloaded with too few strikes; downloading it again
+[01:37:04] kalshi: 2026-02-15 (1767 candle rows)
+[01:37:04] kalshi: 2026-02-16 was downloaded with too few strikes; downloading it again
+[01:38:03] kalshi: 2026-02-16 (1752 candle rows)
+[01:38:03] kalshi: 2026-02-17 was downloaded with too few strikes; downloading it again
+[01:39:04] kalshi: 2026-02-17 (1735 candle rows)
+[01:39:04] kalshi: 2026-02-18 was downloaded with too few strikes; downloading it again
+[01:40:03] kalshi: 2026-02-18 (1688 candle rows)
+[01:40:03] kalshi: 2026-02-19 was downloaded with too few strikes; downloading it again
+[01:41:11] kalshi: 2026-02-19 (1512 candle rows)
+[01:41:11] kalshi: 2026-02-20 was downloaded with too few strikes; downloading it again
+[01:42:13] kalshi: 2026-02-20 (1718 candle rows)
+[01:42:13] kalshi: 2026-02-21 was downloaded with too few strikes; downloading it again
+[01:43:12] kalshi: 2026-02-21 (1407 candle rows)
+[01:43:12] kalshi: 2026-02-22 was downloaded with too few strikes; downloading it again
+[01:44:10] kalshi: 2026-02-22 (1473 candle rows)
+[01:44:10] kalshi: 2026-02-23 was downloaded with too few strikes; downloading it again
+[01:45:09] kalshi: 2026-02-23 (1752 candle rows)
+[01:45:09] kalshi: 2026-02-24 was downloaded with too few strikes; downloading it again
+[01:46:05] kalshi: 2026-02-24 (1705 candle rows)
+[01:46:05] kalshi: 2026-02-25 was downloaded with too few strikes; downloading it again
+[01:47:04] kalshi: 2026-02-25 (1824 candle rows)
+[01:47:04] kalshi: 2026-02-26 was downloaded with too few strikes; downloading it again
+[01:47:57] kalshi: 2026-02-26 (1467 candle rows)
+[01:47:57] kalshi: 2026-02-27 was downloaded with too few strikes; downloading it again
+[01:48:55] kalshi: 2026-02-27 (1771 candle rows)
+[01:48:55] kalshi: 2026-02-28 was downloaded with too few strikes; downloading it again
+[01:49:54] kalshi: 2026-02-28 (1775 candle rows)
+[01:49:54] kalshi: downloading KXBTCD hourly ladders 2026-01-01 .. 2026-01-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[01:49:54] kalshi: one line per day; the first one appears in about 20-60 seconds
+[01:49:54] kalshi: 2026-01-01 was downloaded with too few strikes; downloading it again
+[01:51:05] kalshi: 2026-01-01 (1520 candle rows)
+[01:51:05] kalshi: 2026-01-02 was downloaded with too few strikes; downloading it again
+[01:52:00] kalshi: 2026-01-02 (1632 candle rows)
+[01:52:00] kalshi: 2026-01-03 was downloaded with too few strikes; downloading it again
+[01:52:54] kalshi: 2026-01-03 (1473 candle rows)
+[01:52:54] kalshi: 2026-01-04 was downloaded with too few strikes; downloading it again
+[01:53:47] kalshi: 2026-01-04 (1630 candle rows)
+[01:53:47] kalshi: 2026-01-05 was downloaded with too few strikes; downloading it again
+[01:54:44] kalshi: 2026-01-05 (1707 candle rows)
+[01:54:44] kalshi: 2026-01-06 was downloaded with too few strikes; downloading it again
+[01:55:38] kalshi: 2026-01-06 (1682 candle rows)
+[01:55:38] kalshi: 2026-01-07 was downloaded with too few strikes; downloading it again
+[01:56:34] kalshi: 2026-01-07 (1693 candle rows)
+[01:56:34] kalshi: 2026-01-08 was downloaded with too few strikes; downloading it again
+[01:57:28] kalshi: 2026-01-08 (1640 candle rows)
+[01:57:28] kalshi: 2026-01-09 was downloaded with too few strikes; downloading it again
+[01:58:21] kalshi: 2026-01-09 (1652 candle rows)
+[01:58:21] kalshi: 2026-01-10 was downloaded with too few strikes; downloading it again
+[01:59:14] kalshi: 2026-01-10 (1456 candle rows)
+[01:59:14] kalshi: 2026-01-11 was downloaded with too few strikes; downloading it again
+[02:00:25] kalshi: 2026-01-11 (1591 candle rows)
+[02:00:26] kalshi: 2026-01-12 was downloaded with too few strikes; downloading it again
+[02:01:19] kalshi: 2026-01-12 (1625 candle rows)
+[02:01:19] kalshi: 2026-01-13 was downloaded with too few strikes; downloading it again
+[02:02:13] kalshi: 2026-01-13 (1724 candle rows)
+[02:02:13] kalshi: 2026-01-14 was downloaded with too few strikes; downloading it again
+[02:03:09] kalshi: 2026-01-14 (1757 candle rows)
+[02:03:09] kalshi: 2026-01-15 was downloaded with too few strikes; downloading it again
+[02:04:07] kalshi: 2026-01-15 (1658 candle rows)
+[02:04:07] kalshi: 2026-01-16 was downloaded with too few strikes; downloading it again
+[02:05:04] kalshi: 2026-01-16 (1558 candle rows)
+[02:05:04] kalshi: 2026-01-17 was downloaded with too few strikes; downloading it again
+[02:06:23] kalshi: 2026-01-17 (1986 candle rows)
+[02:06:23] kalshi: 2026-01-18 was downloaded with too few strikes; downloading it again
+[02:07:42] kalshi: 2026-01-18 (1978 candle rows)
+[02:07:42] kalshi: 2026-01-19 was downloaded with too few strikes; downloading it again
+[02:09:01] kalshi: 2026-01-19 (2294 candle rows)
+[02:09:01] kalshi: 2026-01-20 was downloaded with too few strikes; downloading it again
+[02:10:31] kalshi: 2026-01-20 (2365 candle rows)
+[02:10:31] kalshi: 2026-01-21 was downloaded with too few strikes; downloading it again
+[02:11:46] kalshi: 2026-01-21 (2343 candle rows)
+[02:11:46] kalshi: 2026-01-22 was downloaded with too few strikes; downloading it again
+[02:13:01] kalshi: 2026-01-22 (2210 candle rows)
+[02:13:01] kalshi: 2026-01-23 was downloaded with too few strikes; downloading it again
+[02:14:15] kalshi: 2026-01-23 (2339 candle rows)
+[02:14:15] kalshi: 2026-01-24 was downloaded with too few strikes; downloading it again
+[02:15:31] kalshi: 2026-01-24 (2137 candle rows)
+[02:15:32] kalshi: 2026-01-25 was downloaded with too few strikes; downloading it again
+[02:16:46] kalshi: 2026-01-25 (2258 candle rows)
+[02:16:46] kalshi: 2026-01-26 was downloaded with too few strikes; downloading it again
+[02:18:01] kalshi: 2026-01-26 (2342 candle rows)
+[02:18:01] kalshi: 2026-01-27 was downloaded with too few strikes; downloading it again
+[02:19:13] kalshi: 2026-01-27 (2302 candle rows)
+[02:19:13] kalshi: 2026-01-28 was downloaded with too few strikes; downloading it again
+[02:20:50] kalshi: 2026-01-28 (2332 candle rows)
+[02:20:50] kalshi: 2026-01-29 was downloaded with too few strikes; downloading it again
+[02:22:03] kalshi: 2026-01-29 (2090 candle rows)
+[02:22:03] kalshi: 2026-01-30 was downloaded with too few strikes; downloading it again
+[02:23:13] kalshi: 2026-01-30 (2282 candle rows)
+[02:23:13] kalshi: 2026-01-31 was downloaded with too few strikes; downloading it again
+[02:24:22] kalshi: 2026-01-31 (2147 candle rows)
+[02:24:22] --- Kalshi hourly ladders 2026-01-01 .. 2026-10-13, newest month first: ok (80.4 min)
+[02:24:25] ===== interim =====
+[02:24:25] interim: Binance minutes
+[02:24:32] interim: Polymarket ladders
+[02:25:24] interim: Kalshi ladders
+[02:25:30] interim: Deribit implied variance
+C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\measure\deribit_iv.py:30: RankWarning: Polyfit may be poorly conditioned
+  coef = np.polyfit(k, iv, 2, w=np.sqrt(w))
+C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\measure\deribit_iv.py:30: RankWarning: Polyfit may be poorly conditioned
+  coef = np.polyfit(k, iv, 2, w=np.sqrt(w))
+[02:26:48] ===== interim: 144 s
+[02:26:48] ===== panels =====
+[02:26:49] minutes: 2023-01-01 .. 2026-10-28 22:02
+[02:28:58] panel kx1h
+[02:29:39] panel kx1h: 32759 occasions, 6732 with a ladder, 0 with Deribit ATM IV
+[02:29:39] panel pm24h
+[02:29:42] panel pm24h: 1365 occasions, 405 with a ladder, 512 with Deribit ATM IV
+[02:29:42] panel pm6d
+[02:29:51] panel pm6d: 1360 occasions, 411 with a ladder, 497 with Deribit ATM IV
+[02:29:51] ===== panels: 182 s
+[02:29:51] ===== models =====
+[02:29:51] models kx1h
+[02:30:49] models pm24h
+[02:31:22] models pm6d
+[02:32:06] ===== models: 135 s
+[02:32:06] ===== evaluate =====
+[02:32:13] live evaluation: 1 late forecasts left out (see MAX_LATE_MIN)
+[02:32:14] live forecasts scored: 28 forecast-model pairs
+[02:32:14] evaluation tables written to results/tables
+[02:32:14] ===== evaluate: 8 s
+[02:32:14] ===== extensions =====
+[02:32:16] extensions: model confidence set written
+[02:32:21] extensions: pool, encompassing, conditional ability, fluctuation and wings tables written
+[02:32:21] ===== extensions: 7 s
+[02:32:21] ===== alpha =====
+[02:32:40] alpha: kx1h done (6803 snapshots, 43025 strikes)
+[02:32:41] alpha: pm24h done (412 snapshots, 4366 strikes)
+[02:32:42] alpha: pm6d done (411 snapshots, 4315 strikes)
+[02:32:42] alpha: pm1h done (413 snapshots, 4513 strikes)
+[02:32:43] alpha: pm1h_stale done (416 snapshots, 4569 strikes)
+[02:32:43] alpha: grid, SPA, hold-out, Brier and cross-venue tables written
+[02:32:43] ===== alpha: 22 s
+[02:32:43] ===== figures =====
+[02:32:47] figures written to results/figures
+[02:32:47] ===== figures: 4 s
+[02:32:47] ===== report =====
+[02:32:47] report: C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\reports\draft_report.md
+[02:32:47] ===== report: 0 s
+[02:32:49] oos report: C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\reports\oos_report.md (2 forecasts, chain intact; code identical: True)
+[02:32:49] backfill finished

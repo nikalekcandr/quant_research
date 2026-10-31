@@ -1,0 +1,238 @@
+[05:10:00] ===== daily update 2026-10-29 05:10 =====
+[05:10:00] --- downloading Binance 1-minute candles
+[05:10:03] --- Binance 1-minute candles: ok (0.0 min)
+[05:10:03] --- downloading Deribit DVOL
+[05:10:10] dvol: 33530 hourly points
+[05:10:10] --- Deribit DVOL: ok (0.1 min)
+[05:10:10] --- downloading Polymarket ladders
+[05:10:14] polymarket: 2025-09-18 done (20 events, 0 price files fetched)
+[05:10:14] polymarket: 2025-10-08 done (40 events, 0 price files fetched)
+[05:10:14] polymarket: 2025-10-28 done (60 events, 0 price files fetched)
+[05:10:14] polymarket: 2025-11-18 done (80 events, 0 price files fetched)
+[05:10:14] polymarket: 2025-12-08 done (100 events, 0 price files fetched)
+[05:10:15] polymarket: 2025-12-29 done (120 events, 0 price files fetched)
+[05:10:15] polymarket: 2026-01-18 done (140 events, 0 price files fetched)
+[05:10:15] polymarket: 2026-02-07 done (160 events, 0 price files fetched)
+[05:10:15] polymarket: 2026-02-27 done (180 events, 0 price files fetched)
+[05:10:15] polymarket: 2026-03-21 done (200 events, 0 price files fetched)
+[05:10:16] polymarket: 2026-04-10 done (220 events, 0 price files fetched)
+[05:10:16] polymarket: 2026-04-30 done (240 events, 0 price files fetched)
+[05:10:16] polymarket: 2026-05-20 done (260 events, 0 price files fetched)
+[05:10:16] polymarket: 2026-06-09 done (280 events, 0 price files fetched)
+[05:10:16] polymarket: 2026-06-29 done (300 events, 0 price files fetched)
+[05:10:16] polymarket: 2026-07-21 done (320 events, 0 price files fetched)
+[05:10:17] polymarket: 2026-08-12 done (340 events, 0 price files fetched)
+[05:10:17] polymarket: 2026-09-01 done (360 events, 0 price files fetched)
+[05:10:17] polymarket: 2026-09-21 done (380 events, 0 price files fetched)
+[05:10:17] polymarket: 2026-10-11 done (400 events, 0 price files fetched)
+[05:10:21] polymarket: finished, 419 events
+[05:10:21] --- Polymarket ladders: ok (0.2 min)
+[05:10:21] --- downloading Deribit option trades
+[05:10:21] deribit trades: finished
+[05:10:21] --- Deribit option trades: ok (0.0 min)
+[05:10:21] --- downloading Kalshi hourly ladders from 2026-10-13
+[05:10:21] kalshi: downloading KXBTCD hourly ladders 2026-10-13 .. 2026-10-27, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:21] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:21] --- Kalshi hourly ladders from 2026-10-13: ok (0.0 min)
+[05:10:21] --- downloading Kalshi hourly ladders 2024-12-12 .. 2026-10-13, newest month first
+[05:10:21] kalshi: downloading KXBTCD hourly ladders 2026-10-01 .. 2026-10-12, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:21] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:22] kalshi: downloading KXBTCD hourly ladders 2026-09-01 .. 2026-09-30, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:22] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:23] kalshi: downloading KXBTCD hourly ladders 2026-08-01 .. 2026-08-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:23] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:24] kalshi: downloading KXBTCD hourly ladders 2026-07-01 .. 2026-07-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:24] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:24] kalshi: downloading KXBTCD hourly ladders 2026-06-01 .. 2026-06-30, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:24] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:25] kalshi: downloading KXBTCD hourly ladders 2026-05-01 .. 2026-05-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:25] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:25] kalshi: downloading KXBTCD hourly ladders 2026-04-01 .. 2026-04-30, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:25] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:26] kalshi: downloading KXBTCD hourly ladders 2026-03-01 .. 2026-03-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:26] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:26] kalshi: downloading KXBTCD hourly ladders 2026-02-01 .. 2026-02-28, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:26] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:26] kalshi: downloading KXBTCD hourly ladders 2026-01-01 .. 2026-01-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:26] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:10:27] kalshi: downloading KXBTCD hourly ladders 2025-12-01 .. 2025-12-31, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[05:10:27] kalshi: one line per day; the first one appears in about 20-60 seconds
+[05:12:31] kalshi: 2025-12-01 (1555 candle rows)
+[05:14:43] kalshi: 2025-12-02 (1682 candle rows)
+[05:16:25] kalshi: 2025-12-03 (1617 candle rows)
+[05:17:56] kalshi: 2025-12-04 (1695 candle rows)
+[05:19:45] kalshi: 2025-12-05 (1655 candle rows)
+[05:21:43] kalshi: 2025-12-06 (1637 candle rows)
+[05:23:15] kalshi: 2025-12-07 (1665 candle rows)
+[05:25:22] kalshi: 2025-12-08 (1680 candle rows)
+[05:28:02] kalshi: 2025-12-09 (1701 candle rows)
+[05:30:03] kalshi: 2025-12-10 (1717 candle rows)
+[05:32:31] !!! Kalshi hourly ladders 2024-12-12 .. 2026-10-13, newest month first failed: RuntimeError("GET failed after 6 attempts: https://api.elections.kalshi.com/trade-api/v2/historical/markets/KXBTCD-25DEC1119-T91249.99/candlesticks {'start_ts': 1765494000, 'end_ts': 1765494600, 'period_interval': 1} (HTTP 429)")
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\runner.py", line 109, in download_all
+    fn()
+    ~~^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\runner.py", line 103, in <lambda>
+    lambda: kalshi_backwards(config.KALSHI_START, first)))
+            ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\runner.py", line 128, in kalshi_backwards
+    kx.download_history(f"{m_start:%Y-%m-%d}", f"{m_end:%Y-%m-%d}")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\kalshi.py", line 183, in download_history
+    cs = pd.DataFrame(candles_hist(http, list(sel["ticker"]), t_open, t_end))
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\kalshi.py", line 99, in candles_hist
+    return [r for part in ex.map(one, tickers) for r in part]
+                          ~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\_base.py", line 639, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\_base.py", line 311, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\_base.py", line 450, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\_base.py", line 395, in __get_result
+    raise self._exception
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\kalshi.py", line 94, in one
+    res = http.get(f"{BASE}/historical/markets/{tk}/candlesticks",
+                   {"start_ts": t0, "end_ts": t1, "period_interval": 1})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\utils.py", line 66, in get
+    raise RuntimeError(f"GET failed after {self.retries} attempts: {url} {params} ({err})")
+RuntimeError: GET failed after 6 attempts: https://api.elections.kalshi.com/trade-api/v2/historical/markets/KXBTCD-25DEC1119-T91249.99/candlesticks {'start_ts': 1765494000, 'end_ts': 1765494600, 'period_interval': 1} (HTTP 429)
+[05:32:31] !!! failed sources: kalshi_old — the rest continues; re-run later to resume them
+[05:32:32] ===== interim =====
+[05:32:32] interim: Binance minutes
+[05:32:38] interim: Polymarket ladders
+[05:32:56] interim: Kalshi ladders
+[05:33:01] interim: Deribit implied variance
+C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\measure\deribit_iv.py:30: RankWarning: Polyfit may be poorly conditioned
+  coef = np.polyfit(k, iv, 2, w=np.sqrt(w))
+C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\measure\deribit_iv.py:30: RankWarning: Polyfit may be poorly conditioned
+  coef = np.polyfit(k, iv, 2, w=np.sqrt(w))
+[05:34:15] ===== interim: 103 s
+[05:34:15] ===== panels =====
+[05:34:15] minutes: 2023-01-01 .. 2026-10-29 02:10
+[05:36:24] panel kx1h
+[05:37:08] panel kx1h: 32763 occasions, 6891 with a ladder, 0 with Deribit ATM IV
+[05:37:08] panel pm24h
+[05:37:11] panel pm24h: 1366 occasions, 406 with a ladder, 513 with Deribit ATM IV
+[05:37:11] panel pm6d
+[05:37:20] panel pm6d: 1361 occasions, 412 with a ladder, 498 with Deribit ATM IV
+[05:37:20] ===== panels: 185 s
+[05:37:20] ===== models =====
+[05:37:20] models kx1h
+[05:38:19] models pm24h
+[05:38:53] models pm6d
+[05:39:40] ===== models: 140 s
+[05:39:40] ===== evaluate =====
+[05:39:48] live evaluation: 1 late forecasts left out (see MAX_LATE_MIN)
+[05:39:48] live forecasts scored: 84 forecast-model pairs
+[05:39:48] evaluation tables written to results/tables
+[05:39:48] ===== evaluate: 8 s
+[05:39:48] ===== extensions =====
+[05:39:51] extensions: model confidence set written
+[05:39:55] extensions: pool, encompassing, conditional ability, fluctuation and wings tables written
+[05:39:55] ===== extensions: 7 s
+[05:39:55] ===== alpha =====
+[05:40:19] alpha: kx1h done (6962 snapshots, 44177 strikes)
+[05:40:20] alpha: pm24h done (412 snapshots, 4366 strikes)
+[05:40:20] alpha: pm6d done (411 snapshots, 4315 strikes)
+[05:40:21] alpha: pm1h done (413 snapshots, 4513 strikes)
+[05:40:22] alpha: pm1h_stale done (416 snapshots, 4569 strikes)
+[05:40:22] alpha: grid, SPA, hold-out, Brier and cross-venue tables written
+[05:40:22] ===== alpha: 26 s
+[05:40:22] ===== figures =====
+[05:40:26] figures written to results/figures
+[05:40:26] ===== figures: 4 s
+[05:40:26] ===== report =====
+[05:40:26] report: C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\reports_next\draft_report.md
+[05:40:26] ===== report: 0 s
+[05:40:26] swapped the new interim tables and results in
+[05:40:28] oos report: C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\reports\oos_report.md (5 forecasts, chain intact; code identical: True)
+[05:40:28] alpha_live: pm 5159, kalshi 10903, kalshi_range 5264, deribit 60604, binance_options 6168, pm_other 20631, kalshi_other 459, fast 0 rows
+[05:42:13] kalshi KXBTC15M-26OCT282230: RuntimeError("GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'event_ticker': 'KXBTC1
+[05:42:13] alpha_live: 440 signals, 317 settled, 628 arbitrage cases -> reports/alpha_live.md
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\daily_update.py", line 69, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\daily_update.py", line 33, in main
+    with runner.lock("daily_update"):
+         ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Local\Programs\Python\Python314\Lib\contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\runner.py", line 74, in lock
+    raise RuntimeError(f"{path.name} exists: another run is in progress (delete it if that run crashed)")
+RuntimeError: .daily_update.lock exists: another run is in progress (delete it if that run crashed)
+[06:05:01] alpha_extra: reports/alpha_extra.md
+[06:05:03] funding: 4192 new rows from binance fapi
+[06:05:03] funding: 4192 rows 2023-01-01 .. 2026-10-29 00:00
+[06:05:04] research data: minutes 2023-01-01 .. 2026-10-29 02:10, 1397 full days, DVOL yes (1s)
+[06:05:04] research: regimes ...
+[06:05:39] research: R1 done (0s)
+[06:05:42] research: R2 done (2s)
+[06:05:43] research: R3 done (1s)
+[06:05:44] research: R4 done (0s)
+[06:05:49] research: R5 done (5s)
+[06:05:50] research: R6 done (1s)
+[06:05:50] research: R7 done (0s)
+[06:05:51] research: R8 done (0s)
+[06:05:51] research: R9 done (0s)
+[06:06:05] research: R10 done (14s)
+[06:06:05] research: R11 done (0s)
+[06:06:06] research: R12 done (0s)
+[06:06:06] research: R13 done (1s)
+[06:06:07] research: R14 done (1s)
+[06:06:07] research: R15 done (0s)
+[06:06:08] research: R16 done (0s)
+[06:06:11] research: R17 done (3s)
+[06:06:11] research: R18 done (0s)
+[06:06:14] research: R19 done (2s)
+[06:06:28] research: R20 done (14s)
+[06:07:54] research: R21 done (86s)
+         effect                       unit          t             p        Holm p                    verdict
+id                                                                                                          
+R1     0.970513                      slope  38.559442  0.000000e+00  0.000000e+00  CONFIRMED (survives Holm)
+R2    21.322227                     bp/day   2.157411  3.097364e-02  4.646046e-01           likely (FDR 10%)
+R3     0.925927                   bp/trade   0.652530  5.140591e-01  1.000000e+00              not supported
+R4    -6.872730                    bp/week  -0.159580  8.732119e-01  1.000000e+00              not supported
+R5    30.243485                     bp/day   1.412204  1.578900e-01  1.000000e+00              not supported
+R6    -3.769373                   bp/event  -0.108286  9.137692e-01  1.000000e+00              not supported
+R7     1.899364                     bp/day   0.556010  5.782042e-01  1.000000e+00              not supported
+R8a  314.448097  var. points (ann., ×100²)   2.582422  9.810949e-03  1.667861e-01           likely (FDR 10%)
+R8b   16.360502          bp/30d (per 1 sd)   0.099531  9.207168e-01  1.000000e+00              not supported
+R9     0.155132      bp/occasion (per 1 s)   1.354506  1.755751e-01  1.000000e+00              not supported
+R10    2.625505                         pp   5.262107  1.424142e-07  2.705870e-06  CONFIRMED (survives Holm)
+R11  -29.388679           bp/7d (per 1 sd)  -0.692263  4.887724e-01  1.000000e+00              not supported
+R12    1.120097         bp/hour (per 1 sd)   2.745658  6.038959e-03  1.087013e-01           likely (FDR 10%)
+R13    0.098858                  log ratio   5.869990  4.358223e-09  8.716447e-08  CONFIRMED (survives Holm)
+R14    3.963438                         pp   1.575899  1.150490e-01  1.000000e+00              not supported
+R15   -1.825170                bp/approach  -0.619413  5.356444e-01  1.000000e+00              not supported
+R16  -25.926161                     bp/day  -1.464415  1.430806e-01  1.000000e+00              not supported
+R17   -0.000376                 QLIKE gain  -0.142603  8.866036e-01  1.000000e+00              not supported
+R18   -0.004967                  CRPS gain  -1.401281  1.611300e-01  1.000000e+00              not supported
+R19   -0.015520                 QLIKE gain  -2.244893  2.477497e-02  3.963996e-01           likely (FDR 10%)
+R20    0.378984                    bp/hour   1.194806  2.321628e-01  1.000000e+00              not supported
+R21    0.099917                      QLIKE   8.730043  2.545752e-18  5.346079e-17  CONFIRMED (survives Holm)
+                                strategy  Sharpe gross  Sharpe net  ann. return net  ann. vol  days   PSR(>0)       DSR  post-freeze days  post-freeze return
+17  R11 cash-and-carry (collect funding)     16.338153    6.000926         0.047744  0.007956  1398  1.000000  1.000000                 1            0.000062
+10                    R7 vol-managed BTC      0.936125    0.922939         0.487160  0.527836  1216  0.955320  0.389703                 0                 NaN
+11                 benchmark: buy & hold      0.873281    0.873281         0.398218  0.456003  1216  0.945615  0.355447                 0                 NaN
+7                    R5 long Monday only      0.938139    0.687114         0.141553  0.206010  1394  0.915461  0.262924                 0                 NaN
+5           R4b weekly TSMOM (long/flat)      0.486690    0.440577         0.132629  0.301034  1366  0.807965  0.128499                 4            0.000000
+0      R2 long off-hours only (post-ETF)      1.011684    0.332428         0.122595  0.368788  1022  0.708294  0.082814                 0                 NaN
+18    R11b contrarian to funding (daily)      0.026358    0.001541         0.000697  0.452321  1301  0.501160  0.025078                 0                 NaN
+22     R20 ridge hourly (|pred| > 15 bp)      0.547094   -0.023473        -0.001898  0.080873   907  0.485231  0.022688                 0                 NaN
+4           R4 weekly TSMOM (long/short)     -0.080551   -0.142437        -0.063649  0.446860  1366  0.391194  0.012444                 4           -0.014730
+8                       R6 pre-FOMC long     -0.055944   -0.203896        -0.011406  0.055938  1366  0.342819  0.007793                 0                 NaN
+20       R20 gbm hourly (|pred| > 15 bp)      0.420545   -0.385151        -0.042972  0.111571   665  0.281481  0.002867                 0                 NaN
+19           R16 long turn-of-month only     -0.336876   -0.407586        -0.068853  0.168929  1396  0.210443  0.002666                 0                 NaN
+[06:07:58] research: reports/research.md written (2.9 min)
+[06:07:58] ledger head: 6 live forecasts, chain hash 69ae00f1e1b39e46… (send this line to yourself or the teacher: it proves which forecasts existed today)
+[06:07:58] daily update finished

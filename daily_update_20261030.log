@@ -1,0 +1,90 @@
+[07:41:22] ===== daily update 2026-10-30 07:41 =====
+[07:41:22] --- downloading Binance 1-minute candles
+[07:41:29] --- Binance 1-minute candles: ok (0.1 min)
+[07:41:29] --- downloading Deribit DVOL
+[07:41:34] dvol: 33556 hourly points
+[07:41:35] --- Deribit DVOL: ok (0.1 min)
+[07:41:35] --- downloading Polymarket ladders
+[07:41:41] polymarket: 2025-09-18 done (20 events, 0 price files fetched)
+[07:41:42] polymarket: 2025-10-08 done (40 events, 0 price files fetched)
+[07:41:42] polymarket: 2025-10-28 done (60 events, 0 price files fetched)
+[07:41:43] polymarket: 2025-11-18 done (80 events, 0 price files fetched)
+[07:41:44] polymarket: 2025-12-08 done (100 events, 0 price files fetched)
+[07:41:44] polymarket: 2025-12-29 done (120 events, 0 price files fetched)
+[07:41:45] polymarket: 2026-01-18 done (140 events, 0 price files fetched)
+[07:41:45] polymarket: 2026-02-07 done (160 events, 0 price files fetched)
+[07:41:45] polymarket: 2026-02-27 done (180 events, 0 price files fetched)
+[07:41:46] polymarket: 2026-03-21 done (200 events, 0 price files fetched)
+[07:41:47] polymarket: 2026-04-10 done (220 events, 0 price files fetched)
+[07:41:47] polymarket: 2026-04-30 done (240 events, 0 price files fetched)
+[07:41:47] polymarket: 2026-05-20 done (260 events, 0 price files fetched)
+[07:41:48] polymarket: 2026-06-09 done (280 events, 0 price files fetched)
+[07:41:48] polymarket: 2026-06-29 done (300 events, 0 price files fetched)
+[07:41:49] polymarket: 2026-07-21 done (320 events, 0 price files fetched)
+[07:41:50] polymarket: 2026-08-12 done (340 events, 0 price files fetched)
+[07:41:50] polymarket: 2026-09-01 done (360 events, 0 price files fetched)
+[07:41:51] polymarket: 2026-09-21 done (380 events, 0 price files fetched)
+[07:41:51] polymarket: 2026-10-11 done (400 events, 0 price files fetched)
+[07:41:55] polymarket: 2026-10-31 done (420 events, 22 price files fetched)
+[07:41:55] polymarket: finished, 420 events
+[07:41:55] --- Polymarket ladders: ok (0.3 min)
+[07:41:55] --- downloading Deribit option trades
+[07:42:00] deribit trades: finished
+[07:42:00] --- Deribit option trades: ok (0.1 min)
+[07:42:00] --- downloading Kalshi hourly ladders from 2026-10-13
+[07:42:00] kalshi: downloading KXBTCD hourly ladders 2026-10-13 .. 2026-10-29, 10 min of candles, into C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\data\raw\kalshi
+[07:42:00] kalshi: one line per day; the first one appears in about 20-60 seconds
+[07:42:21] kalshi: 2026-10-28 (7248 candle rows)
+[07:42:36] kalshi: 2026-10-29 (6640 candle rows)
+[07:42:36] --- Kalshi hourly ladders from 2026-10-13: ok (0.6 min)
+[07:42:40] ===== interim =====
+[07:42:40] interim: Binance minutes
+[07:42:48] interim: Polymarket ladders
+[07:43:36] interim: Kalshi ladders
+[07:43:44] interim: Deribit implied variance
+C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\measure\deribit_iv.py:30: RankWarning: Polyfit may be poorly conditioned
+  coef = np.polyfit(k, iv, 2, w=np.sqrt(w))
+C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\measure\deribit_iv.py:30: RankWarning: Polyfit may be poorly conditioned
+  coef = np.polyfit(k, iv, 2, w=np.sqrt(w))
+[07:45:11] ===== interim: 151 s
+[07:45:11] ===== panels =====
+[07:45:11] minutes: 2023-01-01 .. 2026-10-30 04:41
+[07:47:25] panel kx1h
+[07:48:08] panel kx1h: 32789 occasions, 6934 with a ladder, 0 with Deribit ATM IV
+[07:48:08] panel pm24h
+[07:48:12] panel pm24h: 1367 occasions, 407 with a ladder, 514 with Deribit ATM IV
+[07:48:12] panel pm6d
+[07:48:20] panel pm6d: 1362 occasions, 412 with a ladder, 499 with Deribit ATM IV
+[07:48:21] ===== panels: 190 s
+[07:48:21] ===== models =====
+[07:48:21] models kx1h
+[07:49:27] models pm24h
+[07:50:04] models pm6d
+[07:50:53] ===== models: 153 s
+[07:50:53] ===== evaluate =====
+[07:51:02] live evaluation: 1 late forecasts left out (see MAX_LATE_MIN)
+[07:51:03] live forecasts scored: 322 forecast-model pairs
+[07:51:03] evaluation tables written to results/tables
+[07:51:03] ===== evaluate: 9 s
+[07:51:03] ===== extensions =====
+[07:51:05] extensions: model confidence set written
+[07:51:10] extensions: pool, encompassing, conditional ability, fluctuation and wings tables written
+[07:51:10] ===== extensions: 8 s
+[07:51:10] ===== alpha =====
+[07:51:33] alpha: kx1h done (7005 snapshots, 44514 strikes)
+[07:51:34] alpha: pm24h done (413 snapshots, 4377 strikes)
+[07:51:35] alpha: pm6d done (412 snapshots, 4326 strikes)
+[07:51:36] alpha: pm1h done (413 snapshots, 4513 strikes)
+[07:51:36] alpha: pm1h_stale done (416 snapshots, 4569 strikes)
+[07:51:36] alpha: grid, SPA, hold-out, Brier and cross-venue tables written
+[07:51:36] ===== alpha: 26 s
+[07:51:36] ===== figures =====
+[07:51:41] figures written to results/figures
+[07:51:41] ===== figures: 4 s
+[07:51:41] ===== report =====
+[07:51:41] report: C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\reports_next\draft_report.md
+[07:51:41] ===== report: 0 s
+[07:51:41] swapped the new interim tables and results in
+[07:51:43] oos report: C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\reports\oos_report.md (23 forecasts, chain intact; code identical: True)
+[07:51:46] alpha_live: pm 14542, kalshi 27767, kalshi_range 21940, deribit 178422, binance_options 31606, pm_other 110727, kalshi_other 2451, fast 12675 rows
+[08:07:48] alpha_live: 1368 signals, 1104 settled, 3654 arbitrage cases -> reports/alpha_live.md

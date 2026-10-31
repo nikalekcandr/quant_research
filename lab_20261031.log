@@ -1,0 +1,1057 @@
+[2026-10-31 00:00:14] OPEN A13 pm_no+kx_yes bitcoin-above-76800-on-october-30-2026-6pm-et|KXBTCD-26OCT3018-T76699.99 @ 0.9300 edge 0.0350
+[2026-10-31 00:00:14] OPEN A13 pm_no+kx_yes bitcoin-above-76600-on-october-30-2026-6pm-et|KXBTCD-26OCT3018-T76499.99 @ 0.9700 edge 0.0126
+[2026-10-31 00:01:11] OPEN P02 no btc-updown-15m-1793394000 @ 0.3700 edge 0.0318
+[2026-10-31 00:01:11] OPEN P05 no bitcoin-above-76800-on-october-30-2026-6pm-et @ 0.2300 edge 0.0540
+[2026-10-31 00:02:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:02:55] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:03:10] SETTLE P05 bitcoin-above-77000-on-october-30-2026-5 pays 1 pnl +0.523
+[2026-10-31 00:03:10] SETTLE P05 bitcoin-above-76800-on-october-30-2026-5 pays 0 pnl -0.211
+[2026-10-31 00:03:10] SETTLE P05 bitcoin-above-77200-on-october-30-2026-5 pays 0 pnl -0.242
+[2026-10-31 00:03:10] SETTLE W04 KXBTCD-26OCT3017-T76499.99 pays 1 pnl +0.050
+[2026-10-31 00:03:10] SETTLE A12 btc-updown-15m-1793393100|KXBTC15M-26OCT pays 1 pnl +0.056
+[2026-10-31 00:03:10] SETTLE P02 btc-updown-15m-1793393100 pays 0 pnl -0.232
+[2026-10-31 00:03:10] SETTLE P05 bitcoin-above-77000-on-october-30-2026-5 pays 0 pnl -0.315
+[2026-10-31 00:03:11] OPEN P05 yes bitcoin-above-77200-on-october-30-2026-6pm-et @ 0.2700 edge 0.0387
+[2026-10-31 00:04:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:06:22] OPEN P05 no bitcoin-above-76600-on-october-30-2026-6pm-et @ 0.1400 edge 0.0375
+[2026-10-31 00:08:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:08:55] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:09:14] SETTLE P03 bitcoin-up-or-down-october-30-2026-4pm-e pays 1 pnl +0.614
+[2026-10-31 00:09:14] SETTLE P03 bitcoin-up-or-down-october-30-2026-4pm-e pays 0 pnl -0.627
+[2026-10-31 00:09:14] OPEN P05 no bitcoin-above-76400-on-october-30-2026-6pm-et @ 0.1530 edge 0.0464
+[2026-10-31 00:10:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:10:53] OPEN P03 no bitcoin-up-or-down-october-30-2026-5pm-et @ 0.7500 edge 0.0518
+[2026-10-31 00:11:16] OPEN A13 pm_no+kx_yes bitcoin-above-76400-on-october-30-2026-6pm-et|KXBTCD-26OCT3018-T76299.99 @ 0.9630 edge 0.0189
+[2026-10-31 00:13:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:13:41] feed bybit blocked for 1 h: HTTP 403 from api.bybit.com: the server refuses requests from this network
+[2026-10-31 00:14:00] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:15:23] OPEN A12 pm_yes+kx_no btc-updown-15m-1793394900|KXBTC15M-26OCT301730-30 @ 0.9200 edge 0.0425
+[2026-10-31 00:17:28] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("
+[2026-10-31 00:18:04] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnectionPo
+[2026-10-31 00:18:26] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (SSLError(MaxRetryError("HTTPSConnectionPool(hos
+[2026-10-31 00:19:04] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (SSLError(MaxRetryError("HTTPSConnectionPool(host='ap
+[2026-10-31 00:19:43] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 00:20:41] markets polymarket failed: GET failed after 2 attempts: https://clob.polymarket.com/book {'token_id': '38005554397912632008229449683932182698566436017743546278532040870666134153647'} (SSL
+[2026-10-31 00:21:16] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (SSLError(MaxRet
+[2026-10-31 00:24:24] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: GET failed after 2 attempts: https://api.binance.com/api/v3/klines {'symbol': 'B; api1.binance.com: GET failed after 2 attempts: https://api1.binance.com/api/v3/klines {'symbol': '; api2.binance.com: GET failed after 2 attempts: https://api2.binance.com/api/v3/klines {'symbol': '; api3.binance.com: 451 Client Error:  for url: https://api3.binance.com/api/v3/klines?symbol=BTCUSD
+
+[2026-10-31 00:24:57] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:25:20] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:25:38] SETTLE P02 btc-updown-15m-1793394000 pays 1 pnl +0.614
+[2026-10-31 00:27:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:27:40] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:30:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:31:04] OPEN P02 yes btc-updown-15m-1793395800 @ 0.3600 edge 0.1401
+[2026-10-31 00:31:04] OPEN P03 yes bitcoin-up-or-down-october-30-2026-5pm-et @ 0.2700 edge 0.1187
+[2026-10-31 00:32:41] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:34:39] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:34:55] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:35:12] SETTLE A12 btc-updown-15m-1793394900|KXBTC15M-26OCT pays 1 pnl +0.043
+[2026-10-31 00:36:43] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:37:14] OPEN A12 pm_yes+kx_no btc-updown-15m-1793395800|KXBTC15M-26OCT301745-45 @ 0.9100 edge 0.0525
+[2026-10-31 00:39:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:39:40] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:41:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:43:56] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("
+[2026-10-31 00:44:15] OPEN A12F pm_yes+kx_no btc-updown-15m-1793395800|KXBTC15M-26OCT301745-45 @ 0.7600 edge 0.2148
+[2026-10-31 00:44:15] OPEN V07 no KXBTC15M-26OCT301745-45 @ 0.6800 edge 0.1145
+[2026-10-31 00:44:29] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnectionPo
+[2026-10-31 00:45:08] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (SSLError(MaxRetryError("HTTPSConnectionPool(hos
+[2026-10-31 00:45:47] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (SSLError(MaxRetryError("HTTPSConnectionPool(host='ap
+[2026-10-31 00:47:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:47:45] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:47:54] SETTLE V07 KXBTC15M-26OCT301745-45 pays 1 pnl +0.300
+[2026-10-31 00:47:54] OPEN P02 yes btc-updown-15m-1793396700 @ 0.5500 edge 0.0637
+[2026-10-31 00:50:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:50:57] SETTLE P02 btc-updown-15m-1793395800 pays 0 pnl -0.376
+[2026-10-31 00:50:57] SETTLE A12 btc-updown-15m-1793395800|KXBTC15M-26OCT pays 1 pnl +0.053
+[2026-10-31 00:50:57] SETTLE A12F btc-updown-15m-1793395800|KXBTC15M-26OCT pays 1 pnl +0.215
+[2026-10-31 00:52:36] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:52:51] OPEN P05 yes bitcoin-above-76800-on-october-30-2026-6pm-et @ 0.1300 edge 0.1113
+[2026-10-31 00:53:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:56:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:58:36] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 00:59:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:00:12] OPEN P05 yes bitcoin-above-77000-on-october-30-2026-7pm-et @ 0.1600 edge 0.0352
+[2026-10-31 01:00:12] OPEN P05 no bitcoin-above-76600-on-october-30-2026-7pm-et @ 0.2300 edge 0.0362
+[2026-10-31 01:01:11] OPEN A13 pm_no+kx_yes bitcoin-above-76600-on-october-30-2026-7pm-et|KXBTCD-26OCT3019-T76499.99 @ 0.9100 edge 0.0597
+[2026-10-31 01:02:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:03:03] SETTLE A13 bitcoin-above-76600-on-october-30-2026-6 pays 1 pnl +0.013
+[2026-10-31 01:03:03] SETTLE P05 bitcoin-above-77200-on-october-30-2026-6 pays 0 pnl -0.284
+[2026-10-31 01:03:03] SETTLE P05 bitcoin-above-76600-on-october-30-2026-6 pays 0 pnl -0.148
+[2026-10-31 01:03:03] SETTLE P05 bitcoin-above-76400-on-october-30-2026-6 pays 0 pnl -0.162
+[2026-10-31 01:03:04] SETTLE P03 bitcoin-up-or-down-october-30-2026-5pm-e pays 1 pnl +0.237
+[2026-10-31 01:03:04] SETTLE A13 bitcoin-above-76400-on-october-30-2026-6 pays 1 pnl +0.019
+[2026-10-31 01:03:04] SETTLE P03 bitcoin-up-or-down-october-30-2026-5pm-e pays 0 pnl -0.284
+[2026-10-31 01:03:04] SETTLE P02 btc-updown-15m-1793396700 pays 0 pnl -0.567
+[2026-10-31 01:03:04] OPEN P02 no btc-updown-15m-1793397600 @ 0.1500 edge 0.0762
+[2026-10-31 01:03:04] OPEN P03 no bitcoin-up-or-down-october-30-2026-6pm-et @ 0.2200 edge 0.1344
+[2026-10-31 01:04:41] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:04:59] OPEN P05 yes bitcoin-above-77200-on-october-30-2026-7pm-et @ 0.0800 edge 0.0447
+[2026-10-31 01:05:19] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:07:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:08:13] SETTLE A13 bitcoin-above-76800-on-october-30-2026-6 pays 1 pnl +0.035
+[2026-10-31 01:08:13] SETTLE P05 bitcoin-above-76800-on-october-30-2026-6 pays 1 pnl +0.758
+[2026-10-31 01:08:13] SETTLE P05 bitcoin-above-76800-on-october-30-2026-6 pays 0 pnl -0.138
+[2026-10-31 01:10:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:11:00] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:12:37] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:14:08] feed bybit blocked for 1 h: HTTP 403 from api.bybit.com: the server refuses requests from this network
+[2026-10-31 01:14:21] OPEN A13 pm_no+kx_yes bitcoin-above-77000-on-october-30-2026-7pm-et|KXBTCD-26OCT3019-T76899.99 @ 0.9200 edge 0.0465
+[2026-10-31 01:15:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:16:20] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:17:17] SETTLE P02 btc-updown-15m-1793397600 pays 0 pnl -0.159
+[2026-10-31 01:17:17] OPEN P02 yes btc-updown-15m-1793398500 @ 0.4000 edge 0.0760
+[2026-10-31 01:18:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:18:48] OPEN P03 yes bitcoin-up-or-down-october-30-2026-6pm-et @ 0.6400 edge 0.0607
+[2026-10-31 01:26:45] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: GET failed after 2 attempts: https://api.binance.com/api/v3/klines {'symbol': 'B; api1.binance.com: GET failed after 2 attempts: https://api1.binance.com/api/v3/klines {'symbol': '; api2.binance.com: GET failed after 2 attempts: https://api2.binance.com/api/v3/klines {'symbol': '; api3.binance.com: GET failed after 2 attempts: https://api3.binance.com/api/v3/klines {'symbol': '
+
+[2026-10-31 01:29:13] feed bn_spot failed: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/ticker/bookT; api.bin
+[2026-10-31 01:29:39] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:30:03] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:31:10] OPEN P02 no btc-updown-15m-1793399400 @ 0.4000 edge 0.0649
+[2026-10-31 01:32:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:34:31] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:34:46] OPEN W04 yes KXBTCD-26OCT3019-T76599.99 @ 0.9100 edge 0.0031
+[2026-10-31 01:35:15] SETTLE P02 btc-updown-15m-1793398500 pays 0 pnl -0.417
+[2026-10-31 01:36:45] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:37:19] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:40:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:42:31] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:43:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:46:40] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:46:48] OPEN P02 yes btc-updown-15m-1793400300 @ 0.4100 edge 0.0731
+[2026-10-31 01:47:20] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 01:47:28] SETTLE P02 btc-updown-15m-1793399400 pays 0 pnl -0.417
+[2026-10-31 01:50:41] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("
+[2026-10-31 01:51:00] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnectionPo
+[2026-10-31 01:51:19] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (SSLError(MaxRetryError("HTTPSConnectionPool(hos
+[2026-10-31 01:52:00] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (ReadTimeout(ReadTimeoutError("HTTPSConnectionPool(ho
+[2026-10-31 01:52:24] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 01:53:36] markets polymarket failed: GET failed after 2 attempts: https://clob.polymarket.com/book {'token_id': '100172541022584207906026708149038394628726321571017445887322107995948297356413'} (Re
+[2026-10-31 01:54:20] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (ReadTimeout(Rea
+[2026-10-31 01:58:02] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: GET failed after 2 attempts: https://api.binance.com/api/v3/klines {'symbol': 'B; api1.binance.com: GET failed after 2 attempts: https://api1.binance.com/api/v3/klines {'symbol': '; api2.binance.com: GET failed after 2 attempts: https://api2.binance.com/api/v3/klines {'symbol': '; api3.binance.com: GET failed after 2 attempts: https://api3.binance.com/api/v3/klines {'symbol': '
+
+[2026-10-31 02:00:21] feed bn_spot failed: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/ticker/bookT; api.bin
+[2026-10-31 02:01:20] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:01:48] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:02:14] SETTLE P05 bitcoin-above-76600-on-october-30-2026-7 pays 0 pnl -0.242
+[2026-10-31 02:02:15] SETTLE A13 bitcoin-above-76600-on-october-30-2026-7 pays 1 pnl +0.060
+[2026-10-31 02:02:15] SETTLE P03 bitcoin-up-or-down-october-30-2026-6pm-e pays 0 pnl -0.232
+[2026-10-31 02:02:15] SETTLE P05 bitcoin-above-77200-on-october-30-2026-7 pays 0 pnl -0.085
+[2026-10-31 02:02:15] SETTLE P03 bitcoin-up-or-down-october-30-2026-6pm-e pays 1 pnl +0.344
+[2026-10-31 02:02:15] SETTLE W04 KXBTCD-26OCT3019-T76599.99 pays 1 pnl +0.080
+[2026-10-31 02:02:16] OPEN P05 yes bitcoin-above-77200-on-october-30-2026-8pm-et @ 0.1500 edge 0.0393
+[2026-10-31 02:02:16] OPEN A13 pm_no+kx_yes bitcoin-above-77200-on-october-30-2026-8pm-et|KXBTCD-26OCT3020-T77099.99 @ 0.9700 edge 0.0137
+[2026-10-31 02:02:16] OPEN A13 pm_no+kx_yes bitcoin-above-76800-on-october-30-2026-8pm-et|KXBTCD-26OCT3020-T76699.99 @ 0.9500 edge 0.0197
+[2026-10-31 02:03:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:03:44] SETTLE P05 bitcoin-above-77000-on-october-30-2026-7 pays 0 pnl -0.169
+[2026-10-31 02:03:44] SETTLE A13 bitcoin-above-77000-on-october-30-2026-7 pays 1 pnl +0.047
+[2026-10-31 02:03:44] OPEN P02 no btc-updown-15m-1793401200 @ 0.2300 edge 0.1287
+[2026-10-31 02:03:44] OPEN P03 no bitcoin-up-or-down-october-30-2026-7pm-et @ 0.3700 edge 0.0538
+[2026-10-31 02:03:44] OPEN P05 no bitcoin-above-76800-on-october-30-2026-8pm-et @ 0.1100 edge 0.0855
+[2026-10-31 02:05:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:05:44] SETTLE P02 btc-updown-15m-1793400300 pays 0 pnl -0.427
+[2026-10-31 02:07:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:08:02] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:08:11] OPEN P05 yes bitcoin-above-77400-on-october-30-2026-8pm-et @ 0.0990 edge 0.0430
+[2026-10-31 02:09:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:12:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:12:45] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:15:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:15:35] feed bybit blocked for 1 h: HTTP 403 from api.bybit.com: the server refuses requests from this network
+[2026-10-31 02:15:57] OPEN P02 yes btc-updown-15m-1793402100 @ 0.3100 edge 0.1435
+[2026-10-31 02:17:17] SETTLE P02 btc-updown-15m-1793401200 pays 0 pnl -0.242
+[2026-10-31 02:18:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:18:51] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:19:03] OPEN P02 no btc-updown-15m-1793402100 @ 0.6000 edge 0.0367
+[2026-10-31 02:22:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:22:48] OPEN A12 pm_yes+kx_no btc-updown-15m-1793402100|KXBTC15M-26OCT301930-30 @ 0.9400 edge 0.0239
+[2026-10-31 02:23:31] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:24:19] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:25:31] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:28:00] OPEN A12F pm_no+kx_yes btc-updown-15m-1793402100|KXBTC15M-26OCT301930-30 @ 0.8000 edge 0.1639
+[2026-10-31 02:28:15] OPEN A12F pm_yes+kx_no btc-updown-15m-1793402100|KXBTC15M-26OCT301930-30 @ 0.9300 edge 0.0341
+[2026-10-31 02:28:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:29:19] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:30:31] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:32:22] OPEN A12 pm_yes+kx_no btc-updown-15m-1793403000|KXBTC15M-26OCT301945-45 @ 0.9400 edge 0.0226
+[2026-10-31 02:33:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:33:50] OPEN A13 pm_no+kx_yes bitcoin-above-77400-on-october-30-2026-8pm-et|KXBTCD-26OCT3020-T77299.99 @ 0.9290 edge 0.0506
+[2026-10-31 02:34:19] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:34:29] OPEN P02 yes btc-updown-15m-1793403000 @ 0.9000 edge 0.0347
+[2026-10-31 02:34:29] OPEN A13 pm_no+kx_yes bitcoin-above-77600-on-october-30-2026-8pm-et|KXBTCD-26OCT3020-T77499.99 @ 0.9700 edge 0.0154
+[2026-10-31 02:34:29] OPEN W04 no KXBTCD-26OCT3020-T77399.99 @ 0.9100 edge 0.0040
+[2026-10-31 02:35:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:35:57] SETTLE P02 btc-updown-15m-1793402100 pays 1 pnl +0.675
+[2026-10-31 02:35:57] SETTLE P02 btc-updown-15m-1793402100 pays 0 pnl -0.617
+[2026-10-31 02:35:57] SETTLE A12 btc-updown-15m-1793402100|KXBTC15M-26OCT pays 1 pnl +0.024
+[2026-10-31 02:35:57] SETTLE A12F btc-updown-15m-1793402100|KXBTC15M-26OCT pays 1 pnl +0.164
+[2026-10-31 02:35:57] SETTLE A12F btc-updown-15m-1793402100|KXBTC15M-26OCT pays 1 pnl +0.034
+[2026-10-31 02:38:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:40:31] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:41:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:43:34] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (SSLError(MaxRetryError("HTTPSConnectionPool(hos
+[2026-10-31 02:44:13] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 02:46:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:47:02] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:47:14] OPEN P02 yes btc-updown-15m-1793403900 @ 0.3400 edge 0.0564
+[2026-10-31 02:48:14] OPEN P05 no bitcoin-above-77200-on-october-30-2026-8pm-et @ 0.0700 edge 0.0396
+[2026-10-31 02:49:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:50:12] SETTLE A12 btc-updown-15m-1793403000|KXBTC15M-26OCT pays 1 pnl +0.023
+[2026-10-31 02:50:12] SETTLE P02 btc-updown-15m-1793403000 pays 1 pnl +0.094
+[2026-10-31 02:51:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:52:47] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:54:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:56:12] OPEN P02 no btc-updown-15m-1793403900 @ 0.5000 edge 0.0935
+[2026-10-31 02:57:00] OPEN A12F pm_no+kx_yes btc-updown-15m-1793403900|KXBTC15M-26OCT302000-00 @ 0.8100 edge 0.1533
+[2026-10-31 02:57:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:58:19] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 02:59:12] OPEN A12 pm_no+kx_yes btc-updown-15m-1793403900|KXBTC15M-26OCT302000-00 @ 0.6100 edge 0.3550
+[2026-10-31 03:00:15] OPEN A12F pm_yes+kx_no btc-updown-15m-1793404800|KXBTC15M-26OCT302015-15 @ 0.9400 edge 0.0231
+[2026-10-31 03:00:33] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:00:51] OPEN P02 no btc-updown-15m-1793404800 @ 0.3900 edge 0.1620
+[2026-10-31 03:00:51] OPEN A13 pm_no+kx_yes bitcoin-above-77600-on-october-30-2026-9pm-et|KXBTCD-26OCT3021-T77499.99 @ 0.9500 edge 0.0316
+[2026-10-31 03:00:51] OPEN A13 pm_no+kx_yes bitcoin-above-77200-on-october-30-2026-9pm-et|KXBTCD-26OCT3021-T77099.99 @ 0.8900 edge 0.0811
+[2026-10-31 03:02:14] SETTLE P05 bitcoin-above-77200-on-october-30-2026-8 pays 1 pnl +0.841
+[2026-10-31 03:02:15] SETTLE P05 bitcoin-above-76800-on-october-30-2026-8 pays 0 pnl -0.117
+[2026-10-31 03:02:15] SETTLE P05 bitcoin-above-77400-on-october-30-2026-8 pays 0 pnl -0.105
+[2026-10-31 03:02:16] SETTLE P05 bitcoin-above-77200-on-october-30-2026-8 pays 0 pnl -0.075
+[2026-10-31 03:03:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:03:50] OPEN P02 yes btc-updown-15m-1793404800 @ 0.4400 edge 0.0889
+[2026-10-31 03:03:50] OPEN P03 yes bitcoin-up-or-down-october-30-2026-8pm-et @ 0.4500 edge 0.0538
+[2026-10-31 03:03:50] OPEN A12 pm_yes+kx_no btc-updown-15m-1793404800|KXBTC15M-26OCT302015-15 @ 0.9100 edge 0.0528
+[2026-10-31 03:04:35] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:04:41] SETTLE P03 bitcoin-up-or-down-october-30-2026-7pm-e pays 0 pnl -0.386
+[2026-10-31 03:04:41] SETTLE P02 btc-updown-15m-1793403900 pays 1 pnl +0.644
+[2026-10-31 03:04:41] SETTLE P02 btc-updown-15m-1793403900 pays 0 pnl -0.517
+[2026-10-31 03:04:41] SETTLE A12F btc-updown-15m-1793403900|KXBTC15M-26OCT pays 1 pnl +0.153
+[2026-10-31 03:04:41] SETTLE A12 btc-updown-15m-1793403900|KXBTC15M-26OCT pays 1 pnl +0.355
+[2026-10-31 03:04:41] OPEN A13 pm_no+kx_yes bitcoin-above-77000-on-october-30-2026-9pm-et|KXBTCD-26OCT3021-T76899.99 @ 0.9600 edge 0.0261
+[2026-10-31 03:05:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:07:43] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:08:18] OPEN P05 no bitcoin-above-77200-on-october-30-2026-9pm-et @ 0.2100 edge 0.0389
+[2026-10-31 03:10:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:10:45] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:11:13] SETTLE A13 bitcoin-above-77200-on-october-30-2026-8 pays 1 pnl +0.014
+[2026-10-31 03:11:13] SETTLE A13 bitcoin-above-76800-on-october-30-2026-8 pays 1 pnl +0.020
+[2026-10-31 03:11:14] SETTLE W04 KXBTCD-26OCT3020-T77399.99 pays 1 pnl +0.080
+[2026-10-31 03:12:13] SETTLE A13 bitcoin-above-77400-on-october-30-2026-8 pays 1 pnl +0.051
+[2026-10-31 03:12:13] SETTLE A13 bitcoin-above-77600-on-october-30-2026-8 pays 1 pnl +0.015
+[2026-10-31 03:13:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:13:57] OPEN A12 pm_no+kx_yes btc-updown-15m-1793404800|KXBTC15M-26OCT302015-15 @ 0.9100 edge 0.0525
+[2026-10-31 03:14:00] OPEN V07 yes KXBTC15M-26OCT302015-15 @ 0.0640 edge 0.0687
+[2026-10-31 03:15:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:15:50] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:16:03] OPEN P02 no btc-updown-15m-1793405700 @ 0.4100 edge 0.0455
+[2026-10-31 03:17:13] feed bybit blocked for 1 h: HTTP 403 from api.bybit.com: the server refuses requests from this network
+[2026-10-31 03:17:28] SETTLE V07 KXBTC15M-26OCT302015-15 pays 0 pnl -0.074
+[2026-10-31 03:17:28] OPEN P02 yes btc-updown-15m-1793405700 @ 0.6800 edge 0.0332
+[2026-10-31 03:18:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:20:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:20:50] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:20:55] SETTLE A12F btc-updown-15m-1793404800|KXBTC15M-26OCT pays 1 pnl +0.023
+[2026-10-31 03:20:55] SETTLE P02 btc-updown-15m-1793404800 pays 1 pnl +0.593
+[2026-10-31 03:20:55] SETTLE P02 btc-updown-15m-1793404800 pays 0 pnl -0.457
+[2026-10-31 03:20:55] SETTLE A12 btc-updown-15m-1793404800|KXBTC15M-26OCT pays 1 pnl +0.053
+[2026-10-31 03:20:55] SETTLE A12 btc-updown-15m-1793404800|KXBTC15M-26OCT pays 1 pnl +0.053
+[2026-10-31 03:20:55] OPEN P05 yes bitcoin-above-77600-on-october-30-2026-9pm-et @ 0.1000 edge 0.0432
+[2026-10-31 03:21:45] OPEN A12F pm_no+kx_yes btc-updown-15m-1793405700|KXBTC15M-26OCT302030-30 @ 0.8300 edge 0.1376
+[2026-10-31 03:24:02] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:24:40] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (SSLError(MaxRetryError("HTTPSConnectionPool(host='ap
+[2026-10-31 03:25:38] markets polymarket failed: GET failed after 2 attempts: https://clob.polymarket.com/book {'token_id': '87683739220051753661152178273730298499537240894902595065056888466875240429168'} (SSL
+[2026-10-31 03:27:00] OPEN A12F pm_yes+kx_no btc-updown-15m-1793405700|KXBTC15M-26OCT302030-30 @ 0.9400 edge 0.0228
+[2026-10-31 03:27:32] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: GET failed after 2 attempts: https://api.binance.com/api/v3/klines {'symbol': 'B; api1.binance.com: 451 Client Error:  for url: https://api1.binance.com/api/v3/klines?symbol=BTCUSD; api2.binance.com: 451 Client Error:  for url: https://api2.binance.com/api/v3/klines?symbol=BTCUSD; api3.binance.com: 451 Client Error:  for url: https://api3.binance.com/api/v3/klines?symbol=BTCUSD
+
+[2026-10-31 03:28:04] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:28:32] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:28:44] OPEN A12 pm_yes+kx_no btc-updown-15m-1793405700|KXBTC15M-26OCT302030-30 @ 0.7300 edge 0.2332
+[2026-10-31 03:29:00] OPEN V07 yes KXBTC15M-26OCT302030-30 @ 0.1300 edge 0.4890
+[2026-10-31 03:30:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:30:36] OPEN W04 no KXBTCD-26OCT3021-T77399.99 @ 0.9400 edge 0.0083
+[2026-10-31 03:31:15] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:31:45] OPEN A12F pm_no+kx_yes btc-updown-15m-1793406600|KXBTC15M-26OCT302045-45 @ 0.9100 edge 0.0525
+[2026-10-31 03:32:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:32:49] SETTLE P02 btc-updown-15m-1793405700 pays 1 pnl +0.573
+[2026-10-31 03:32:49] SETTLE P02 btc-updown-15m-1793405700 pays 0 pnl -0.695
+[2026-10-31 03:32:49] SETTLE A12F btc-updown-15m-1793405700|KXBTC15M-26OCT pays 1 pnl +0.138
+[2026-10-31 03:32:49] SETTLE A12F btc-updown-15m-1793405700|KXBTC15M-26OCT pays 1 pnl +0.023
+[2026-10-31 03:32:49] SETTLE A12 btc-updown-15m-1793405700|KXBTC15M-26OCT pays 1 pnl +0.233
+[2026-10-31 03:32:49] SETTLE V07 KXBTC15M-26OCT302030-30 pays 0 pnl -0.140
+[2026-10-31 03:34:33] OPEN P02 no btc-updown-15m-1793406600 @ 0.4700 edge 0.2239
+[2026-10-31 03:34:33] OPEN P03 no bitcoin-up-or-down-october-30-2026-8pm-et @ 0.6300 edge 0.1101
+[2026-10-31 03:35:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:37:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:37:40] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:39:12] OPEN A12 pm_yes+kx_no btc-updown-15m-1793406600|KXBTC15M-26OCT302045-45 @ 0.9400 edge 0.0272
+[2026-10-31 03:40:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:43:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:43:40] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:45:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:45:48] OPEN P02 no btc-updown-15m-1793407500 @ 0.4300 edge 0.0690
+[2026-10-31 03:47:48] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnectionPo
+[2026-10-31 03:48:26] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (SSLError(MaxRetryError("HTTPSConnectionPool(hos
+[2026-10-31 03:49:14] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (ReadTimeout(ReadTimeoutError("HTTPSConnectionPool(ho
+[2026-10-31 03:49:44] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 03:51:08] markets polymarket failed: GET failed after 2 attempts: https://clob.polymarket.com/book {'token_id': '69934362542226498400337375196144812218069873123549637606612555193537090175908'} (Rea
+[2026-10-31 03:51:36] SETTLE A12F btc-updown-15m-1793406600|KXBTC15M-26OCT pays 1 pnl +0.053
+[2026-10-31 03:51:36] SETTLE P02 btc-updown-15m-1793406600 pays 0 pnl -0.487
+[2026-10-31 03:51:36] SETTLE A12 btc-updown-15m-1793406600|KXBTC15M-26OCT pays 1 pnl +0.027
+[2026-10-31 03:52:55] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:53:15] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:54:04] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (ReadTimeout(Rea
+[2026-10-31 03:55:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:56:12] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 03:57:37] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 03:58:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:00:09] OPEN P03 yes bitcoin-up-or-down-october-30-2026-9pm-et @ 0.4300 edge 0.0528
+[2026-10-31 04:01:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:01:48] OPEN P02 no btc-updown-15m-1793408400 @ 0.3300 edge 0.0531
+[2026-10-31 04:01:48] OPEN A13 pm_no+kx_yes bitcoin-above-77800-on-october-30-2026-10pm-et|KXBTCD-26OCT3022-T77699.99 @ 0.9600 edge 0.0201
+[2026-10-31 04:01:48] OPEN A13 pm_no+kx_yes bitcoin-above-77600-on-october-30-2026-10pm-et|KXBTCD-26OCT3022-T77499.99 @ 0.8900 edge 0.0725
+[2026-10-31 04:02:36] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:02:45] SETTLE A13 bitcoin-above-77600-on-october-30-2026-9 pays 1 pnl +0.032
+[2026-10-31 04:02:45] SETTLE A13 bitcoin-above-77200-on-october-30-2026-9 pays 1 pnl +0.081
+[2026-10-31 04:02:45] SETTLE P03 bitcoin-up-or-down-october-30-2026-8pm-e pays 1 pnl +0.533
+[2026-10-31 04:02:46] SETTLE A13 bitcoin-above-77000-on-october-30-2026-9 pays 1 pnl +0.026
+[2026-10-31 04:02:46] SETTLE P05 bitcoin-above-77200-on-october-30-2026-9 pays 0 pnl -0.222
+[2026-10-31 04:02:46] SETTLE P05 bitcoin-above-77600-on-october-30-2026-9 pays 0 pnl -0.106
+[2026-10-31 04:02:46] SETTLE W04 KXBTCD-26OCT3021-T77399.99 pays 1 pnl +0.050
+[2026-10-31 04:02:46] SETTLE P03 bitcoin-up-or-down-october-30-2026-8pm-e pays 0 pnl -0.646
+[2026-10-31 04:02:46] SETTLE P02 btc-updown-15m-1793407500 pays 0 pnl -0.447
+[2026-10-31 04:02:46] OPEN P02 yes btc-updown-15m-1793408400 @ 0.7100 edge 0.0679
+[2026-10-31 04:03:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:05:22] OPEN A12 pm_yes+kx_no btc-updown-15m-1793408400|KXBTC15M-26OCT302115-15 @ 0.9500 edge 0.0141
+[2026-10-31 04:06:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:07:19] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:08:00] OPEN A12F pm_yes+kx_no btc-updown-15m-1793408400|KXBTC15M-26OCT302115-15 @ 0.9500 edge 0.0125
+[2026-10-31 04:08:55] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:11:34] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:13:30] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:14:15] OPEN V07 yes KXBTC15M-26OCT302115-15 @ 0.1400 edge 0.0904
+[2026-10-31 04:14:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:16:26] OPEN P02 no btc-updown-15m-1793409300 @ 0.2100 edge 0.0348
+[2026-10-31 04:17:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:17:34] feed bybit blocked for 1 h: HTTP 403 from api.bybit.com: the server refuses requests from this network
+[2026-10-31 04:17:49] SETTLE V07 KXBTC15M-26OCT302115-15 pays 0 pnl -0.150
+[2026-10-31 04:17:49] OPEN P02 yes btc-updown-15m-1793409300 @ 0.5300 edge 0.2461
+[2026-10-31 04:18:36] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:19:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:21:00] OPEN A12F pm_yes+kx_no btc-updown-15m-1793409300|KXBTC15M-26OCT302130-30 @ 0.9300 edge 0.0325
+[2026-10-31 04:21:18] SETTLE P02 btc-updown-15m-1793408400 pays 1 pnl +0.655
+[2026-10-31 04:21:18] SETTLE P02 btc-updown-15m-1793408400 pays 0 pnl -0.724
+[2026-10-31 04:21:18] SETTLE A12 btc-updown-15m-1793408400|KXBTC15M-26OCT pays 1 pnl +0.014
+[2026-10-31 04:21:18] SETTLE A12F btc-updown-15m-1793408400|KXBTC15M-26OCT pays 1 pnl +0.013
+[2026-10-31 04:22:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:23:19] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:25:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:25:43] OPEN P05 yes bitcoin-above-77600-on-october-30-2026-10pm-et @ 0.2000 edge 0.0642
+[2026-10-31 04:25:43] OPEN A13 pm_no+kx_yes bitcoin-above-77200-on-october-30-2026-10pm-et|KXBTCD-26OCT3022-T77099.99 @ 0.9690 edge 0.0153
+[2026-10-31 04:28:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:28:59] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:30:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:30:48] OPEN P02 yes btc-updown-15m-1793410200 @ 0.3600 edge 0.0484
+[2026-10-31 04:30:49] OPEN W04 yes KXBTCD-26OCT3022-T76999.99 @ 0.9300 edge 0.0088
+[2026-10-31 04:33:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:34:19] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:34:24] SETTLE P02 btc-updown-15m-1793409300 pays 1 pnl +0.778
+[2026-10-31 04:34:24] SETTLE P02 btc-updown-15m-1793409300 pays 0 pnl -0.547
+[2026-10-31 04:34:24] SETTLE A12F btc-updown-15m-1793409300|KXBTC15M-26OCT pays 1 pnl +0.033
+[2026-10-31 04:36:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:38:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:38:45] OPEN A12F pm_no+kx_yes btc-updown-15m-1793410200|KXBTC15M-26OCT302145-45 @ 0.9400 edge 0.0306
+[2026-10-31 04:39:35] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:40:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:42:21] OPEN A12 pm_yes+kx_no btc-updown-15m-1793410200|KXBTC15M-26OCT302145-45 @ 0.9710 edge 0.0127
+[2026-10-31 04:43:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:43:43] OPEN P02 no btc-updown-15m-1793410200 @ 0.0800 edge 0.0800
+[2026-10-31 04:45:30] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:46:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:47:00] OPEN P02 no btc-updown-15m-1793411100 @ 0.3600 edge 0.0770
+[2026-10-31 04:48:26] SETTLE P02 btc-updown-15m-1793410200 pays 1 pnl +0.624
+[2026-10-31 04:48:26] SETTLE A12F btc-updown-15m-1793410200|KXBTC15M-26OCT pays 1 pnl +0.031
+[2026-10-31 04:48:26] SETTLE A12 btc-updown-15m-1793410200|KXBTC15M-26OCT pays 1 pnl +0.013
+[2026-10-31 04:48:26] SETTLE P02 btc-updown-15m-1793410200 pays 0 pnl -0.085
+[2026-10-31 04:49:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:49:38] OPEN P02 yes btc-updown-15m-1793411100 @ 0.3400 edge 0.0974
+[2026-10-31 04:52:17] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("
+[2026-10-31 04:54:55] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:56:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:56:46] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 04:57:30] OPEN A12F pm_no+kx_yes btc-updown-15m-1793411100|KXBTC15M-26OCT302200-00 @ 0.9510 edge 0.0311
+[2026-10-31 04:59:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:01:13] OPEN A12 pm_no+kx_yes btc-updown-15m-1793412000|KXBTC15M-26OCT302215-15 @ 0.9000 edge 0.0625
+[2026-10-31 05:01:13] OPEN A13 pm_no+kx_yes bitcoin-above-77200-on-october-30-2026-11pm-et|KXBTCD-26OCT3023-T77099.99 @ 0.9100 edge 0.0626
+[2026-10-31 05:02:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:02:45] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:02:58] SETTLE P03 bitcoin-up-or-down-october-30-2026-9pm-e pays 0 pnl -0.447
+[2026-10-31 05:02:58] SETTLE A13 bitcoin-above-77800-on-october-30-2026-1 pays 1 pnl +0.020
+[2026-10-31 05:02:59] SETTLE A13 bitcoin-above-77600-on-october-30-2026-1 pays 1 pnl +0.073
+[2026-10-31 05:02:59] SETTLE P05 bitcoin-above-77600-on-october-30-2026-1 pays 0 pnl -0.211
+[2026-10-31 05:02:59] SETTLE A13 bitcoin-above-77200-on-october-30-2026-1 pays 1 pnl +0.015
+[2026-10-31 05:02:59] SETTLE W04 KXBTCD-26OCT3022-T76999.99 pays 1 pnl +0.060
+[2026-10-31 05:02:59] SETTLE P02 btc-updown-15m-1793411100 pays 1 pnl +0.624
+[2026-10-31 05:02:59] SETTLE P02 btc-updown-15m-1793411100 pays 0 pnl -0.356
+[2026-10-31 05:02:59] SETTLE A12F btc-updown-15m-1793411100|KXBTC15M-26OCT pays 1 pnl +0.031
+[2026-10-31 05:04:19] OPEN A12 pm_yes+kx_no btc-updown-15m-1793412000|KXBTC15M-26OCT302215-15 @ 0.9400 edge 0.0248
+[2026-10-31 05:04:30] OPEN A12F pm_yes+kx_no btc-updown-15m-1793412000|KXBTC15M-26OCT302215-15 @ 0.9200 edge 0.0428
+[2026-10-31 05:05:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:05:56] OPEN P02 no btc-updown-15m-1793412000 @ 0.4600 edge 0.0790
+[2026-10-31 05:05:56] OPEN P03 no bitcoin-up-or-down-october-30-2026-10pm-et @ 0.4600 edge 0.0467
+[2026-10-31 05:07:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:07:45] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:07:53] OPEN P02 yes btc-updown-15m-1793412000 @ 0.3900 edge 0.2774
+[2026-10-31 05:07:53] OPEN P03 yes bitcoin-up-or-down-october-30-2026-10pm-et @ 0.4800 edge 0.0762
+[2026-10-31 05:07:53] OPEN P05 yes bitcoin-above-77200-on-october-30-2026-11pm-et @ 0.8800 edge 0.0399
+[2026-10-31 05:10:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:12:37] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:13:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:14:00] OPEN V07 no KXBTC15M-26OCT302215-15 @ 0.0820 edge 0.2228
+[2026-10-31 05:16:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:18:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:18:41] feed bybit blocked for 1 h: HTTP 403 from api.bybit.com: the server refuses requests from this network
+[2026-10-31 05:18:52] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:19:06] SETTLE A12 btc-updown-15m-1793412000|KXBTC15M-26OCT pays 1 pnl +0.063
+[2026-10-31 05:19:06] SETTLE A12 btc-updown-15m-1793412000|KXBTC15M-26OCT pays 1 pnl +0.025
+[2026-10-31 05:19:06] SETTLE A12F btc-updown-15m-1793412000|KXBTC15M-26OCT pays 1 pnl +0.043
+[2026-10-31 05:19:06] SETTLE P02 btc-updown-15m-1793412000 pays 0 pnl -0.477
+[2026-10-31 05:19:06] SETTLE P02 btc-updown-15m-1793412000 pays 1 pnl +0.593
+[2026-10-31 05:19:06] SETTLE V07 KXBTC15M-26OCT302215-15 pays 0 pnl -0.092
+[2026-10-31 05:19:06] OPEN P02 yes btc-updown-15m-1793412900 @ 0.4900 edge 0.0876
+[2026-10-31 05:21:15] OPEN A12F pm_yes+kx_no btc-updown-15m-1793412900|KXBTC15M-26OCT302230-30 @ 0.9500 edge 0.0128
+[2026-10-31 05:21:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:21:39] OPEN P02 no btc-updown-15m-1793412900 @ 0.4000 edge 0.2235
+[2026-10-31 05:24:47] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:24:58] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:25:06] OPEN P05 yes bitcoin-above-77600-on-october-30-2026-11pm-et @ 0.1200 edge 0.1356
+[2026-10-31 05:27:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:29:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:29:58] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:31:31] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:31:36] OPEN W04 no KXBTCD-26OCT3023-T77399.99 @ 0.9200 edge 0.0150
+[2026-10-31 05:32:16] SETTLE P02 btc-updown-15m-1793412900 pays 0 pnl -0.507
+[2026-10-31 05:32:17] SETTLE A12F btc-updown-15m-1793412900|KXBTC15M-26OCT pays 1 pnl +0.013
+[2026-10-31 05:32:17] SETTLE P02 btc-updown-15m-1793412900 pays 1 pnl +0.583
+[2026-10-31 05:32:17] OPEN P02 no btc-updown-15m-1793413800 @ 0.4600 edge 0.0619
+[2026-10-31 05:34:49] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:35:33] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnectionPo
+[2026-10-31 05:36:13] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:36:55] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (SSLError(MaxRet
+[2026-10-31 05:36:55] OPEN P05 no bitcoin-above-77200-on-october-30-2026-11pm-et @ 0.0640 edge 0.0706
+[2026-10-31 05:37:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:40:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:40:46] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:43:47] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:45:37] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:46:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:46:31] OPEN P02 yes btc-updown-15m-1793414700 @ 0.5100 edge 0.0459
+[2026-10-31 05:47:16] SETTLE P02 btc-updown-15m-1793413800 pays 0 pnl -0.477
+[2026-10-31 05:49:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:51:32] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:52:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:55:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:57:33] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:58:19] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 05:59:00] OPEN V07 yes KXBTC15M-26OCT302300-00 @ 0.1400 edge 0.4442
+[2026-10-31 06:01:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:01:53] OPEN P02 no btc-updown-15m-1793415600 @ 0.6100 edge 0.0727
+[2026-10-31 06:01:53] OPEN A13 pm_no+kx_yes bitcoin-above-77200-on-october-31-2026-12am-et|KXBTCD-26OCT3100-T77099.99 @ 0.9700 edge 0.0154
+[2026-10-31 06:02:13] SETTLE P05 bitcoin-above-77200-on-october-30-2026-1 pays 1 pnl +0.113
+[2026-10-31 06:02:14] SETTLE P05 bitcoin-above-77600-on-october-30-2026-1 pays 0 pnl -0.127
+[2026-10-31 06:02:14] SETTLE P05 bitcoin-above-77200-on-october-30-2026-1 pays 0 pnl -0.068
+[2026-10-31 06:02:14] SETTLE V07 KXBTC15M-26OCT302300-00 pays 0 pnl -0.150
+[2026-10-31 06:03:32] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:03:45] OPEN P02 yes btc-updown-15m-1793415600 @ 0.3600 edge 0.0626
+[2026-10-31 06:04:19] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:04:34] OPEN P03 yes bitcoin-up-or-down-october-30-2026-11pm-et @ 0.3800 edge 0.0501
+[2026-10-31 06:05:12] SETTLE P03 bitcoin-up-or-down-october-30-2026-10pm- pays 0 pnl -0.477
+[2026-10-31 06:05:12] SETTLE P03 bitcoin-up-or-down-october-30-2026-10pm- pays 1 pnl +0.503
+[2026-10-31 06:06:18] SETTLE P02 btc-updown-15m-1793414700 pays 0 pnl -0.527
+[2026-10-31 06:07:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:09:32] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:09:41] OPEN A12 pm_yes+kx_no btc-updown-15m-1793415600|KXBTC15M-26OCT302315-15 @ 0.9620 edge 0.0260
+[2026-10-31 06:10:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:12:18] SETTLE A13 bitcoin-above-77200-on-october-30-2026-1 pays 1 pnl +0.063
+[2026-10-31 06:12:18] SETTLE W04 KXBTCD-26OCT3023-T77399.99 pays 1 pnl +0.070
+[2026-10-31 06:13:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:14:19] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:15:13] OPEN P02 yes btc-updown-15m-1793416500 @ 0.4300 edge 0.0852
+[2026-10-31 06:16:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:17:17] SETTLE P02 btc-updown-15m-1793415600 pays 1 pnl +0.373
+[2026-10-31 06:17:17] SETTLE P02 btc-updown-15m-1793415600 pays 0 pnl -0.376
+[2026-10-31 06:17:17] SETTLE A12 btc-updown-15m-1793415600|KXBTC15M-26OCT pays 1 pnl +0.026
+[2026-10-31 06:17:17] OPEN P02 no btc-updown-15m-1793416500 @ 0.2900 edge 0.0341
+[2026-10-31 06:18:46] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:18:50] feed bybit blocked for 1 h: HTTP 403 from api.bybit.com: the server refuses requests from this network
+[2026-10-31 06:21:22] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:23:39] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("
+[2026-10-31 06:24:17] feed okx_slow failed: GET failed after 2 attempts: https://www.okx.com/api/v5/public/funding-rate {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnec
+[2026-10-31 06:25:17] OPEN P03 no bitcoin-up-or-down-october-30-2026-11pm-et @ 0.6500 edge 0.0696
+[2026-10-31 06:27:33] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: 451 Client Error:  for url: https://api.binance.com/api/v3/klines?symbol=BTCUSDT; api1.binance.com: 451 Client Error:  for url: https://api1.binance.com/api/v3/klines?symbol=BTCUSD; api2.binance.com: 451 Client Error:  for url: https://api2.binance.com/api/v3/klines?symbol=BTCUSD; api3.binance.com: 451 Client Error:  for url: https://api3.binance.com/api/v3/klines?symbol=BTCUSD
+
+[2026-10-31 06:29:24] feed bn_spot failed: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/ticker/bookT; api.bin
+[2026-10-31 06:30:17] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:31:17] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("
+[2026-10-31 06:34:32] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("
+[2026-10-31 06:35:58] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:38:06] OPEN P02 no btc-updown-15m-1793417400 @ 0.7200 edge 0.0894
+[2026-10-31 06:40:25] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: 451 Client Error:  for url: https://api.binance.com/api/v3/klines?symbol=BTCUSDT; api1.binance.com: GET failed after 2 attempts: https://api1.binance.com/api/v3/klines {'symbol': '; api2.binance.com: 451 Client Error:  for url: https://api2.binance.com/api/v3/klines?symbol=BTCUSD; api3.binance.com: 451 Client Error:  for url: https://api3.binance.com/api/v3/klines?symbol=BTCUSD
+
+[2026-10-31 06:40:58] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:41:33] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 06:42:25] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:43:09] SETTLE P02 btc-updown-15m-1793416500 pays 1 pnl +0.553
+[2026-10-31 06:43:09] SETTLE P02 btc-updown-15m-1793416500 pays 0 pnl -0.304
+[2026-10-31 06:44:50] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:45:00] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:46:26] OPEN P02 no btc-updown-15m-1793418300 @ 0.3500 edge 0.0672
+[2026-10-31 06:46:26] OPEN W03 no KXBTCD-26OCT3100-T77199.99 @ 0.8900 edge 0.0284
+[2026-10-31 06:47:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:47:56] SETTLE P02 btc-updown-15m-1793417400 pays 1 pnl +0.266
+[2026-10-31 06:47:56] WINGS W05 maker sold yes KXBTCD-26OCT3100-T77199.99 @ 0.12
+[2026-10-31 06:49:32] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:50:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:53:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:55:32] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:56:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 06:57:11] OPEN P02 yes btc-updown-15m-1793418300 @ 0.0300 edge 0.0301
+[2026-10-31 06:59:37] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:00:20] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:00:25] OPEN P02 no btc-updown-15m-1793419200 @ 0.4300 edge 0.0336
+[2026-10-31 07:00:25] OPEN P05 yes bitcoin-above-77400-on-october-31-2026-1am-et @ 0.1000 edge 0.0596
+[2026-10-31 07:00:25] OPEN P05 no bitcoin-above-77000-on-october-31-2026-1am-et @ 0.1300 edge 0.0837
+[2026-10-31 07:00:25] OPEN A12 pm_no+kx_yes btc-updown-15m-1793419200|KXBTC15M-26OCT310015-15 @ 0.9500 edge 0.0128
+[2026-10-31 07:00:25] OPEN A13 pm_no+kx_yes bitcoin-above-77000-on-october-31-2026-1am-et|KXBTCD-26OCT3101-T76899.99 @ 0.9500 edge 0.0221
+[2026-10-31 07:02:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:02:44] SETTLE A13 bitcoin-above-77200-on-october-31-2026-1 pays 1 pnl +0.015
+[2026-10-31 07:02:44] SETTLE P03 bitcoin-up-or-down-october-30-2026-11pm- pays 0 pnl -0.396
+[2026-10-31 07:02:44] SETTLE P03 bitcoin-up-or-down-october-30-2026-11pm- pays 1 pnl +0.334
+[2026-10-31 07:02:45] SETTLE P02 btc-updown-15m-1793418300 pays 1 pnl +0.634
+[2026-10-31 07:02:45] SETTLE W03 KXBTCD-26OCT3100-T77199.99 pays 1 pnl +0.100
+[2026-10-31 07:02:45] SETTLE W05 KXBTCD-26OCT3100-T77199.99 pays 1 pnl +0.110
+[2026-10-31 07:02:45] SETTLE P02 btc-updown-15m-1793418300 pays 0 pnl -0.032
+[2026-10-31 07:03:12] OPEN P03 no bitcoin-up-or-down-october-31-2026-12am-et @ 0.3100 edge 0.0603
+[2026-10-31 07:04:21] OPEN A12 pm_yes+kx_no btc-updown-15m-1793419200|KXBTC15M-26OCT310015-15 @ 0.9100 edge 0.0532
+[2026-10-31 07:05:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:05:56] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:08:31] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:09:17] OPEN A13 pm_no+kx_yes bitcoin-above-77400-on-october-31-2026-1am-et|KXBTCD-26OCT3101-T77299.99 @ 0.9700 edge 0.0106
+[2026-10-31 07:10:38] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:11:23] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:12:31] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:15:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:15:49] OPEN P02 yes btc-updown-15m-1793420100 @ 0.3800 edge 0.0912
+[2026-10-31 07:16:19] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:17:31] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:17:58] SETTLE P02 btc-updown-15m-1793419200 pays 0 pnl -0.447
+[2026-10-31 07:17:58] SETTLE A12 btc-updown-15m-1793419200|KXBTC15M-26OCT pays 1 pnl +0.013
+[2026-10-31 07:17:58] SETTLE A12 btc-updown-15m-1793419200|KXBTC15M-26OCT pays 1 pnl +0.053
+[2026-10-31 07:17:58] OPEN P02 no btc-updown-15m-1793420100 @ 0.3500 edge 0.0867
+[2026-10-31 07:19:08] feed bybit blocked for 1 h: HTTP 403 from api.bybit.com: the server refuses requests from this network
+[2026-10-31 07:20:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:22:31] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:23:37] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:26:13] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:26:49] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnectionPo
+[2026-10-31 07:28:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:28:47] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:30:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:30:47] OPEN P02 yes btc-updown-15m-1793421000 @ 0.4100 edge 0.0803
+[2026-10-31 07:33:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:33:52] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:35:27] SETTLE P02 btc-updown-15m-1793420100 pays 1 pnl +0.604
+[2026-10-31 07:35:27] SETTLE P02 btc-updown-15m-1793420100 pays 0 pnl -0.366
+[2026-10-31 07:36:31] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:36:48] OPEN P03 yes bitcoin-up-or-down-october-31-2026-12am-et @ 0.3500 edge 0.0990
+[2026-10-31 07:38:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:38:41] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:42:00] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:42:56] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (SSLError(MaxRetryError("HTTPSConnectionPool(hos
+[2026-10-31 07:44:48] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:44:59] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:46:26] OPEN P02 no btc-updown-15m-1793421900 @ 0.3600 edge 0.1014
+[2026-10-31 07:47:30] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:47:48] SETTLE P02 btc-updown-15m-1793421000 pays 0 pnl -0.427
+[2026-10-31 07:50:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:50:52] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:52:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:54:05] OPEN A12F pm_yes+kx_no btc-updown-15m-1793421900|KXBTC15M-26OCT310100-00 @ 0.9500 edge 0.0159
+[2026-10-31 07:54:13] OPEN P02 yes btc-updown-15m-1793421900 @ 0.3100 edge 0.0485
+[2026-10-31 07:55:36] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:55:52] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 07:58:13] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("
+[2026-10-31 07:59:00] OPEN V07 yes KXBTC15M-26OCT310100-00 @ 0.1400 edge 0.5195
+[2026-10-31 08:00:27] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: 451 Client Error:  for url: https://api.binance.com/api/v3/klines?symbol=BTCUSDT; api1.binance.com: 451 Client Error:  for url: https://api1.binance.com/api/v3/klines?symbol=BTCUSD; api2.binance.com: 451 Client Error:  for url: https://api2.binance.com/api/v3/klines?symbol=BTCUSD; api3.binance.com: GET failed after 2 attempts: https://api3.binance.com/api/v3/klines {'symbol': '
+
+[2026-10-31 08:00:35] markets kalshi failed: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[2026-10-31 08:00:36] OPEN P05 yes bitcoin-above-77400-on-october-31-2026-2am-et @ 0.1300 edge 0.0539
+[2026-10-31 08:01:07] markets kalshi failed: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[2026-10-31 08:01:07] OPEN P02 no btc-updown-15m-1793422800 @ 0.3200 edge 0.0909
+[2026-10-31 08:02:28] markets kalshi failed: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[2026-10-31 08:02:29] SETTLE P05 bitcoin-above-77400-on-october-31-2026-1 pays 0 pnl -0.106
+[2026-10-31 08:02:29] SETTLE P05 bitcoin-above-77000-on-october-31-2026-1 pays 0 pnl -0.138
+[2026-10-31 08:02:30] OPEN P03 no bitcoin-up-or-down-october-31-2026-1am-et @ 0.3500 edge 0.0701
+[2026-10-31 08:02:30] OPEN P05 no bitcoin-above-77000-on-october-31-2026-2am-et @ 0.0900 edge 0.0609
+[2026-10-31 08:04:05] markets kalshi failed: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[2026-10-31 08:04:05] SETTLE P03 bitcoin-up-or-down-october-31-2026-12am- pays 0 pnl -0.325
+[2026-10-31 08:04:05] SETTLE P03 bitcoin-up-or-down-october-31-2026-12am- pays 1 pnl +0.634
+[2026-10-31 11:30:11] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: GET failed after 2 attempts: https://api.binance.com/api/v3/klines {'symbol': 'B; api1.binance.com: GET failed after 2 attempts: https://api1.binance.com/api/v3/klines {'symbol': '; api2.binance.com: GET failed after 2 attempts: https://api2.binance.com/api/v3/klines {'symbol': '; api3.binance.com: GET failed after 2 attempts: https://api3.binance.com/api/v3/klines {'symbol': '
+
+[2026-10-31 11:30:26] feed bn_spot failed: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/ticker/bookT; api.bin
+[2026-10-31 11:30:35] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (ConnectionError(MaxRetry
+[2026-10-31 11:30:38] feed bybit failed: GET failed after 2 attempts: https://api.bybit.com/v5/market/tickers {'category': 'linear', 'symbol': 'BTCUSDT'} (ConnectionError(MaxRetryEr
+[2026-10-31 11:30:41] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (ConnectionError(MaxRetryError('HTTPSConne
+[2026-10-31 11:30:44] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (ConnectionError(MaxRetryError('HTTPSConnectionP
+[2026-10-31 11:30:47] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (ConnectionError(MaxRetryError('HTTPSConnectionPool(h
+[2026-10-31 11:30:50] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (ConnectionError(MaxRetryErro
+[2026-10-31 11:30:59] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (ConnectionError(MaxRetry
+[2026-10-31 11:31:02] feed okx_slow failed: GET failed after 2 attempts: https://www.okx.com/api/v5/public/funding-rate {'instId': 'BTC-USDT-SWAP'} (ConnectionError(MaxRetryError('HTTP
+[2026-10-31 11:31:05] feed coinbase_slow failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/USDT-USD/ticker None (ConnectionError(MaxRetryError('HTTPSConnection
+[2026-10-31 11:31:08] feed deribit_slow failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/get_volatility_index_data {'currency': 'BTC', 'resolution': '60', 'start_
+[2026-10-31 11:31:11] markets polymarket failed: GET failed after 2 attempts: https://gamma-api.polymarket.com/events {'tag_slug': 'bitcoin', 'active': 'true', 'closed': 'false', 'limit': 100, 'order': 'endDat
+[2026-10-31 11:31:14] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (ConnectionError
+[2026-10-31 11:38:54] OPEN A12F pm_no+kx_yes btc-updown-15m-1793435400|KXBTC15M-26OCT310445-45 @ 0.9500 edge 0.0337
+[2026-10-31 11:40:29] SETTLE O04 binance long straddle pnl $-604
+[2026-10-31 11:40:29] SETTLE O04 bybit long straddle pnl $-599
+[2026-10-31 11:40:29] SETTLE O04 deribit long straddle pnl $-652
+[2026-10-31 11:40:29] SETTLE O04 okx long straddle pnl $-574
+[2026-10-31 11:40:29] SETTLE A13 bitcoin-above-77000-on-october-31-2026-1 pays 1 pnl +0.022
+[2026-10-31 11:40:29] SETTLE A13 bitcoin-above-77400-on-october-31-2026-1 pays 1 pnl +0.011
+[2026-10-31 11:40:31] SETTLE P02 btc-updown-15m-1793421900 pays 1 pnl +0.624
+[2026-10-31 11:40:32] SETTLE A12F btc-updown-15m-1793421900|KXBTC15M-26OCT pays 0 pnl -0.984
+[2026-10-31 11:40:32] SETTLE P02 btc-updown-15m-1793421900 pays 0 pnl -0.325
+[2026-10-31 11:40:32] SETTLE V07 KXBTC15M-26OCT310100-00 pays 1 pnl +0.850
+[2026-10-31 11:40:32] SETTLE P05 bitcoin-above-77400-on-october-31-2026-2 pays 0 pnl -0.138
+[2026-10-31 11:40:32] SETTLE P02 btc-updown-15m-1793422800 pays 0 pnl -0.335
+[2026-10-31 11:40:32] SETTLE P03 bitcoin-up-or-down-october-31-2026-1am-e pays 0 pnl -0.366
+[2026-10-31 11:40:32] SETTLE P05 bitcoin-above-77000-on-october-31-2026-2 pays 0 pnl -0.096
+[2026-10-31 11:40:32] OPEN P03 yes bitcoin-up-or-down-october-31-2026-4am-et @ 0.2200 edge 0.0355
+[2026-10-31 11:40:33] OPEN A13 pm_no+kx_yes bitcoin-above-77200-on-october-31-2026-5am-et|KXBTCD-26OCT3105-T77099.99 @ 0.9360 edge 0.0368
+[2026-10-31 11:41:09] OPEN W04 no KXBTCD-26OCT3105-T77299.99 @ 0.9400 edge 0.0008
+[2026-10-31 11:43:11] OPEN O01 arb 2026-11-02-80000-C @ 15.4336 edge 2.8938
+[2026-10-31 11:47:21] OPEN P02 no btc-updown-15m-1793436300 @ 0.2700 edge 0.0837
+[2026-10-31 11:47:21] OPEN P03 no bitcoin-up-or-down-october-31-2026-4am-et @ 0.5500 edge 0.0838
+[2026-10-31 11:49:18] OPEN A12 pm_no+kx_yes btc-updown-15m-1793436300|KXBTC15M-26OCT310500-00 @ 0.9400 edge 0.0280
+[2026-10-31 11:50:11] SETTLE A12F btc-updown-15m-1793435400|KXBTC15M-26OCT pays 1 pnl +0.034
+[2026-10-31 12:00:21] OPEN P02 no btc-updown-15m-1793437200 @ 0.3600 edge 0.0691
+[2026-10-31 12:01:14] OPEN A13 pm_no+kx_yes bitcoin-above-77400-on-october-31-2026-6am-et|KXBTCD-26OCT3106-T77299.99 @ 0.9300 edge 0.0329
+[2026-10-31 12:02:18] SETTLE A13 bitcoin-above-77200-on-october-31-2026-5 pays 1 pnl +0.037
+[2026-10-31 12:02:19] SETTLE W04 KXBTCD-26OCT3105-T77299.99 pays 1 pnl +0.050
+[2026-10-31 12:02:19] SETTLE P02 btc-updown-15m-1793436300 pays 0 pnl -0.284
+[2026-10-31 12:02:20] SETTLE A12 btc-updown-15m-1793436300|KXBTC15M-26OCT pays 1 pnl +0.028
+[2026-10-31 12:02:20] OPEN P03 no bitcoin-up-or-down-october-31-2026-5am-et @ 0.3400 edge 0.0348
+[2026-10-31 12:03:26] OPEN O01 arb 2026-11-01-78000-C @ 46.3615 edge 1.9317
+[2026-10-31 12:07:23] SETTLE P03 bitcoin-up-or-down-october-31-2026-4am-e pays 1 pnl +0.768
+[2026-10-31 12:07:23] SETTLE P03 bitcoin-up-or-down-october-31-2026-4am-e pays 0 pnl -0.567
+[2026-10-31 12:16:11] OPEN P02 no btc-updown-15m-1793438100 @ 0.4300 edge 0.0318
+[2026-10-31 12:17:51] SETTLE P02 btc-updown-15m-1793437200 pays 0 pnl -0.376
+[2026-10-31 12:17:51] OPEN P02 yes btc-updown-15m-1793438100 @ 0.4700 edge 0.1717
+[2026-10-31 12:19:01] OPEN A12F pm_yes+kx_no btc-updown-15m-1793438100|KXBTC15M-26OCT310530-30 @ 0.9400 edge 0.0228
+[2026-10-31 12:20:45] OPEN A12F pm_no+kx_yes btc-updown-15m-1793438100|KXBTC15M-26OCT310530-30 @ 0.9300 edge 0.0356
+[2026-10-31 12:47:30] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: api2.binance.com: GET failed after 2 attempts: https://api2.binance.com/api/v3/klines {'symbol': '; api.binance.com: GET failed after 2 attempts: https://api.binance.com/api/v3/klines {'symbol': 'B; data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api1.binance.com: GET failed after 2 attempts: https://api1.binance.com/api/v3/klines {'symbol': '; api3.binance.com: GET failed after 2 attempts: https://api3.binance.com/api/v3/klines {'symbol': '
+
+[2026-10-31 13:03:37] feed bn_spot failed: all Binance hosts failed: api2.binance.com: GET failed after 2 attempts: https://api2.binance.com/api/v3/ticker/bookTicker {; api.binance.co
+[2026-10-31 13:03:58] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (ConnectionError(MaxRetry
+[2026-10-31 13:04:01] feed bybit failed: GET failed after 2 attempts: https://api.bybit.com/v5/market/tickers {'category': 'linear', 'symbol': 'BTCUSDT'} (ConnectionError(MaxRetryEr
+[2026-10-31 13:04:04] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (ConnectionError(MaxRetryError('HTTPSConne
+[2026-10-31 13:04:19] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (ConnectionError(MaxRetryError('HTTPSConnectionP
+[2026-10-31 13:04:22] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (ConnectionError(MaxRetryError('HTTPSConnectionPool(h
+[2026-10-31 13:04:25] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (ConnectionError(MaxRetryErro
+[2026-10-31 13:04:46] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (ConnectionError(MaxRetry
+[2026-10-31 13:04:49] feed okx_slow failed: GET failed after 2 attempts: https://www.okx.com/api/v5/public/funding-rate {'instId': 'BTC-USDT-SWAP'} (ConnectionError(MaxRetryError('HTTP
+[2026-10-31 13:04:52] feed coinbase_slow failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/USDT-USD/ticker None (ConnectionError(MaxRetryError('HTTPSConnection
+[2026-10-31 13:05:07] feed deribit_slow failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/get_volatility_index_data {'currency': 'BTC', 'resolution': '60', 'start_
+[2026-10-31 13:05:10] markets polymarket failed: GET failed after 2 attempts: https://gamma-api.polymarket.com/events {'tag_slug': 'bitcoin', 'active': 'true', 'closed': 'false', 'limit': 100, 'order': 'endDat
+[2026-10-31 13:05:25] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (ConnectionError
+[2026-10-31 15:04:20] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:04:21] feed bybit blocked for 1 h: HTTP 403 from api.bybit.com: the server refuses requests from this network
+[2026-10-31 15:04:37] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:04:46] SETTLE A13 bitcoin-above-77400-on-october-31-2026-6 pays 1 pnl +0.033
+[2026-10-31 15:04:46] SETTLE P03 bitcoin-up-or-down-october-31-2026-5am-e pays 0 pnl -0.356
+[2026-10-31 15:04:46] SETTLE P02 btc-updown-15m-1793438100 pays 0 pnl -0.447
+[2026-10-31 15:04:46] SETTLE P02 btc-updown-15m-1793438100 pays 1 pnl +0.513
+[2026-10-31 15:04:46] SETTLE A12F btc-updown-15m-1793438100|KXBTC15M-26OCT pays 1 pnl +0.023
+[2026-10-31 15:04:46] SETTLE A12F btc-updown-15m-1793438100|KXBTC15M-26OCT pays 1 pnl +0.036
+[2026-10-31 15:04:46] OPEN P02 yes btc-updown-15m-1793448000 @ 0.1900 edge 0.1121
+[2026-10-31 15:04:47] OPEN A13 pm_no+kx_yes bitcoin-above-77600-on-october-31-2026-9am-et|KXBTCD-26OCT3109-T77499.99 @ 0.9200 edge 0.0432
+[2026-10-31 15:05:52] OPEN A12F pm_yes+kx_no btc-updown-15m-1793448000|KXBTC15M-26OCT310815-15 @ 0.9100 edge 0.0588
+[2026-10-31 15:07:13] OPEN A12F pm_no+kx_yes btc-updown-15m-1793448000|KXBTC15M-26OCT310815-15 @ 0.9300 edge 0.0326
+[2026-10-31 15:08:19] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:09:18] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:11:16] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:13:24] OPEN O04 long 2026-11-01-77500-straddle @ 495.7451 edge 63.4968
+[2026-10-31 15:14:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:15:18] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:15:24] OPEN P02 yes btc-updown-15m-1793448900 @ 0.4300 edge 0.0529
+[2026-10-31 15:16:16] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:18:15] SETTLE P02 btc-updown-15m-1793448000 pays 0 pnl -0.201
+[2026-10-31 15:18:15] SETTLE A12F btc-updown-15m-1793448000|KXBTC15M-26OCT pays 1 pnl +0.059
+[2026-10-31 15:18:15] SETTLE A12F btc-updown-15m-1793448000|KXBTC15M-26OCT pays 1 pnl +0.033
+[2026-10-31 15:18:16] OPEN P03 yes bitcoin-up-or-down-october-31-2026-8am-et @ 0.3300 edge 0.0365
+[2026-10-31 15:19:16] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:21:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:21:33] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:24:17] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (ConnectionError(Protocol
+[2026-10-31 15:24:24] markets kalshi failed: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[2026-10-31 15:26:17] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:27:19] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:30:18] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 15:30:29] OPEN P02 no btc-updown-15m-1793449800 @ 0.4200 edge 0.0629
+[2026-10-31 15:30:29] OPEN W04 no KXBTCD-26OCT3109-T77599.99 @ 0.9400 edge 0.0062
+[2026-10-31 17:26:58] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: GET failed after 2 attempts: https://api.binance.com/api/v3/klines {'symbol': 'B; api1.binance.com: 451 Client Error:  for url: https://api1.binance.com/api/v3/klines?symbol=BTCUSD; api2.binance.com: 451 Client Error:  for url: https://api2.binance.com/api/v3/klines?symbol=BTCUSD; api3.binance.com: 451 Client Error:  for url: https://api3.binance.com/api/v3/klines?symbol=BTCUSD
+
+[2026-10-31 17:28:04] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 17:28:28] feed bybit failed: GET failed after 2 attempts: https://api.bybit.com/v5/market/tickers {'category': 'linear', 'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("HT
+[2026-10-31 17:29:33] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 17:30:01] SETTLE A13 bitcoin-above-77600-on-october-31-2026-9 pays 1 pnl +0.043
+[2026-10-31 17:30:01] SETTLE P02 btc-updown-15m-1793448900 pays 0 pnl -0.447
+[2026-10-31 17:30:01] SETTLE P03 bitcoin-up-or-down-october-31-2026-8am-e pays 0 pnl -0.345
+[2026-10-31 17:30:01] SETTLE P02 btc-updown-15m-1793449800 pays 0 pnl -0.437
+[2026-10-31 17:30:02] SETTLE W04 KXBTCD-26OCT3109-T77599.99 pays 1 pnl +0.050
+[2026-10-31 17:30:02] OPEN P03 no bitcoin-up-or-down-october-31-2026-10am-et @ 0.7600 edge 0.0421
+[2026-10-31 17:33:02] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: 451 Client Error:  for url: https://api.binance.com/api/v3/klines?symbol=BTCUSDT; api1.binance.com: GET failed after 2 attempts: https://api1.binance.com/api/v3/klines {'symbol': '; api2.binance.com: GET failed after 2 attempts: https://api2.binance.com/api/v3/klines {'symbol': '; api3.binance.com: 451 Client Error:  for url: https://api3.binance.com/api/v3/klines?symbol=BTCUSD
+
+[2026-10-31 17:33:37] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 17:33:38] feed bybit blocked for 1 h: HTTP 403 from api.bybit.com: the server refuses requests from this network
+[2026-10-31 17:34:02] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 17:34:13] OPEN P02 no btc-updown-15m-1793457000 @ 0.2900 edge 0.5045
+[2026-10-31 17:34:13] OPEN A13 pm_no+kx_yes bitcoin-above-77600-on-october-31-2026-11am-et|KXBTCD-26OCT3111-T77499.99 @ 0.9700 edge 0.0143
+[2026-10-31 17:35:39] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 17:37:45] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 17:38:21] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 17:41:00] OPEN A12F pm_no+kx_yes btc-updown-15m-1793457000|KXBTC15M-26OCT311045-45 @ 0.8200 edge 0.1561
+[2026-10-31 17:41:34] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 17:43:42] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 17:43:56] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 17:45:12] markets kalshi failed: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[2026-10-31 17:47:28] markets kalshi failed: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[2026-10-31 17:47:30] SETTLE P02 btc-updown-15m-1793457000 pays 0 pnl -0.304
+[2026-10-31 17:47:30] OPEN P02 no btc-updown-15m-1793457900 @ 0.2800 edge 0.0376
+[2026-10-31 17:49:28] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 17:50:07] feed deribit_slow failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/get_volatility_index_data {'currency': 'BTC', 'resolution': '60', 'start_
+[2026-10-31 17:50:07] markets kalshi failed: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[2026-10-31 17:51:43] markets kalshi failed: HTTP 403 from api.elections.kalshi.com: the server refuses requests from this network
+[2026-10-31 17:52:40] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (SSLError(MaxRetryError("HTTPSConnectionPool(host='ap
+[2026-10-31 17:52:41] OPEN P02 yes btc-updown-15m-1793457900 @ 0.6900 edge 0.0509
+[2026-10-31 17:54:30] SETTLE A12F btc-updown-15m-1793457000|KXBTC15M-26OCT pays 1 pnl +0.156
+[2026-10-31 17:54:30] OPEN A12 pm_yes+kx_no btc-updown-15m-1793457900|KXBTC15M-26OCT311100-00 @ 0.9000 edge 0.0635
+[2026-10-31 17:55:54] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (SSLError(MaxRetryError("HTTPSConnectionPool(host='ap
+[2026-10-31 17:56:52] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (SSLError(MaxRet
+[2026-10-31 17:56:52] OPEN P03 yes bitcoin-up-or-down-october-31-2026-10am-et @ 0.1700 edge 0.1572
+[2026-10-31 18:01:10] OPEN A13 pm_no+kx_yes bitcoin-above-77400-on-october-31-2026-12pm-et|KXBTCD-26OCT3112-T77299.99 @ 0.8600 edge 0.1053
+[2026-10-31 18:03:11] OPEN P02 yes btc-updown-15m-1793458800 @ 0.4200 edge 0.0354
+[2026-10-31 18:03:11] OPEN A13 pm_no+kx_yes bitcoin-above-77200-on-october-31-2026-12pm-et|KXBTCD-26OCT3112-T77099.99 @ 0.9700 edge 0.0148
+[2026-10-31 18:05:15] SETTLE P02 btc-updown-15m-1793457900 pays 1 pnl +0.706
+[2026-10-31 18:05:15] SETTLE P02 btc-updown-15m-1793457900 pays 0 pnl -0.705
+[2026-10-31 18:05:15] SETTLE A12 btc-updown-15m-1793457900|KXBTC15M-26OCT pays 1 pnl +0.064
+[2026-10-31 18:06:11] SETTLE P03 bitcoin-up-or-down-october-31-2026-10am- pays 1 pnl +0.227
+[2026-10-31 18:06:12] SETTLE P03 bitcoin-up-or-down-october-31-2026-10am- pays 0 pnl -0.180
+[2026-10-31 18:06:12] OPEN P05 no bitcoin-above-77200-on-october-31-2026-12pm-et @ 0.0800 edge 0.0316
+[2026-10-31 18:09:13] SETTLE A13 bitcoin-above-77600-on-october-31-2026-1 pays 1 pnl +0.014
+[2026-10-31 18:11:04] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (SSLError(MaxRet
+[2026-10-31 18:14:16] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 18:14:56] feed deribit_slow failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/get_volatility_index_data {'currency': 'BTC', 'resolution': '60', 'start_
+[2026-10-31 18:15:00] OPEN P03 no bitcoin-up-or-down-october-31-2026-11am-et @ 0.3700 edge 0.0961
+[2026-10-31 18:15:00] OPEN P03 no bitcoin-up-or-down-on-october-31-2026 @ 0.3800 edge 0.0859
+[2026-10-31 18:17:14] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 18:17:47] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnectionPo
+[2026-10-31 18:18:29] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (ReadTimeout(ReadTimeoutError("HTTPSConnectionPool(ho
+[2026-10-31 18:19:05] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 18:20:02] markets polymarket failed: GET failed after 2 attempts: https://clob.polymarket.com/book {'token_id': '66804545677076044494563503978471776167749377829296704736251515286509670567288'} (SSL
+[2026-10-31 18:20:22] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (SSLError(MaxRet
+[2026-10-31 18:21:15] SETTLE P02 btc-updown-15m-1793458800 pays 1 pnl +0.563
+[2026-10-31 18:21:15] OPEN P02 no btc-updown-15m-1793459700 @ 0.3700 edge 0.0998
+[2026-10-31 18:32:16] SETTLE P02 btc-updown-15m-1793459700 pays 0 pnl -0.386
+[2026-10-31 18:32:16] OPEN P02 no btc-updown-15m-1793460600 @ 0.3800 edge 0.0399
+[2026-10-31 18:40:44] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (SSLError(MaxRetryError("HTTPSConnectionPool(host='ap
+[2026-10-31 18:41:03] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 18:42:13] markets polymarket failed: GET failed after 2 attempts: https://clob.polymarket.com/book {'token_id': '5602965919714033280441892456394133290761889326230189626800595643738635505917'} (SSLE
+[2026-10-31 18:42:33] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (SSLError(MaxRet
+[2026-10-31 18:45:17] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api.binance.com: GET failed after 2 attempts: https://api.binance.com/api/v3/klines {'symbol': 'B; api1.binance.com: GET failed after 2 attempts: https://api1.binance.com/api/v3/klines {'symbol': '; api2.binance.com: GET failed after 2 attempts: https://api2.binance.com/api/v3/klines {'symbol': '; api3.binance.com: GET failed after 2 attempts: https://api3.binance.com/api/v3/klines {'symbol': '
+
+[2026-10-31 18:47:27] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (ReadTimeout(ReadTimeoutError("HTTPSConnectionPo
+[2026-10-31 18:50:28] SETTLE P02 btc-updown-15m-1793460600 pays 0 pnl -0.396
+[2026-10-31 18:51:07] OPEN P02 yes btc-updown-15m-1793461500 @ 0.3700 edge 0.0330
+[2026-10-31 18:56:10] OPEN P02 no btc-updown-15m-1793461500 @ 0.2900 edge 0.0670
+[2026-10-31 18:58:14] OPEN A12 pm_no+kx_yes btc-updown-15m-1793461500|KXBTC15M-26OCT311200-00 @ 0.8700 edge 0.0945
+[2026-10-31 19:00:22] OPEN P02 yes btc-updown-15m-1793462400 @ 0.3500 edge 0.1394
+[2026-10-31 19:00:22] OPEN P03 yes bitcoin-up-or-down-october-31-2026-12pm-et @ 0.4200 edge 0.0656
+[2026-10-31 19:00:22] OPEN A13 pm_no+kx_yes bitcoin-above-77400-on-october-31-2026-1pm-et|KXBTCD-26OCT3113-T77299.99 @ 0.9200 edge 0.0643
+[2026-10-31 19:02:16] SETTLE A13 bitcoin-above-77400-on-october-31-2026-1 pays 1 pnl +0.105
+[2026-10-31 19:02:16] SETTLE A13 bitcoin-above-77200-on-october-31-2026-1 pays 1 pnl +0.015
+[2026-10-31 19:02:16] SETTLE P05 bitcoin-above-77200-on-october-31-2026-1 pays 0 pnl -0.085
+[2026-10-31 19:02:16] SETTLE P03 bitcoin-up-or-down-october-31-2026-11am- pays 0 pnl -0.386
+[2026-10-31 19:02:17] SETTLE P02 btc-updown-15m-1793461500 pays 1 pnl +0.614
+[2026-10-31 19:02:17] SETTLE P02 btc-updown-15m-1793461500 pays 0 pnl -0.304
+[2026-10-31 19:02:17] SETTLE A12 btc-updown-15m-1793461500|KXBTC15M-26OCT pays 1 pnl +0.095
+[2026-10-31 19:02:17] OPEN P02 no btc-updown-15m-1793462400 @ 0.5200 edge 0.0443
+[2026-10-31 19:04:12] SETTLE P03 bitcoin-up-or-down-on-october-31-2026 pays 0 pnl -0.396
+[2026-10-31 19:10:52] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (SSLError(MaxRetryError("HTTPSConnectionPool(host='ap
+[2026-10-31 19:13:28] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 19:14:51] feed bn_perp_slow failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/openInterest {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 19:17:09] SETTLE P02 btc-updown-15m-1793462400 pays 1 pnl +0.634
+[2026-10-31 19:17:09] SETTLE P02 btc-updown-15m-1793462400 pays 0 pnl -0.537
+[2026-10-31 19:17:09] OPEN P02 yes btc-updown-15m-1793463300 @ 0.3900 edge 0.0451
+[2026-10-31 19:17:09] OPEN P05 yes bitcoin-above-77800-on-october-31-2026-1pm-et @ 0.0800 edge 0.0319
+[2026-10-31 19:19:09] OPEN P02 no btc-updown-15m-1793463300 @ 0.4900 edge 0.0458
+[2026-10-31 19:23:17] OPEN P03 no bitcoin-up-or-down-october-31-2026-12pm-et @ 0.3500 edge 0.0725
+[2026-10-31 19:28:09] OPEN A12 pm_yes+kx_no btc-updown-15m-1793463300|KXBTC15M-26OCT311230-30 @ 0.8300 edge 0.1339
+[2026-10-31 19:32:15] OPEN P02 yes btc-updown-15m-1793464200 @ 0.2500 edge 0.0868
+[2026-10-31 19:34:12] SETTLE P02 btc-updown-15m-1793463300 pays 0 pnl -0.407
+[2026-10-31 19:34:12] SETTLE P02 btc-updown-15m-1793463300 pays 1 pnl +0.493
+[2026-10-31 19:34:12] SETTLE A12 btc-updown-15m-1793463300|KXBTC15M-26OCT pays 0 pnl -0.866
+[2026-10-31 19:34:13] OPEN A12 pm_yes+kx_no btc-updown-15m-1793464200|KXBTC15M-26OCT311245-45 @ 0.8400 edge 0.1276
+[2026-10-31 19:36:40] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 19:37:09] feed bybit failed: GET failed after 2 attempts: https://api.bybit.com/v5/market/tickers {'category': 'linear', 'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("HT
+[2026-10-31 19:38:46] markets kalshi failed: GET failed after 2 attempts: https://api.elections.kalshi.com/trade-api/v2/markets {'series_ticker': 'KXBTC15M', 'status': 'open', 'limit': 50} (SSLError(MaxRet
+[2026-10-31 19:40:02] feed bybit failed: GET failed after 2 attempts: https://api.bybit.com/v5/market/tickers {'category': 'linear', 'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("HT
+[2026-10-31 19:40:40] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (SSLError(MaxRetryError("HTTPSConnectionPool(hos
+[2026-10-31 19:42:40] markets polymarket failed: GET failed after 2 attempts: https://gamma-api.polymarket.com/events {'tag_slug': 'bitcoin', 'active': 'true', 'closed': 'false', 'limit': 100, 'order': 'endDat
+[2026-10-31 19:45:33] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnectionPo
+[2026-10-31 19:46:11] feed deribit failed: GET failed after 2 attempts: https://www.deribit.com/api/v2/public/ticker {'instrument_name': 'BTC-PERPETUAL'} (SSLError(MaxRetryError("HTTP
+[2026-10-31 19:47:08] markets polymarket failed: GET failed after 2 attempts: https://clob.polymarket.com/book {'token_id': '52536531925597881469401943588918116232463578255553768122204767361073483867660'} (SSL
+[2026-10-31 19:49:08] SETTLE P02 btc-updown-15m-1793464200 pays 0 pnl -0.263
+[2026-10-31 19:49:08] SETTLE A12 btc-updown-15m-1793464200|KXBTC15M-26OCT pays 1 pnl +0.128
+[2026-10-31 19:53:19] OPEN O04 short 2026-11-01-77500-straddle @ 490.0000 edge 51.3841
+[2026-10-31 19:54:10] OPEN P02 no btc-updown-15m-1793465100 @ 0.2100 edge 0.1081
+[2026-10-31 20:01:10] OPEN P02 yes btc-updown-15m-1793466000 @ 0.3400 edge 0.0534
+[2026-10-31 20:02:16] SETTLE A13 bitcoin-above-77400-on-october-31-2026-1 pays 1 pnl +0.064
+[2026-10-31 20:02:16] SETTLE P05 bitcoin-above-77800-on-october-31-2026-1 pays 0 pnl -0.085
+[2026-10-31 20:03:09] OPEN P03 yes bitcoin-up-or-down-october-31-2026-1pm-et @ 0.4100 edge 0.0373
+[2026-10-31 20:03:11] OPEN O04 short 2026-11-01-77500-straddle @ 485.0000 edge 50.0451
+[2026-10-31 20:05:19] SETTLE P02 btc-updown-15m-1793465100 pays 0 pnl -0.222
+[2026-10-31 20:07:14] SETTLE P03 bitcoin-up-or-down-october-31-2026-12pm- pays 1 pnl +0.563
+[2026-10-31 20:07:14] SETTLE P03 bitcoin-up-or-down-october-31-2026-12pm- pays 0 pnl -0.366
+[2026-10-31 20:07:14] OPEN A13 pm_no+kx_yes bitcoin-above-77400-on-october-31-2026-2pm-et|KXBTCD-26OCT3114-T77299.99 @ 0.9590 edge 0.0259
+[2026-10-31 20:09:28] feed okx failed: GET failed after 2 attempts: https://www.okx.com/api/v5/market/ticker {'instId': 'BTC-USDT-SWAP'} (SSLError(MaxRetryError("HTTPSConnectionPo
+[2026-10-31 20:12:55] markets polymarket failed: GET failed after 2 attempts: https://clob.polymarket.com/book {'token_id': '65991872054378624785038970847525655622990092944135369899947625221904000459448'} (SSL
+[2026-10-31 20:15:30] feed bybit failed: GET failed after 2 attempts: https://api.bybit.com/v5/market/tickers {'category': 'linear', 'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("HT
+[2026-10-31 20:18:15] SETTLE P02 btc-updown-15m-1793466000 pays 1 pnl +0.644
+[2026-10-31 20:18:15] OPEN P02 no btc-updown-15m-1793466900 @ 0.3200 edge 0.0785
+[2026-10-31 20:20:01] feed bybit failed: GET failed after 2 attempts: https://api.bybit.com/v5/market/tickers {'category': 'linear', 'symbol': 'BTCUSDT'} (SSLError(MaxRetryError("HT
+[2026-10-31 20:20:58] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (SSLError(MaxRetryError("HTTPSConnectionPool(hos
+[2026-10-31 20:21:36] feed kraken failed: GET failed after 2 attempts: https://api.kraken.com/0/public/Ticker {'pair': 'XBTUSD'} (SSLError(MaxRetryError("HTTPSConnectionPool(host='ap
+[2026-10-31 20:23:12] markets polymarket failed: GET failed after 2 attempts: https://clob.polymarket.com/book {'token_id': '79666470641653660738969184410350526242156306227528287561051122647044009724538'} (SSL
+[2026-10-31 20:25:10] OPEN P02 yes btc-updown-15m-1793466900 @ 0.4100 edge 0.0855
+[2026-10-31 20:27:09] OPEN A12 pm_no+kx_yes btc-updown-15m-1793466900|KXBTC15M-26OCT311330-30 @ 0.8800 edge 0.0829
+[2026-10-31 20:30:12] OPEN P02 yes btc-updown-15m-1793467800 @ 0.3400 edge 0.1514
+[2026-10-31 20:30:12] OPEN W04 no KXBTCD-26OCT3114-T77599.99 @ 0.9400 edge 0.0120
+[2026-10-31 20:31:12] WINGS W06 maker sold yes KXBTCD-26OCT3114-T77599.99 @ 0.07
+[2026-10-31 20:32:16] SETTLE P02 btc-updown-15m-1793466900 pays 1 pnl +0.665
+[2026-10-31 20:32:16] SETTLE P02 btc-updown-15m-1793466900 pays 0 pnl -0.427
+[2026-10-31 20:32:16] SETTLE A12 btc-updown-15m-1793466900|KXBTC15M-26OCT pays 1 pnl +0.083
+[2026-10-31 20:32:16] OPEN P02 no btc-updown-15m-1793467800 @ 0.5600 edge 0.0649
+[2026-10-31 20:40:17] OPEN P03 no bitcoin-up-or-down-october-31-2026-1pm-et @ 0.3800 edge 0.0490
+[2026-10-31 20:46:11] OPEN P02 no btc-updown-15m-1793468700 @ 0.2200 edge 0.1963
+[2026-10-31 20:46:11] OPEN W03 no KXBTCD-26OCT3114-T77599.99 @ 0.8700 edge 0.0582
+[2026-10-31 20:47:12] SETTLE P02 btc-updown-15m-1793467800 pays 1 pnl +0.644
+[2026-10-31 20:47:12] SETTLE P02 btc-updown-15m-1793467800 pays 0 pnl -0.577
+[2026-10-31 20:47:12] WINGS W05 maker sold yes KXBTCD-26OCT3114-T77599.99 @ 0.14
+[2026-10-31 20:54:10] OPEN A13 pm_no+kx_yes bitcoin-above-77800-on-october-31-2026-2pm-et|KXBTCD-26OCT3114-T77699.99 @ 0.8930 edge 0.0873
+[2026-10-31 21:00:09] OPEN P03 yes bitcoin-up-or-down-october-31-2026-2pm-et @ 0.4500 edge 0.0327
+[2026-10-31 21:02:11] SETTLE A13 bitcoin-above-77400-on-october-31-2026-2 pays 1 pnl +0.026
+[2026-10-31 21:02:11] SETTLE W04 KXBTCD-26OCT3114-T77599.99 pays 1 pnl +0.050
+[2026-10-31 21:02:11] SETTLE W06 KXBTCD-26OCT3114-T77599.99 pays 1 pnl +0.060
+[2026-10-31 21:02:11] SETTLE P02 btc-updown-15m-1793468700 pays 0 pnl -0.232
+[2026-10-31 21:02:11] SETTLE W03 KXBTCD-26OCT3114-T77599.99 pays 1 pnl +0.120
+[2026-10-31 21:02:11] SETTLE W05 KXBTCD-26OCT3114-T77599.99 pays 1 pnl +0.130
+[2026-10-31 21:02:12] SETTLE A13 bitcoin-above-77800-on-october-31-2026-2 pays 1 pnl +0.087
+[2026-10-31 21:03:16] OPEN P02 yes btc-updown-15m-1793469600 @ 0.4000 edge 0.0323
+[2026-10-31 21:03:16] OPEN A12 pm_yes+kx_no btc-updown-15m-1793469600|KXBTC15M-26OCT311415-15 @ 0.9500 edge 0.0132
+[2026-10-31 21:05:10] SETTLE P03 bitcoin-up-or-down-october-31-2026-1pm-e pays 1 pnl +0.573
+[2026-10-31 21:05:10] SETTLE P03 bitcoin-up-or-down-october-31-2026-1pm-e pays 0 pnl -0.396
+[2026-10-31 21:12:01] OPEN A12F pm_no+kx_yes btc-updown-15m-1793469600|KXBTC15M-26OCT311415-15 @ 0.9500 edge 0.0127
+[2026-10-31 21:12:10] OPEN A12 pm_no+kx_yes btc-updown-15m-1793469600|KXBTC15M-26OCT311415-15 @ 0.9500 edge 0.0128
+[2026-10-31 21:14:00] OPEN V07 no KXBTC15M-26OCT311415-15 @ 0.2600 edge 0.0769
+[2026-10-31 21:16:15] OPEN A13 pm_no+kx_yes bitcoin-above-77800-on-october-31-2026-3pm-et|KXBTCD-26OCT3115-T77699.99 @ 0.9500 edge 0.0284
+[2026-10-31 21:17:13] SETTLE V07 KXBTC15M-26OCT311415-15 pays 0 pnl -0.280
+[2026-10-31 21:18:14] SETTLE P02 btc-updown-15m-1793469600 pays 1 pnl +0.583
+[2026-10-31 21:18:14] SETTLE A12 btc-updown-15m-1793469600|KXBTC15M-26OCT pays 1 pnl +0.013
+[2026-10-31 21:18:14] SETTLE A12F btc-updown-15m-1793469600|KXBTC15M-26OCT pays 1 pnl +0.013
+[2026-10-31 21:18:14] SETTLE A12 btc-updown-15m-1793469600|KXBTC15M-26OCT pays 1 pnl +0.013
+[2026-10-31 21:24:39] feed bn_perp failed: binance futures: GET failed after 2 attempts: https://fapi2.binance.com/fapi/v1/premiumIndex {'symbol': 'BTCUSDT'} (JSONDecodeError('Expecti
+[2026-10-31 21:24:45] OPEN A12F pm_no+kx_yes btc-updown-15m-1793470500|KXBTC15M-26OCT311430-30 @ 0.9500 edge 0.0129
+[2026-10-31 21:25:23] feed coinbase failed: GET failed after 2 attempts: https://api.exchange.coinbase.com/products/BTC-USD/ticker None (SSLError(MaxRetryError("HTTPSConnectionPool(hos
+[2026-10-31 21:25:47] OPEN P02 yes btc-updown-15m-1793470500 @ 0.6600 edge 0.0473
+[2026-10-31 21:27:46] OPEN P02 no btc-updown-15m-1793470500 @ 0.0900 edge 0.1373
+[2026-10-31 21:27:46] OPEN A12 pm_no+kx_yes btc-updown-15m-1793470500|KXBTC15M-26OCT311430-30 @ 0.8300 edge 0.1443
+[2026-10-31 21:30:10] OPEN P02 yes btc-updown-15m-1793471400 @ 0.4000 edge 0.0832
+[2026-10-31 21:30:10] OPEN W04 no KXBTCD-26OCT3115-T77699.99 @ 0.9200 edge 0.0061
+[2026-10-31 21:34:19] SETTLE A12F btc-updown-15m-1793470500|KXBTC15M-26OCT pays 1 pnl +0.013
+[2026-10-31 21:34:19] SETTLE P02 btc-updown-15m-1793470500 pays 1 pnl +0.324
+[2026-10-31 21:34:19] SETTLE P02 btc-updown-15m-1793470500 pays 0 pnl -0.096
+[2026-10-31 21:34:19] SETTLE A12 btc-updown-15m-1793470500|KXBTC15M-26OCT pays 1 pnl +0.144
+[2026-10-31 21:34:19] OPEN A12 pm_yes+kx_no btc-updown-15m-1793471400|KXBTC15M-26OCT311445-45 @ 0.9500 edge 0.0156
+[2026-10-31 21:36:12] OPEN A12 pm_no+kx_yes btc-updown-15m-1793471400|KXBTC15M-26OCT311445-45 @ 0.9500 edge 0.0127
+[2026-10-31 21:40:16] OPEN P02 no btc-updown-15m-1793471400 @ 0.7300 edge 0.0652
+[2026-10-31 21:45:11] volzoo: refitted har, garch, gjr, egarch, gbm, gbm_long
+[2026-10-31 21:50:18] SETTLE P02 btc-updown-15m-1793471400 pays 0 pnl -0.417
+[2026-10-31 21:50:18] SETTLE A12 btc-updown-15m-1793471400|KXBTC15M-26OCT pays 1 pnl +0.016
+[2026-10-31 21:50:18] SETTLE A12 btc-updown-15m-1793471400|KXBTC15M-26OCT pays 1 pnl +0.013
+[2026-10-31 21:50:18] SETTLE P02 btc-updown-15m-1793471400 pays 1 pnl +0.256
+[2026-10-31 21:53:09] OPEN P02 no btc-updown-15m-1793472300 @ 0.9400 edge 0.0304
+[2026-10-31 22:01:15] OPEN P02 no btc-updown-15m-1793473200 @ 0.4000 edge 0.0496
+[2026-10-31 22:02:21] SETTLE A13 bitcoin-above-77800-on-october-31-2026-3 pays 1 pnl +0.028
+[2026-10-31 22:02:21] SETTLE W04 KXBTCD-26OCT3115-T77699.99 pays 1 pnl +0.070
+[2026-10-31 22:02:21] SETTLE P02 btc-updown-15m-1793472300 pays 1 pnl +0.056
+[2026-10-31 22:03:10] SETTLE P03 bitcoin-up-or-down-october-31-2026-2pm-e pays 0 pnl -0.467
+[2026-10-31 22:04:14] OPEN P02 yes btc-updown-15m-1793473200 @ 0.7100 edge 0.0502
+[2026-10-31 22:09:15] !!! minutes update: Traceback (most recent call last):
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\engine.py", line 130, in minute
+    self.minutes.update(self.http)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\lab\history.py", line 55, in update
+    k = binance.api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m",
+                                                 "startTime": int(start.value // 10 ** 6), "limit": 1000})
+  File "C:\Users\Administrator\Downloads\btcvol_logger\btcvol_project\src\download\binance.py", line 38, in api_get
+    raise RuntimeError("all Binance hosts failed: " + "; ".join(errors))
+RuntimeError: all Binance hosts failed: api1.binance.com: GET failed after 2 attempts: https://api1.binance.com/api/v3/klines {'symbol': '; api.binance.com: GET failed after 2 attempts: https://api.binance.com/api/v3/klines {'symbol': 'B; data-api.binance.vision: GET failed after 2 attempts: https://data-api.binance.vision/api/v3/klines {'sym; api2.binance.com: GET failed after 2 attempts: https://api2.binance.com/api/v3/klines {'symbol': '; api3.binance.com: GET failed after 2 attempts: https://api3.binance.com/api/v3/klines {'symbol': '
+
+[2026-10-31 22:13:13] OPEN O01 arb 2026-11-01-79000-C @ 10.0000 edge 1.8750
+[2026-10-31 22:15:11] OPEN P02 no btc-updown-15m-1793474100 @ 0.4500 edge 0.0326
+[2026-10-31 22:15:11] OPEN P03 no bitcoin-up-or-down-october-31-2026-3pm-et @ 0.2200 edge 0.0360
+[2026-10-31 22:17:19] SETTLE P02 btc-updown-15m-1793473200 pays 0 pnl -0.417
+[2026-10-31 22:17:19] SETTLE P02 btc-updown-15m-1793473200 pays 1 pnl +0.276
+[2026-10-31 22:23:11] OPEN P03 yes bitcoin-up-or-down-october-31-2026-3pm-et @ 0.4100 edge 0.0381
+[2026-10-31 22:30:14] OPEN P02 no btc-updown-15m-1793475000 @ 0.4000 edge 0.0832
+[2026-10-31 22:32:14] SETTLE P02 btc-updown-15m-1793474100 pays 1 pnl +0.533
+[2026-10-31 22:45:30] OPEN A12F pm_no+kx_yes btc-updown-15m-1793475900|KXBTC15M-26OCT311600-00 @ 0.8200 edge 0.1425
+[2026-10-31 22:47:11] SETTLE P02 btc-updown-15m-1793475000 pays 0 pnl -0.417
+[2026-10-31 22:53:08] OPEN P02 yes btc-updown-15m-1793475900 @ 0.2700 edge 0.0428
+[2026-10-31 23:00:13] OPEN P02 no btc-updown-15m-1793476800 @ 0.3500 edge 0.0763
+[2026-10-31 23:03:09] OPEN O01 arb 2026-11-01-79000-C @ 10.0000 edge 1.8750
+[2026-10-31 23:05:16] SETTLE P03 bitcoin-up-or-down-october-31-2026-3pm-e pays 1 pnl +0.768
+[2026-10-31 23:05:16] SETTLE P03 bitcoin-up-or-down-october-31-2026-3pm-e pays 0 pnl -0.427
+[2026-10-31 23:05:16] SETTLE A12F btc-updown-15m-1793475900|KXBTC15M-26OCT pays 1 pnl +0.143
+[2026-10-31 23:05:16] SETTLE P02 btc-updown-15m-1793475900 pays 0 pnl -0.284
+[2026-10-31 23:09:09] OPEN P03 no bitcoin-up-or-down-october-31-2026-4pm-et @ 0.2800 edge 0.0550
+[2026-10-31 23:16:00] OPEN A12F pm_yes+kx_no btc-updown-15m-1793477700|KXBTC15M-26OCT311630-30 @ 0.8700 edge 0.0926
+[2026-10-31 23:17:13] SETTLE P02 btc-updown-15m-1793476800 pays 0 pnl -0.366
+[2026-10-31 23:17:13] OPEN P02 no btc-updown-15m-1793477700 @ 0.3300 edge 0.1005
+[2026-10-31 23:21:09] OPEN A12 pm_no+kx_yes btc-updown-15m-1793477700|KXBTC15M-26OCT311630-30 @ 0.9200 edge 0.0441
+[2026-10-31 23:23:13] OPEN P02 yes btc-updown-15m-1793477700 @ 0.3100 edge 0.1014
+[2026-10-31 23:31:07] OPEN P02 yes btc-updown-15m-1793478600 @ 0.2800 edge 0.0389
+[2026-10-31 23:31:07] OPEN P03 yes bitcoin-up-or-down-october-31-2026-4pm-et @ 0.3500 edge 0.0304
+[2026-10-31 23:32:00] OPEN A12F pm_yes+kx_no btc-updown-15m-1793478600|KXBTC15M-26OCT311645-45 @ 0.9200 edge 0.0439
+[2026-10-31 23:32:15] OPEN P02 no btc-updown-15m-1793478600 @ 0.5100 edge 0.0586
+[2026-10-31 23:35:08] SETTLE A12F btc-updown-15m-1793477700|KXBTC15M-26OCT pays 1 pnl +0.093
+[2026-10-31 23:35:08] SETTLE P02 btc-updown-15m-1793477700 pays 1 pnl +0.655
+[2026-10-31 23:35:08] SETTLE A12 btc-updown-15m-1793477700|KXBTC15M-26OCT pays 1 pnl +0.044
+[2026-10-31 23:35:08] SETTLE P02 btc-updown-15m-1793477700 pays 0 pnl -0.325
+[2026-10-31 23:44:00] OPEN V07 yes KXBTC15M-26OCT311645-45 @ 0.1200 edge 0.0772
+[2026-10-31 23:47:14] SETTLE P02 btc-updown-15m-1793478600 pays 0 pnl -0.294
+[2026-10-31 23:47:15] SETTLE A12F btc-updown-15m-1793478600|KXBTC15M-26OCT pays 1 pnl +0.044
+[2026-10-31 23:47:15] SETTLE P02 btc-updown-15m-1793478600 pays 1 pnl +0.473
+[2026-10-31 23:47:15] SETTLE V07 KXBTC15M-26OCT311645-45 pays 0 pnl -0.130
+[2026-10-31 23:47:15] OPEN P02 no btc-updown-15m-1793479500 @ 0.4100 edge 0.1011
+[2026-10-31 23:51:09] OPEN A12 pm_no+kx_yes btc-updown-15m-1793479500|KXBTC15M-26OCT311700-00 @ 0.9300 edge 0.0326
+[2026-10-31 23:52:00] OPEN A12F pm_yes+kx_no btc-updown-15m-1793479500|KXBTC15M-26OCT311700-00 @ 0.9500 edge 0.0143
+[2026-10-31 23:53:13] OPEN P02 yes btc-updown-15m-1793479500 @ 0.2800 edge 0.0410
