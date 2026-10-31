@@ -6,6 +6,11 @@
 > интерактивный график «факт против прогноза», все таблицы и рисунки; краткая версия —
 > [`reports/final_report.md`](reports/final_report.md). Пересборка: `python reports/final_report_analysis.py &&
 > python reports/build_final_report.py`.
+>
+> **Продажа крыльев — полный разбор (01.11.2026):** [`reports/wings_report.html`](reports/wings_report.html) —
+> 171 live-сделка W01–W06, бэктест июль–октябрь, бутстрап-риск и компаундинг. Графика:
+> [`fig22`](reports/final/figures/fig22_wings_live_all.png), [`fig23`](reports/final/figures/fig23_wings_history.png),
+> [`fig24`](reports/final/figures/fig24_wings_risk.png); текст — [`reports/wings_deep.md`](reports/wings_deep.md).
 
 Снимок кода и данных: 31.10.2026 (числа в §0 — на срез 28.10, обновлённая сводка — в финальном отчёте). Для людей и нейросетей, которые подключаются к работе: [`AGENTS.md`](AGENTS.md)
 (жёсткие правила), [`PLAN.md`](PLAN.md) (задачи), [`STRATEGIES.md`](STRATEGIES.md) (все торговые гипотезы), запуск —
