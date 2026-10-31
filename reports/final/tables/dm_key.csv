@@ -1,0 +1,34 @@
+horizon,A,B,comparison,loss,n,mean_diff,dm,p,sample,A_label,B_label
+kx1h,har,naive,HAR vs naive,qlike,5822,-0.12757325702888725,-13.484944340654566,7.82983019921578e-41,common,HAR,Наивный (прошлое окно)
+kx1h,harx,har,time-series extensions,qlike,5822,-0.01125918034687681,-2.380014562345654,0.017343967800517366,common,HAR-X,HAR
+kx1h,harx_d,harx,adding Deribit,qlike,5822,-0.0001994859287541309,-0.1343213518500377,0.8931531136226486,common,HAR-X + Deribit,HAR-X
+kx1h,harx_all,harx_d,adding the ladder on top of Deribit (key test),qlike,5822,-0.02150669461814746,-6.081323711174568,1.267706279201619e-09,common,HAR-X + Deribit + лесенка,HAR-X + Deribit
+kx1h,harx_m,harx,adding the ladder alone,qlike,5822,-0.0217195474867364,-5.907157889628452,3.6775437828833733e-09,common,HAR-X + лесенка,HAR-X
+kx1h,mkt_mz,iv_mz,ladder vs Deribit as standalone forecasts,qlike,5822,-0.30728948605982576,-11.06949185299834,3.3665249628306e-28,common,Лесенка BJN (калибр.),Deribit IV (калибр.)
+kx1h,combo,harx_all,combination vs best regression,qlike,5822,0.030636293457334717,4.7595738692809455,1.986933522431647e-06,common,Смесь равных весов,HAR-X + Deribit + лесенка
+kx1h,gbm_all,harx_all,gradient-boosted trees vs the same features in OLS,qlike,5822,0.008300831865451073,1.9378728070959574,0.052687042775110736,common,Бустинг gbm_all,HAR-X + Deribit + лесенка
+pm24h,har,naive,HAR vs naive,qlike,291,-0.20905516675853292,-5.752262546981958,2.2340511671588073e-08,common,HAR,Наивный (прошлое окно)
+pm24h,harx,har,time-series extensions,qlike,291,-0.011942946799344269,-0.6700057197122412,0.5033872906849908,common,HAR-X,HAR
+pm24h,harx_d,harx,adding Deribit,qlike,291,-0.06024370512081213,-3.761522974668334,0.00020431065032160156,common,HAR-X + Deribit,HAR-X
+pm24h,harx_all,harx_d,adding the ladder on top of Deribit (key test),qlike,291,0.0016972075524234137,0.8156801294658621,0.4153525399554022,common,HAR-X + Deribit + лесенка,HAR-X + Deribit
+pm24h,harx_m,harx,adding the ladder alone,qlike,291,-0.04170619316469631,-3.6263258335619897,0.0003395178403918503,common,HAR-X + лесенка,HAR-X
+pm24h,mkt_mz,iv_mz,ladder vs Deribit as standalone forecasts,qlike,291,0.011903943103536326,1.7573269442248272,0.0799172556522018,common,Лесенка BJN (калибр.),Deribit IV (калибр.)
+pm24h,combo,harx_all,combination vs best regression,qlike,291,0.00044581109298116043,0.10356919252314548,0.9175828228879319,common,Смесь равных весов,HAR-X + Deribit + лесенка
+pm24h,gbm_all,harx_all,gradient-boosted trees vs the same features in OLS,qlike,291,0.0019238724783406337,0.34419608195033663,0.7309482770160488,common,Бустинг gbm_all,HAR-X + Deribit + лесенка
+pm6d,har,naive,HAR vs naive,qlike,335,-0.02302871457301329,-0.9161947969561373,0.3602257608850063,common,HAR,Наивный (прошлое окно)
+pm6d,harx,har,time-series extensions,qlike,335,-0.007655465405812308,-1.395760211362143,0.16371385221829715,common,HAR-X,HAR
+pm6d,harx_d,harx,adding Deribit,qlike,335,0.014182818421886081,1.5226042757725158,0.12880393023829276,common,HAR-X + Deribit,HAR-X
+pm6d,harx_all,harx_d,adding the ladder on top of Deribit (key test),qlike,335,0.19861918515760182,0.978344049085208,0.3286122772580323,common,HAR-X + Deribit + лесенка,HAR-X + Deribit
+pm6d,harx_m,harx,adding the ladder alone,qlike,335,0.005146002571470487,0.5592565181193716,0.5763614685473946,common,HAR-X + лесенка,HAR-X
+pm6d,mkt_mz,iv_mz,ladder vs Deribit as standalone forecasts,qlike,335,0.03440519134513162,1.2820158085299538,0.200726254031853,common,Лесенка BJN (калибр.),Deribit IV (калибр.)
+pm6d,combo,harx_all,combination vs best regression,qlike,335,-0.2020232881591883,-1.048902752206299,0.2949812625031899,common,Смесь равных весов,HAR-X + Deribit + лесенка
+pm6d,gbm_all,harx_all,gradient-boosted trees vs the same features in OLS,qlike,335,-0.1781381127325156,-0.8773284844857107,0.38093885705529545,common,Бустинг gbm_all,HAR-X + Deribit + лесенка
+kx1h,har,naive,HAR vs naive,qlike,14570,-0.16086994352106485,-15.19670812471927,9.269918268161934e-52,time-series,HAR,Наивный (прошлое окно)
+kx1h,harx,har,time-series extensions,qlike,14570,-0.003881651842811866,-1.5992700564923361,0.10978229406539483,time-series,HAR-X,HAR
+kx1h,harx_d,harx,adding Deribit,qlike,14570,-0.0021027093947186275,-1.7158391133979705,0.08621275350514453,time-series,HAR-X + Deribit,HAR-X
+pm24h,har,naive,HAR vs naive,qlike,391,-0.19551679766284344,-5.236543913076044,2.681417622137196e-07,time-series,HAR,Наивный (прошлое окно)
+pm24h,harx,har,time-series extensions,qlike,391,-0.01964247460046139,-0.7386573470575108,0.46055937609824743,time-series,HAR-X,HAR
+pm24h,harx_d,harx,adding Deribit,qlike,391,-0.05961677511539058,-3.5820229425728023,0.000384056296334841,time-series,HAR-X + Deribit,HAR-X
+pm6d,har,naive,HAR vs naive,qlike,371,-0.035485552061976074,-1.296640291839494,0.19556304625462032,time-series,HAR,Наивный (прошлое окно)
+pm6d,harx,har,time-series extensions,qlike,371,-0.001921192155225318,-0.23298869609960207,0.8158990172969413,time-series,HAR-X,HAR
+pm6d,harx_d,harx,adding Deribit,qlike,371,0.014171227120016996,1.4071254610407606,0.16022964060568928,time-series,HAR-X + Deribit,HAR-X

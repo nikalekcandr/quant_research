@@ -1,0 +1,23 @@
+id,hypothesis,effect,unit,t,p,holm,bh,n,stable,verdict
+R1,Intraday/weekly volatility seasonality is stable and predicts out of sample,0.971,slope,38.559,0.0,0.0,0.0,24771,yes,CONFIRMED (survives Holm)
+R2,BTC returns accrue outside US trading hours (post-ETF),21.322,bp/day,2.157,0.031,0.465,0.085,701,yes,likely (FDR 10%)
+R3,Intraday momentum: the first half hour predicts the last half hour,0.926,bp/trade,0.653,0.514,1.0,0.693,958,83% of states,not supported
+R4,Time-series momentum at the weekly horizon,-6.873,bp/week,-0.16,0.873,1.0,0.921,196,33% of states,not supported
+R5,Day-of-week: Monday returns are higher,30.243,bp/day,1.412,0.158,1.0,0.295,199,83% of states,not supported
+R6,Pre-FOMC drift,-3.769,bp/event,-0.108,0.914,1.0,0.921,31,yes,not supported
+R7,Volatility-managed exposure beats buy-and-hold on a risk-adjusted basis,1.899,bp/day,0.556,0.578,1.0,0.707,1216,67% of states,not supported
+R8a,Variance risk premium: implied variance exceeds subsequent realised variance,314.448,"var. points (ann., ×100²)",2.582,0.01,0.167,0.036,1369,83% of states,likely (FDR 10%)
+R8b,The variance risk premium predicts returns,16.361,bp/30d (per 1 sd),0.1,0.921,1.0,0.921,1249,50% of states,not supported
+R9,Prediction-market ladders know the direction,0.155,bp/occasion (per 1 s),1.355,0.176,1.0,0.297,6451,60% of states,not supported
+R10,Crash insurance is overpriced in prediction-market ladders,2.626,pp,5.262,1.42e-07,2.71e-06,7.83e-07,6109,yes,CONFIRMED (survives Holm)
+R11,Perpetual funding predicts returns (crowded longs lose),-29.389,bp/7d (per 1 sd),-0.692,0.489,1.0,0.693,1295,50% of states,not supported
+R12,Implied-volatility changes lead BTC returns,1.12,bp/hour (per 1 sd),2.746,0.006,0.109,0.027,33026,yes,likely (FDR 10%)
+R13,Volatility spikes in the first minute of the hour (and at funding times),0.099,log ratio,5.87,4.36e-09,8.72e-08,3.2e-08,1398,83% of states,CONFIRMED (survives Holm)
+R14,'CME gaps always fill',3.963,pp,1.576,0.115,1.0,0.281,189,83% of states,not supported
+R15,Round numbers act as support/resistance,-1.825,bp/approach,-0.619,0.536,1.0,0.693,542,50% of states,not supported
+R16,Turn-of-the-month effect,-25.926,bp/day,-1.464,0.143,1.0,0.295,46,yes,not supported
+R17,Bad volatility predicts future volatility more than good volatility,-0.000376,QLIKE gain,-0.143,0.887,1.0,0.921,1012,60% of states,not supported
+R18,Does the ladder's information gain depend on the volatility regime?,-0.005,CRPS gain,-1.401,0.161,1.0,0.295,6555,0% of states,not supported
+R19,A regime-aware HAR forecasts daily volatility better,-0.016,QLIKE gain,-2.245,0.025,0.396,0.078,1012,yes,likely (FDR 10%)
+R20,Machine learning predicts the next-hour BTC return,0.379,bp/hour,1.195,0.232,1.0,0.365,24024,80% of states,not supported
+R21,Does anything beat HAR? Daily volatility model zoo,0.1,QLIKE,8.73,2.55e-18,5.35e-17,2.8e-17,997,yes,CONFIRMED (survives Holm)
