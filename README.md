@@ -1,7 +1,13 @@
 # Волатильность биткоина по лесенкам Polymarket и Kalshi
 
 **Курсовой проект РЭШ «Introduction to Forecasting»** · авторы: Александр Шестаков, Александр Шилин · сдача 01.11.2026
-Снимок кода и данных: 29.10.2026. Для людей и нейросетей, которые подключаются к работе: [`AGENTS.md`](AGENTS.md)
+
+> **Финальный отчёт (снимок 31.10.2026):** [`reports/final_report.html`](reports/final_report.html) — инфографика,
+> интерактивный график «факт против прогноза», все таблицы и рисунки; краткая версия —
+> [`reports/final_report.md`](reports/final_report.md). Пересборка: `python reports/final_report_analysis.py &&
+> python reports/build_final_report.py`.
+
+Снимок кода и данных: 31.10.2026 (числа в §0 — на срез 28.10, обновлённая сводка — в финальном отчёте). Для людей и нейросетей, которые подключаются к работе: [`AGENTS.md`](AGENTS.md)
 (жёсткие правила), [`PLAN.md`](PLAN.md) (задачи), [`STRATEGIES.md`](STRATEGIES.md) (все торговые гипотезы), запуск —
 [`RUN_ME.md`](RUN_ME.md).
 
