@@ -1,0 +1,46 @@
+{
+ "code_identical": true,
+ "ledger": "43 forecasts, chain intact",
+ "samples": [
+  {
+   "horizon": "kx1h",
+   "sample": "history",
+   "n": 5478.0
+  },
+  {
+   "horizon": "kx1h",
+   "sample": "live",
+   "n": 40.0
+  },
+  {
+   "horizon": "kx1h",
+   "sample": "new",
+   "n": 387.0
+  },
+  {
+   "horizon": "pm24h",
+   "sample": "history",
+   "n": 280.0
+  },
+  {
+   "horizon": "pm24h",
+   "sample": "live",
+   "n": 1.0
+  },
+  {
+   "horizon": "pm24h",
+   "sample": "new",
+   "n": 13.0
+  },
+  {
+   "horizon": "pm6d",
+   "sample": "history",
+   "n": 325.0
+  },
+  {
+   "horizon": "pm6d",
+   "sample": "new",
+   "n": 11.0
+  }
+ ]
+}
