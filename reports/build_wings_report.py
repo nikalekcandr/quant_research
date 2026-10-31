@@ -22,6 +22,9 @@ B = pd.read_csv(TAB / "wings_all_buckets.csv")
 EX = pd.read_csv(TAB / "wings_all_exec.csv")
 ED = pd.read_csv(TAB / "wings_all_edge.csv")
 L = pd.read_csv(TAB / "wings_all_w01_losses.csv", parse_dates=["open_ts", "settle_ts"])
+# produced by reports/wings_edge.py
+EB = pd.read_csv(TAB / "wings_edge_buckets.csv")
+ET = pd.read_csv(TAB / "wings_edge_thresholds.csv")
 
 COL = {"W01": "#94a3b8", "W02": "#475569", "W03": "#4f46e5",
        "W04": "#0d9488", "W05": "#d97706", "W06": "#db2777"}
@@ -239,6 +242,28 @@ footer{color:var(--muted);font-size:12.5px;margin-top:26px;text-align:center}
 @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.hero{padding:30px}.hero h1{font-size:29px}section{padding:22px}}
 """
 
+BUCKET_ORDER = ["0–0.5", "0.5–1", "1–1.5", "1.5–2", "2–3", "3–4", "≥4"]
+eb_rows = []
+for lab in BUCKET_ORDER:
+    row = [lab.replace(".", ",")]
+    for h in ("W03", "W04"):
+        r = EB[(EB.hyp == h) & (EB.half == "test") & (EB.bucket == lab)].iloc[0]
+        if int(r.n) == 0:
+            row += ["—", "—", "—"]
+        else:
+            row += [k(r.n), n(r.mean_c, 1, True), n(r.share_total, 0, True) + " %"]
+    eb_rows.append(row)
+edge_bucket_tbl = table(["Edge, ¢", "W03 сделок", "W03 ¢", "W03 % приб.",
+                         "W04 сделок", "W04 ¢", "W04 % приб."], eb_rows, aligns="lrrrrrr")
+
+et_rows = []
+for h in ("W03", "W04"):
+    for _, r in ET[ET.hyp == h].sort_values("margin").iterrows():
+        et_rows.append([h, f"{int(round(r.margin))}¢", k(r.n_test), n(r.mean_c_test, 2, True),
+                        n(r.total_test, 2, True), n(r.t_test, 2), f"{r.hit_test:.0f} %"])
+edge_thr_tbl = table(["Правило", "Порог", "Сделок", "¢/сделку", "Всего $", "t", "hit"],
+                     et_rows, aligns="llrrrrr")
+
 body = f"""
 <div class="hero">
   <div class="badge">quant_research · Kalshi hourly ladder · 01.11.2026</div>
@@ -256,7 +281,7 @@ body = f"""
 
 <nav class="toc">
   <a href="#live">Live</a><a href="#w01">W01</a><a href="#live36">W03–W06</a>
-  <a href="#hist">История</a><a href="#cap">Капитал</a><a href="#cal">Калибровка</a><a href="#next">Выводы</a>
+  <a href="#hist">История</a><a href="#cap">Капитал</a><a href="#cal">Калибровка</a><a href="#edge">Edge</a><a href="#next">Выводы</a>
 </nav>
 
 <section id="summary">
@@ -399,7 +424,7 @@ body = f"""
     <div>
       <h3>Edge (только W02–W04)</h3>
       {ed_tbl}
-      <p class="small">У W04 сделки с edge &lt; 0,5¢ дают −4,8¢, с edge 0,5–1,5¢ — +6,1¢, &gt; 1,5¢ — +7,0¢. Фильтр по edge — не косметика, а основной источник преимущества.</p>
+      <p class="small">На 21 live-сделке W04 градиент выглядит монотонным (−4,8 / +6,1 / +7,0¢), но на 980 OOS-сделках он исчезает: корзины дают 1,1–3,3¢ при перекрывающихся интервалах. Это малая выборка, а не свойство edge — см. раздел 10.</p>
     </div>
   </div>
   <h3>Цена крыла</h3>
@@ -407,8 +432,25 @@ body = f"""
   <p class="small">Внутри W01 худший вклад дают крылья 6–10¢: 11 сделок, −$2,44, средний −22,2¢ (два проигрыша). W03 монотонно улучшается с ценой: 6–10¢ +9¢ (n=1), 10–15¢ +11,3¢, 15–20¢ +15¢. Это согласуется с калибровкой: чем дороже крыло, тем больше премия и меньше относительный хвост.</p>
 </section>
 
+<section id="edge">
+  <h2><span class="num">10</span>Edge: сколько стоит ждать максимального преимущества</h2>
+  <p class="lead">Прибыль не сосредоточена в сделках с максимальным edge. У W03 корзина ≥ 4¢ — 24 % сделок и −15 % итоговой прибыли; у W04 — 9 % сделок и 3 % прибыли. Основная прибыль лежит в полосе 0–3¢. Поднимать порог и «ждать максимум» невыгодно: итог на тесте падает в 1,7–2,1 раза.</p>
+  {figure("fig25_wings_edge.png", "Рис. 25. Edge W03/W04: распределение, средний P&L и доля прибыли по корзинам, порог edge, концентрация прибыли в топе по edge и live-сделки. Корзины — все сделки с edge ≥ 0; серая зона — срез текущего порога W03 (1¢).")}
+  <h3>Доли прибыли по корзинам edge (тест, 516 и 980 сделок)</h3>
+  {edge_bucket_tbl}
+  <p class="small">У W03 половина прибыли — в корзине 0–0,5¢ (hit 96,7 %), а верхняя корзина убыточна (hit 83,6 %). У W04 прибыль размазана по 0–2¢ (73 %), верхняя корзина даёт 3 %. Широкие интервалы: в корзинах 40–250 сделок, поэтому надёжен не отдельный уровень, а отсутствие монотонности.<br>
+  Текущее правило W03 (порог 1¢, 427 сделок): 1–1,5 — 27 %, 1,5–2 — 12 %, 2–3 — 51 %, 3–4 — 20 %, ≥4 — −11 % прибыли.</p>
+  <h3>Что если поднять минимальный edge</h3>
+  {edge_thr_tbl}
+  <p class="small">W03: порог 2¢ был лучшим на train (+4,88¢, t = 2,24), но на тесте дал +2,56¢ (t = 1,51) и вдвое меньший итог. W04: порог 1¢ снижает и ¢/сделку, и итог. Текущий порог W03 1¢ не улучшает качество, но отрезает 17 % сделок и $2,9 прибыли.</p>
+  <h3>W05/W06: точного edge нет</h3>
+  <p>В live W05/W06 edge не логируется, поэтому их 5 + 5 сделок нельзя разложить по корзинам. История говорит, что их улучшение — прежде всего отказ от 13–15 UTC (+1,56¢ для 10–20-окна, +0,77…+1,11¢ для 6–10-окна), а blend помогает только 6–10-окну; max-edge для 10–20-окна хуже.</p>
+  {figure("fig26_wings_w05_w06.png", "Рис. 26. W05/W06: live-сделки по цене (edge неизвестен) и историческая сетка EWMA/blend с фильтром 13–15 UTC и без него.")}
+  <p class="small">Полный разбор и оговорки: <code>reports/wings_edge.md</code>; код — <code>reports/wings_edge.py</code>; таблицы — <code>reports/final/tables/wings_edge_*.csv</code>.</p>
+</section>
+
 <section id="data">
-  <h2><span class="num">10</span>Данные и оговорки</h2>
+  <h2><span class="num">11</span>Данные и оговорки</h2>
   <ul>
     <li><b>171 сделка</b> собрана из <code>lab_20261029.log</code>–<code>lab_20261101.log</code>. Парсер сопоставляет OPEN/WINGS с SETTLE по (правило, рынок), а для обрезанных имён Polymarket — по префиксу.</li>
     <li><b>W03–W06 сверены точно:</b> максимальное расхождение логированного P&amp;L с пересчётом по цене, исходу и комиссии — 0,000000.</li>
@@ -420,12 +462,13 @@ body = f"""
 </section>
 
 <section id="next">
-  <h2><span class="num">11</span>Что делать дальше</h2>
+  <h2><span class="num">12</span>Что делать дальше</h2>
   <ul>
     <li><b>W01 — выключить.</b> Отрицательное ожидание подтверждено и историей (22 908 сделок, t −4,4), и live-днём (−$7,18, 10 потерь).</li>
     <li><b>W02 — оставить выключенным.</b> Один день 31/31 не перекрывает −$23,5 и просадку −$35,7; для возврата нужна новая гипотеза, а не повторение.</li>
     <li><b>W03/W04 — ядро.</b> Одна сделка в час, размер из бюджета «один минус ≤ 2–3 % капитала». При цене контракта ~$0,85–0,94 и потере ~$0,95 на контракт бюджет $0,02–0,03 на $1 капитала даёт 0,02–0,03 контракта; при $10 000 это 200–300 контрактов, но лучше резать до 100–150 с учётом просадки.</li>
     <li><b>W05/W06 — только paper до 100+ сделок.</b> Maker-first и отказ от 13–15 UTC выглядят разумно, но 5 сделок не дают даже знака.</li>
+    <li><b>Edge — фильтр, а не ранг.</b> W03: порог 1¢ не улучшает ¢/сделку, но отрезает $2,9 прибыли на тесте; 2¢ — уже потеря. W04: 0¢ лучше 1¢. Не ждать максимум; использовать edge только против ≤ 0.</li>
     <li><b>Базовая оценка — со сдвигом −1¢.</b> При −2¢ W04 теряет преимущество; если maker-филлы окажутся хуже, стратегия не масштабируется.</li>
     <li><b>Вердикт — после 300–400 сделок W03–W06</b> (примерно месяц при 10–20 сделках в день). До этого любые +$2,34 — это аванс, а не прибыль.</li>
     <li><b>Починить фид:</b> 110 ошибок 403 за три дня — риск пропустить вход или расчёт.</li>
@@ -435,7 +478,7 @@ body = f"""
 
 <footer>
   Данные: lab_20261029–lab_20261101.log · results/studies/wings_equity.csv · wings_improve.csv · wings_summary.md · reports/kalshi_calibration.md.<br>
-  Код и таблицы: reports/wings_deep.py, reports/build_wings_report.py, reports/final/tables/wings_all_*.csv. Рисунки: fig22–fig24.
+  Код и таблицы: reports/wings_deep.py, reports/wings_edge.py, reports/build_wings_report.py, reports/final/tables/wings_all_*.csv, wings_edge_*.csv. Рисунки: fig22–fig26.
 </footer>
 """
 
