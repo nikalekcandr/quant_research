@@ -1315,3 +1315,21 @@ def f01(ctx):
 
 FAMILIES = {"D": "Directional BTC", "P": "Prediction markets: fair value", "V": "Short binaries every 15 s: fair-value models",
             "A": "No-arbitrage (binaries)", "W": "Selling cheap wings", "T": "Kalshi trade tape (taker)", "M": "Maker quotes on Kalshi (simulated fills)", "O": "Options", "F": "Funding"}
+
+
+# ================================================================== focus (03.11.2026)
+# The lab trades the wing rules only: every other rule is PAUSED — not disproved, its history stays in the ledger and
+# the report, and it can be switched back on by removing it from PAUSED_EXCEPT / emptying FOCUS. Paused rules are put
+# into RETIRED so that every loop that checks RETIRED (engine, tape, maker, flow, lead–lag, ML) stops for them, and
+# the markets snapshot fetches only the Kalshi hourly ladder (lab/markets.py).
+FOCUS = {"W03", "W04", "W05", "W06"}
+PAUSED = "paused 03.11.2026: the lab runs the wing rules W03–W06 only"
+if FOCUS:
+    for _h in REGISTRY:
+        if _h.id not in FOCUS and not _h.retired:
+            _h.retired = PAUSED
+            RETIRED[_h.id] = PAUSED
+
+
+def active(hid: str) -> bool:
+    return any(h.id == hid and not h.retired for h in REGISTRY)

@@ -5,6 +5,8 @@ _29.10.2026 20:00 MSK. Live: settled trades / clusters (entry hours), mean per t
 **Bottom line:** no rule has survived the full history after fees and multiple testing. The lab now runs only rules with live or historical promise.
 
 
+> **03.11.2026: wings only.** The lab runs W03–W06; every other active rule below is paused (not disproved) — `lab/signals.py` `FOCUS`. The strategy file: `docs/WINGS.md`.
+
 ## Active (18)
 
 

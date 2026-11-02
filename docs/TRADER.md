@@ -100,30 +100,25 @@ shadow), а заявка отправляется на демо по цене д
 
 Shadow-режим уже запущен на компьютере как задача лаборатории (`jobs/trader_shadow_now.py`).
 
-## 4. Подключение демо-счёта (Windows)
+## 4. Подключение демо-счёта
 
-1. Зарегистрироваться на **https://demo.kalshi.co** (отдельный аккаунт, данные production не подходят).
-2. Профиль → API Keys → **Create New API Key**. Сохранить приватный ключ (показывается один раз) в файл,
-   например `C:\Users\Administrator\kalshi\demo.pem`. Ключ не класть в папку проекта и не коммитить.
-3. Задать переменные окружения (PowerShell, один раз):
-   ```powershell
-   setx KALSHI_DEMO_KEY_ID "<id ключа>"
-   setx KALSHI_DEMO_KEY_FILE "C:\Users\Administrator\kalshi\demo.pem"
-   ```
-   и открыть новое окно терминала.
-4. Проверка (из папки проекта):
-   ```powershell
-   python -m trader check --mode demo        # часы, статус биржи, баланс, есть ли KXBTCD на демо
-   python -m trader test-order --mode demo   # заявка 1 контракт по 1¢, чтение, отмена
-   ```
-5. Запуск:
-   ```powershell
-   python -m trader run --mode demo
-   python -m trader status --mode demo       # в другом окне: позиции, причины пропусков
-   python -m trader report --mode demo       # рассчитанные сделки
-   python -m trader kill                     # аварийная остановка (снимет заявки и выйдет)
-   ```
-Настройки лежат в `data/trader/settings.json` (создаётся при первом запуске с значениями по умолчанию).
+Проще всего — без переменных окружения:
+1. **https://demo.kalshi.co** → профиль → API Keys → Create New API Key.
+2. Положить в папку проекта (папка `data/trader/` не попадает в git):
+   * `data\trader\keys\demo_key_id.txt` — id ключа одной строкой;
+   * `data\trader\keys\demo.pem` — скачанный приватный ключ.
+3. Всё. Задача лаборатории `jobs/trader_demo_now.py` каждые 10 минут проверяет, есть ли ключ. Когда находит:
+   сверяет часы, показывает баланс, ставит и снимает тестовую заявку 1 контракт по 1¢, затем запускает исполнитель
+   с профилем `demo_plumbing`: каждое решение крыльев → IOC на 1 контракт по демо-цене. Лог —
+   `logs\jobs\trader_demo_now.log`, журнал — `data\trader\journal_demo.jsonl`.
+4. Смотреть: `python -m trader status --mode demo`, `python -m trader report --mode demo`.
+
+Переменные окружения `KALSHI_DEMO_KEY_ID` / `KALSHI_DEMO_KEY_FILE` по-прежнему работают и имеют приоритет.
+
+**Профили** (`trader/profiles/*.json`) накладываются поверх `data/trader/settings.json`: `demo_plumbing` (демо,
+1 контракт, без проверки edge по демо-цене) и `live_1contract` (реальные деньги, 1 контракт, ≤ 2 позиций, стоп −$3
+в день). Запуск: `python -m trader run --profile live_1contract --real-money` при наличии
+`data\trader\keys\prod_key_id.txt`, `prod.pem` и пустого файла `data\trader\keys\ALLOW_LIVE`.
 
 ## 5. Переход на реальные деньги: чек-лист
 

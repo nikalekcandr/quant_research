@@ -262,7 +262,9 @@ class Executor:
                 fair = f1
         edge = fair - price - fee_per
         if edge < it.get("margin", 0.0) - 1e-9:
-            return f"edge {100 * edge:+.2f}¢ < margin {100 * it.get('margin', 0):.0f}¢ at {price:.2f}"
+            move = (1e4 * (s1 / it["spot"] - 1)) if it.get("spot") and math.isfinite(s1) else float("nan")
+            return (f"edge {100 * edge:+.2f}¢ < margin {100 * it.get('margin', 0):.0f}¢ at {price:.2f} "
+                    f"(lab fair {it['fair_side']:.4f} → {fair:.4f}, spot {move:+.1f} bp)")
         return None
 
     def take(self, it: dict, book: Book):
@@ -291,7 +293,10 @@ class Executor:
         for px, qty in book.asks(side):
             if n >= target or px > limit + 1e-9 or fair - px - taker_fee(px) < it.get("margin", 0.0) - 1e-9:
                 break
-            take_n = min(target - n, int(self.cfg.max_book_share * qty)) if self.mode != "demo" else target - n
+            cap = int(self.cfg.max_book_share * qty)
+            if cap < 1 and qty >= 1 and target == 1:
+                cap = 1                                  # a 1-contract order may take a thin level
+            take_n = min(target - n, cap) if self.mode != "demo" else target - n
             if take_n < 1:
                 break
             n, limit_px, cost = n + take_n, px, cost + take_n * px

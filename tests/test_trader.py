@@ -281,3 +281,31 @@ def test_book_sweep_stops_where_the_edge_ends(tmp_path):
     v3._book = Book("T", [(0.08, 40), (0.07, 400)], [(0.91, 500)], time.time())
     ex3.handle(intent(price=0.93, fair=0.939))                     # level two edge < 0: only level one, 10 contracts
     assert ex3.st.positions["early|KXBTCD-26NOV0213"]["filled"] == 10
+
+
+def test_credentials_from_key_files(tmp_path, monkeypatch):
+    import trader.settings as S
+    for k in ("KALSHI_DEMO_KEY_ID", "KALSHI_DEMO_KEY_FILE", "KALSHI_KEY_ID", "KALSHI_KEY_FILE"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setattr(S, "KEYS", tmp_path)
+    assert S.credentials("demo") == (None, None)
+    (tmp_path / "demo_key_id.txt").write_text("abc-123\n")
+    (tmp_path / "demo.pem").write_text("x")
+    assert S.credentials("demo") == ("abc-123", str(tmp_path / "demo.pem"))
+    assert S.credentials("live") == (None, None)                      # demo keys never serve live
+
+
+def test_profiles_load_on_top_of_settings(tmp_path):
+    from trader.settings import Settings
+    live = Settings.load(tmp_path / "s.json", profile="live_1contract")
+    assert live.mode == "live" and live.max_contracts == 1 and live.daily_loss_limit_usd == 3.0
+    demo = Settings.load(tmp_path / "s.json", profile="demo_plumbing")
+    assert demo.mode == "demo" and demo.demo_ignore_edge and demo.demo_contracts == 1
+    assert Settings.load(tmp_path / "s.json").mode == "shadow"
+
+
+def test_one_contract_profile_takes_a_thin_level(tmp_path):
+    ex, v = make(tmp_path, risk_per_trade_usd=1.0, max_contracts=1)
+    v._book = Book("T", [(0.08, 2)], [(0.91, 500)], time.time())       # only 2 contracts offered at 0.92
+    ex.handle(intent())
+    assert ex.st.positions["early|KXBTCD-26NOV0213"]["filled"] == 1

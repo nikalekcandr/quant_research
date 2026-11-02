@@ -1,0 +1,10 @@
+{
+  "_what": "demo exchange, mechanics only: every wing decision becomes a 1-contract IOC order at the demo price (demo prices are not real); edge is still checked on the production book first",
+  "mode": "demo",
+  "rules": ["W03", "W04", "W05", "W06"],
+  "maker_rules": [],
+  "demo_ignore_edge": true,
+  "demo_contracts": 1,
+  "max_open_positions": 6,
+  "daily_loss_limit_usd": 1000.0
+}

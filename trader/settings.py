@@ -14,6 +14,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "trader"
 INTENTS = ROOT / "data" / "lab" / "intents.jsonl"
+PROFILES = Path(__file__).resolve().parent / "profiles"
+KEYS = DATA / "keys"                   # git-ignored: <env>_key_id.txt and <env>.pem (env = demo | prod)
 
 
 @dataclass
@@ -46,19 +48,32 @@ class Settings:
     spot_url: str = "https://api.exchange.coinbase.com/products/BTC-USD/ticker"
 
     @classmethod
-    def load(cls, path: Path | None = None) -> "Settings":
+    def load(cls, path: Path | None = None, profile: str | None = None) -> "Settings":
+        """data/trader/settings.json, then (optionally) a named profile from trader/profiles/<name>.json on top."""
         path = path or DATA / "settings.json"
         DATA.mkdir(parents=True, exist_ok=True)
         if not path.exists():
             path.write_text(json.dumps(asdict(cls()), indent=2), encoding="utf-8")
         raw = json.loads(path.read_text(encoding="utf-8"))
-        known = {k: v for k, v in raw.items() if k in cls.__dataclass_fields__}
+        if profile:
+            raw.update(json.loads((PROFILES / f"{profile}.json").read_text(encoding="utf-8")))
+        known = {k: v for k, v in raw.items() if k in cls.__dataclass_fields__ and not k.startswith("_")}
         return cls(**known)
 
 
 def credentials(mode: str) -> tuple[str | None, str | None]:
-    """Key id and key file for the mode; demo and production keys are separate (KALSHI_DEMO_* overrides)."""
+    """Key id and key file for the mode; demo and production keys are separate.
+
+    1. environment: KALSHI_DEMO_KEY_ID / KALSHI_DEMO_KEY_FILE (demo), KALSHI_KEY_ID / KALSHI_KEY_FILE (live)
+    2. files: data/trader/keys/demo_key_id.txt + demo.pem, or prod_key_id.txt + prod.pem (git-ignored folder)
+    """
+    env = "demo" if mode == "demo" else "prod"
     if mode == "demo":
-        return (os.environ.get("KALSHI_DEMO_KEY_ID") or os.environ.get("KALSHI_KEY_ID"),
-                os.environ.get("KALSHI_DEMO_KEY_FILE") or os.environ.get("KALSHI_KEY_FILE"))
-    return os.environ.get("KALSHI_KEY_ID"), os.environ.get("KALSHI_KEY_FILE")
+        kid, kf = os.environ.get("KALSHI_DEMO_KEY_ID"), os.environ.get("KALSHI_DEMO_KEY_FILE")
+    else:
+        kid, kf = os.environ.get("KALSHI_KEY_ID"), os.environ.get("KALSHI_KEY_FILE")
+    if not kid and (KEYS / f"{env}_key_id.txt").exists():
+        kid = (KEYS / f"{env}_key_id.txt").read_text(encoding="utf-8").strip()
+    if not kf and (KEYS / f"{env}.pem").exists():
+        kf = str(KEYS / f"{env}.pem")
+    return kid, kf

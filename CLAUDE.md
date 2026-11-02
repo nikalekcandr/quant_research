@@ -91,6 +91,11 @@ Language: code and comments in English, most docs (`README.md`, `RUN_ME.md`, rep
   Maker quotes on wings are adversely selected (W03 wing pays 16.5% when our offer is lifted vs 4.8% when not) →
   the executor takes immediately (IOC, book walk), maker mode off. Sequential test: `trader/monitor.py`.
 
+* **Wings only (03.11.2026):** the lab runs W03–W06 and nothing else (`FOCUS` in `lab/signals.py`; markets snapshot
+  = Kalshi hourly ladder with 45 live books). Resting offers with a large model edge lose in all 32 variants
+  (`studies/wings_maker.py`). Everything about the strategy: `docs/WINGS.md`. Demo starts by itself when
+  `data/trader/keys/demo_key_id.txt` + `demo.pem` exist (`jobs/trader_demo_now.py`); real money: profile `live_1contract`.
+
 ## Good next tasks
 
 * Run `studies/kx15_study.py` on the full Kalshi 15-minute history; the same design for Polymarket 5m/15m.

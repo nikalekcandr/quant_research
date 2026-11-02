@@ -113,7 +113,8 @@ def leaderboard(led: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     def verdict(r):
         if r.name in signals.RETIRED or r.get("hypothesis") in signals.RETIRED:
-            return "retired"
+            reason = signals.RETIRED.get(r.name) or signals.RETIRED.get(r.get("hypothesis"), "")
+            return "paused" if str(reason).startswith("paused") else "retired"
         if r["trades"] < 10 or r["clusters"] < 3:
             return "collecting" if r["trades"] or r["open"] else "no signal yet"
         if r["Holm p"] < 0.05 and r["mean net"] > 0:

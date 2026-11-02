@@ -23,7 +23,7 @@ import pandas as pd
 from trader.client import Kalshi, KalshiError
 from trader.executor import Executor, Spot
 from trader.monitor import hourly_from_trades, sprt
-from trader.settings import DATA, Settings, credentials
+from trader.settings import DATA, KEYS, Settings, credentials
 
 
 def venue_for(mode: str) -> Kalshi | None:
@@ -31,7 +31,9 @@ def venue_for(mode: str) -> Kalshi | None:
         return None
     key_id, key_file = credentials(mode)
     if not key_id or not key_file:
-        sys.exit(f"{mode}: set KALSHI_{'DEMO_' if mode == 'demo' else ''}KEY_ID and ..._KEY_FILE first (docs/TRADER.md)")
+        env = "demo" if mode == "demo" else "prod"
+        sys.exit(f"{mode}: no API key. Put the key id into data/trader/keys/{env}_key_id.txt and the private key into "
+                 f"data/trader/keys/{env}.pem (or set the KALSHI_* environment variables; docs/TRADER.md)")
     return Kalshi("demo" if mode == "demo" else "prod", key_id, key_file)
 
 
@@ -75,8 +77,9 @@ def cmd_test_order(cfg, a):
 def cmd_run(cfg, a):
     cfg.mode = a.mode or cfg.mode
     if cfg.mode == "live":
-        if not (a.real_money and os.environ.get("KALSHI_ALLOW_LIVE") == "1"):
-            sys.exit("live needs --real-money and KALSHI_ALLOW_LIVE=1")
+        allowed = os.environ.get("KALSHI_ALLOW_LIVE") == "1" or (KEYS / "ALLOW_LIVE").exists()
+        if not (a.real_money and allowed):
+            sys.exit("live needs the flag --real-money AND either KALSHI_ALLOW_LIVE=1 or the file data/trader/keys/ALLOW_LIVE")
     venue = venue_for(cfg.mode)
     if venue is not None:
         off = venue.server_clock_check()
@@ -146,8 +149,10 @@ def main():
     ap.add_argument("--mode", choices=["shadow", "demo", "live"], default=None)
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--real-money", action="store_true")
+    ap.add_argument("--profile", default=None, help="trader/profiles/<name>.json on top of data/trader/settings.json "
+                                                  "(demo_plumbing, live_1contract)")
     a = ap.parse_args()
-    cfg = Settings.load()
+    cfg = Settings.load(profile=a.profile)
     if a.cmd == "kill":
         (DATA / "KILL").write_text(str(pd.Timestamp.now(tz="UTC")))
         print("kill switch ON: the run loop cancels resting orders and exits")

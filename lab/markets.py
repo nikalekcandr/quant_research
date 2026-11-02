@@ -108,8 +108,11 @@ def polymarket_short(http, now, kinds=None) -> list[dict]:
     return rows
 
 
-def kalshi_short(http, now, hourly=True) -> list[dict]:
+def kalshi_short(http, now, hourly=True, only_hourly=False, books=25) -> list[dict]:
+    """only_hourly: skip the 15-minute market (wings-only lab); books: live order books fetched per minute."""
     rows = []
+    if only_hourly:
+        return _kalshi_hourly(http, now, rows, books)
     res = http.get(f"{KALSHI}/markets", {"series_ticker": "KXBTC15M", "status": "open", "limit": 50}) or {}
     for m in res.get("markets") or []:
         end = pd.Timestamp(m.get("close_time"))
@@ -124,6 +127,10 @@ def kalshi_short(http, now, hourly=True) -> list[dict]:
         rows.append(row)
     if not hourly:
         return rows
+    return _kalshi_hourly(http, now, rows, books)
+
+
+def _kalshi_hourly(http, now, rows, books=25):
     try:
         d = kalshi.snapshot(http, now)
         if len(d):
@@ -136,7 +143,7 @@ def kalshi_short(http, now, hourly=True) -> list[dict]:
                    "end": pd.Timestamp(m["settle_ts"]), "strike": _f(m["strike"]), "source": "brti",
                    "fee_rate": 0.07, "bid": m["yes_bid"], "ask": m["yes_ask"],
                    "bid_size": m["yes_bid_size"], "ask_size": m["yes_ask_size"]}
-            _with_book(http, row, fetch=i < 25 and 0.01 <= m["_mid"] <= 0.99)
+            _with_book(http, row, fetch=i < books and 0.01 <= m["_mid"] <= 0.99)
             rows.append(row)
     except Exception as e:
         log(f"kalshi hourly ladder failed: {str(e)[:120]}")
@@ -195,6 +202,10 @@ def snapshot(http, now, fast=False) -> pd.DataFrame:
     jobs = (("polymarket", lambda h, n: polymarket_short(h, n, ("pm_updown_15m",))),
             ("kalshi", lambda h, n: kalshi_short(h, n, hourly=False))) if fast else \
         (("polymarket", polymarket_short), ("kalshi", kalshi_short))
+    from lab import signals
+    if signals.FOCUS and not fast:
+        # wings-only lab: the Kalshi hourly ladder with live books for up to 45 strikes, nothing else
+        jobs = (("kalshi", lambda h, n: kalshi_short(h, n, only_hourly=True, books=45)),)
     for name, fn in jobs:
         pk = name + ("_fast" if fast else "")
         if _PAUSE.get(pk) is not None and now < _PAUSE[pk]:
