@@ -5,7 +5,7 @@ _29.10.2026 20:00 MSK. Live: settled trades / clusters (entry hours), mean per t
 **Bottom line:** no rule has survived the full history after fees and multiple testing. The lab now runs only rules with live or historical promise.
 
 
-## Active (19)
+## Active (18)
 
 
 ### A — No-arbitrage (binaries)
@@ -35,10 +35,9 @@ _29.10.2026 20:00 MSK. Live: settled trades / clusters (entry hours), mean per t
 
 | ID | Strategy | Rule | Frozen | Live | History / backtest |
 |---|---|---|---|---|---|
-| O01 | Cross-venue option arbitrage | same expiry/strike/type: bid on venue B − ask on venue A − both fees > 0 → buy A, sell B (identical payoff; settlement indices differ slightly) | 2026-10-29 | — |  |
-| O02 | Put–call parity | expiries ≤ 7 days, each venue: (C − P + K) vs the perpetual on the same index (Deribit perp for Deribit/OKX, Binance perp for Binance/Bybit) minus the expected funding until expiry; a gap larger than option fees + 2 perp fees → trade the synthetic against the perp | 2026-10-29 | — |  |
+| O01 | Cross-venue option arbitrage | same expiry/strike/type: bid on venue B − ask on venue A − both fees > 0 → buy A, sell B (identical payoff; settlement indices differ slightly) | 2026-10-29 | — | real but negligible: 30 synchronous signals in 5 days, median $1.9 per BTC option (Bybit vs Binance $10–20 OTM quotes, one $5 tick apart); quote sizes unknown (`options_arb_audit.py`) |
 | O03 | Static arbitrage of the smile | each venue and expiry: call/put prices non-monotone in the strike, or a negative-cost butterfly, after fees | 2026-10-29 | — |  |
-| O04 | ATM straddle vs our volatility forecast | each venue, nearest daily expiry 3–30 h away, ATM strike: fair = E/S_T − K/ under our variance forecast; fair − ask − fees > 10% of the ask → buy; bid − fair − fees > 10% → sell; one trade per venue and expiry; settles on the 30-min average before 08:00 UTC | 2026-10-29 | — |  |
+| O05 | Sell the daily ATM straddle at 16:00 UTC | 16:03–16:13 UTC, each venue, expiry 08:00 UTC next day: sell the ATM call + put at the bids, no hedge, hold to settlement | 2026-11-02 | Deribit 2023–2026: +$46/day per 1 BTC at quoted bids (t 2.0), +$90 at print spreads (t 3.9); worst day −$7k (`results/studies/o04_gamma_summary.md`) |  |
 
 ### P — Prediction markets: fair value
 
@@ -63,10 +62,12 @@ _29.10.2026 20:00 MSK. Live: settled trades / clusters (entry hours), mean per t
 | W04 | Sell the most overpriced 6–10¢ wing, 15–30 min left (Kalshi hourly) | as W03 with cheap bids 6–10¢, 15–30 minutes left, Student-t(4) fair value, edge ≥ 0 | 2026-10-29 20:00 | — | Jul–Aug +1.2¢ (t 1.3); Sep–Oct test +1.8¢ (t 2.5) |
 
 
-## Retired (34)
+## Retired (36)
 
 | ID | Strategy | Why retired | Live at retirement |
 |---|---|---|---|
+| O02 | Put–call parity vs the perpetual | not an arbitrage: hedged with the Deribit future of the same expiry the parity gap is 0 in all 19 632 checks (28.10–02.11); the 'edge' was the perp funding of the moment extrapolated to expiry — every signal fell on the post-hack funding spike of 30.10 (1.8 bp/8h assumed for 7 days, 0.5 realised → ≈ −$177 per BTC instead of +$32). All trades voided (`lab/report.py` VOID_ALL); `studies/options_arb_audit.py` | 445 trades, +$15.0k booked, voided |
+| O04 | ATM straddle vs our volatility forecast | Deribit 2023–2026, 805 trades: −$62 per straddle (t −1.8); long side −$120 (t −2.0); the lab's forecast loses to IV (QLIKE 0.285 vs 0.216). Live +$2.2k on 30.10 was the Binance hack; −$2.4k the next day | 8 counted trades −$288 (12 with the voided ones before 29.10 14:00 UTC: +$2.1k) |
 | D01 | Hourly reversal | −0.20% per trade on 14 trades; R3/R4 not supported | 14 trades, -0.00201 return |
 | D04 | Fade extreme funding | R11 not supported (funding does not predict returns) | — |
 | D05 | Fade the perpetual premium | −0.35% per trade on 3 trades | 3 trades, -0.003478 return |

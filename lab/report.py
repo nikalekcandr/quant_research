@@ -58,12 +58,22 @@ KALSHI_LISTING_VERSIONS = {"960e7aaff561", "1af1b0747705", "a407e66e6bc5", "44e7
 VOID_BEFORE = {h: pd.Timestamp("2026-10-29 14:00", tz="UTC") for h in ("O01", "O02", "O03", "O04")}
 
 
+# rules whose recorded P&L was wrong by construction, every version (studies/options_arb_audit.py, 03.11.2026)
+VOID_ALL = {
+    # booked as a locked "instant" profit, but the profit assumed the perpetual's current funding rate for up to
+    # 7 days: hedged with the same-expiry Deribit future the parity gap is zero in all 19 632 checks; every signal was
+    # the 30.10 post-hack funding spike (1.8 bp/8h assumed, 0.5 bp/8h realised → ≈ −$177 per BTC, not +$32)
+    "O02",
+}
+
+
 def void_mask(led: pd.DataFrame) -> pd.Series:
     by_rule = pd.Series([str(c) in VOID.get(h, ()) for h, c in zip(led["hyp"], led["code"])], index=led.index, dtype=bool)
     kalshi = led["venue"].astype(str).str.contains("kalshi") & led["code"].astype(str).isin(KALSHI_LISTING_VERSIONS)
     ts = pd.to_datetime(led["ts"], utc=True, format="mixed")
     before = pd.Series([h in VOID_BEFORE and t < VOID_BEFORE[h] for h, t in zip(led["hyp"], ts)], index=led.index, dtype=bool)
-    return by_rule | kalshi | before
+    whole = led["hyp"].isin(VOID_ALL)
+    return by_rule | kalshi | before | whole
 
 
 def leaderboard(led: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:

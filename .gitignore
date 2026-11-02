@@ -8,3 +8,7 @@ __pycache__/
 logs/
 _export/
 data/lab/heartbeat.json
+
+# executor: private keys, live state and journals stay on the trading machine
+*.pem
+data/trader/

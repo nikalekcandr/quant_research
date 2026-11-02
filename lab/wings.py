@@ -18,6 +18,7 @@ import math
 import numpy as np
 import pandas as pd
 
+from lab import intents
 from lab.core import Order, kalshi_fee, log
 from lab.signals import RETIRED, fair_value
 from lab.tape import maker_fee, tape
@@ -80,6 +81,9 @@ class Wings:
         if m is None or m.empty:
             return
         now = ctx.now
+        tick = getattr(ctx, "tick", None)
+        # Coinbase mid: the same source the executor reads, so the spot-move check compares like with like
+        intents.SPOT = (tick.get("cb_mid") or tick.get("usd_mid")) if tick is not None else None
         k = m[(m["venue"] == "kalshi") & (m["kind"] == "kx_ladder_1h")]
         # 1. live quotes: filled by the tape? at the fallback minute: take or drop
         for key, q in list(self.quotes.items()):
@@ -95,6 +99,7 @@ class Wings:
                 del self.quotes[key]
                 continue
             if left <= rule["fallback"]:
+                intents.emit("cancel", hid, q["market"], event, "no" if q["cheap"] == "yes" else "yes", 1 - q["ask"], now)
                 row = k[k["market"] == q["market"]]
                 if len(row):
                     r = row.iloc[0]
@@ -130,6 +135,9 @@ class Wings:
                         best = (edge, r, cheap, round(float(c_ask), 4), q_ahead, fair, end)
             if best is not None:
                 edge, r, cheap, c_ask, q_ahead, fair, end = best
+                intents.emit("quote", hid, r["market"], r["event"], "no" if cheap == "yes" else "yes", 1 - c_ask, now,
+                             fair_side=1 - fair, settle_ts=end, expires=end - pd.Timedelta(minutes=rule["fallback"]),
+                             edge=edge, wing_price=c_ask, left_min=round((end - now).total_seconds() / 60, 1))
                 self.quotes[(hid, r["event"])] = {"market": r["market"], "event": r["event"], "kind": r["kind"],
                                                   "cheap": cheap, "ask": c_ask, "fair": fair, "end": end, "t0": now,
                                                   "queue": float(q_ahead) if q_ahead is not None and np.isfinite(q_ahead) else 1e9}

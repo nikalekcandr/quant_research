@@ -23,6 +23,7 @@ Language: code and comments in English, most docs (`README.md`, `RUN_ME.md`, rep
 | `run_all.py`, `backfill.py`, `daily_update.py` | full pipeline, history backfill, nightly update |
 | `live.py`, `live_once.py`, `src/live_forecast.py`, `forecasts_live/` | live out-of-sample forecasts, SHA-256 chained — **never edit files in `forecasts_live/`** |
 | `research.py` | research layer R1–R21 (regimes, classic inefficiencies, vol model zoo) → `reports/research.md` |
+| `trader/` | Kalshi executor for the wing rules: signed REST client, risk checks, shadow / demo / live (docs/TRADER.md) |
 | `lab/` + `lab_daemon.py` | the alpha lab: feeds (7 venues), short binaries (Polymarket 5m/15m/1h, Kalshi 15m and hourly ladder), hypothesis registry `lab/signals.py`, paper book + hash-chained ledger `lab/core.py`, vol zoo, ML, report `reports/lab.html` |
 | `jobs/` | one-off background scripts, started by the lab daemon (`lab/jobs.py`); `jobs/done/*.json` = finished |
 | `studies/` | clean, self-contained studies (e.g. `kx15_study.py`: Kalshi 15-minute markets on book candles) |
@@ -74,6 +75,21 @@ Language: code and comments in English, most docs (`README.md`, `RUN_ME.md`, rep
   samples. Several fake edges were timing artifacts (rule 7). `STRATEGIES.md` lists active and retired rules.
 * Still live: W02, A12/A12F (cross-venue on simultaneous books), V07 (60-s settlement average), O-family with the
   snapshot-age guard, D/F families.
+
+* **Deribit dailies (02.11.2026, `results/studies/o04_gamma_summary.md`):** 3.8 years, 1 401 expiries. Deribit IV
+  beats the lab's forecast to expiry (QLIKE 0.216 vs 0.285) → O04 retired. Intraday gamma: gamma bought at 09 UTC is
+  fairly priced, at 00 and 16 UTC dear; delta-hedging costs (2–5 bp perp) eat it either way. Selling the 16 UTC
+  straddle unhedged: +$46/day per BTC at quoted bids (t 2.0), +$90 at print spreads (t 3.9), worst day −$7k → O05 on
+  paper.
+* **Executor (`trader/`, `docs/TRADER.md`):** the lab writes W03–W06 decisions to `data/lab/intents.jsonl`; the
+  executor re-checks them on the live production book with the fair value refreshed to the current spot, sizes,
+  and trades in shadow / demo / live mode. Shadow runs on the lab computer; demo needs the user's demo API key.
+
+* **Audit 03.11.2026 (`results/studies/options_wings_audit.md`):** O02 was a funding-rate bet booked as a locked
+  arbitrage (0 signals once hedged with the same-expiry future) → retired, all trades voided (`VOID_ALL`). O01 is real
+  but ≈ $2 per option. W05 = W03 and W06 = W04 on the same strike: the executor keeps one position per slot and hour.
+  Maker quotes on wings are adversely selected (W03 wing pays 16.5% when our offer is lifted vs 4.8% when not) →
+  the executor takes immediately (IOC, book walk), maker mode off. Sequential test: `trader/monitor.py`.
 
 ## Good next tasks
 
