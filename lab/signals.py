@@ -85,6 +85,9 @@ RETIRED = {
     "D19": "no signal in 30 h",
     "D20": "−0.09% per trade; Binance flow reverses by 0.1 bp — far below fees",
     "V06": "−12.3¢ per trade on 7 trades; stale quotes are caught within 15 s",
+    "O02": "not an arbitrage: hedged with the same-expiry future the parity gap is 0 (19 632 checks, 28.10–02.11); the "
+           "'edge' was the perp funding rate of the moment extrapolated to expiry (30.10: 1.8 bp/8h assumed, 0.5 realised); "
+           "all trades voided (lab/report.py VOID_ALL); studies/options_arb_audit.py",
     "O04": "Deribit 2023–2026, 805 trades: −$62 per straddle (t −1.8), long side −$120 (t −2.0); the lab's variance "
            "forecast loses to Deribit IV at this horizon (QLIKE 0.285 vs 0.216, DM t 3.6); live 29.10 win was the hack",
     "W02": "4 months of Kalshi ladder candles: −$23.5 per contract on 5 707 trades (−0.41¢, t −0.9); live +30/30 was October",

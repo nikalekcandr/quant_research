@@ -20,7 +20,9 @@ INTENTS = ROOT / "data" / "lab" / "intents.jsonl"
 class Settings:
     mode: str = "shadow"                 # shadow (prod books, no orders) | demo (orders on demo) | live (real money)
     rules: list = field(default_factory=lambda: ["W03", "W04", "W05", "W06"])
-    maker_rules: list = field(default_factory=lambda: ["W05", "W06"])   # post the quote intents of these rules
+    # maker quotes are OFF: on Jul–Oct candles a resting offer on a wing is lifted mostly when the wing is about to
+    # pay (W03: 16.5% pay-off when lifted vs 4.8% when not; studies/wings_execution.py) — taking now earns more
+    maker_rules: list = field(default_factory=list)
     # sizing
     risk_per_trade_usd: float = 5.0      # worst-case loss of one trade (= contracts × price paid)
     max_contracts: int = 10              # per order

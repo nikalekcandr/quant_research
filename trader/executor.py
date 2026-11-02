@@ -70,6 +70,16 @@ def refresh_fair(fair_side: float, side: str, ticker: str, s0: float, s1: float)
     return 1 - float(norm.cdf(sign * math.log(s1 / k) / sd))
 
 
+# Rules that bet on the same thing share one slot per hourly event (studies/wings_execution.py, 03.11.2026):
+# W05 picks the same strike and side as W03 in 100% of common hours, W06 the same as W04. W03 and W04 differ in
+# strike but bet the same way in 70% of shared hours, and a W03 loss raises the chance of a W04 loss 2.7×.
+SLOT = {"W03": "late", "W05": "late", "W04": "early", "W06": "early"}
+
+
+def slot_key(hyp: str, event: str) -> str:
+    return f"{SLOT.get(hyp, hyp)}|{event}"
+
+
 def now_utc() -> pd.Timestamp:
     return pd.Timestamp.now(tz="UTC")
 
@@ -167,7 +177,7 @@ class Executor:
 
     def refuse_reason(self, it: dict) -> str | None:
         cfg = self.cfg
-        key = f"{it['hyp']}|{it['event']}"
+        key = slot_key(it["hyp"], it["event"])
         if self.kill_file.exists():
             return "kill switch"
         if it["hyp"] not in cfg.rules:
@@ -175,7 +185,7 @@ class Executor:
         if self.st.realised.get(self._today(), 0.0) <= -cfg.daily_loss_limit_usd:
             return "daily loss limit"
         if key in self.st.positions:
-            return "already in this rule and event"
+            return "already in this slot and event"
         if it["kind"] == "quote" and key in self.st.resting:
             return "quote already resting"
         if len(self.st.positions) >= cfg.max_open_positions:
@@ -222,7 +232,7 @@ class Executor:
             self.j.write("skip", intent=it["id"], reason=f"book error {e}")
             return
         if kind == "take":
-            key = f"{it['hyp']}|{it['event']}"
+            key = slot_key(it["hyp"], it["event"])
             if key in self.st.resting:                       # our real maker order may already have filled
                 self.cancel_quote(it)
                 if key in self.st.positions:
@@ -272,16 +282,29 @@ class Executor:
         if why:
             self.j.write("skip", intent=it["id"], reason=why)
             return
-        n = self.size(ask, ask_size)
+        # walk the book (EXECUTION.md §3): take each level whose own edge is still ≥ the margin, never more than
+        # max_book_share of a level, up to the risk budget; the IOC limit is the worst level accepted
+        fair = it.get("fair_now", it.get("fair_side"))
+        target = self.cfg.demo_contracts if self.mode == "demo" else \
+            min(self.cfg.max_contracts, math.floor(self.cfg.risk_per_trade_usd / ask))
+        n, limit_px, cost = 0, ask, 0.0
+        for px, qty in book.asks(side):
+            if n >= target or px > limit + 1e-9 or fair - px - taker_fee(px) < it.get("margin", 0.0) - 1e-9:
+                break
+            take_n = min(target - n, int(self.cfg.max_book_share * qty)) if self.mode != "demo" else target - n
+            if take_n < 1:
+                break
+            n, limit_px, cost = n + take_n, px, cost + take_n * px
         if n < 1:
             self.j.write("skip", intent=it["id"], reason=f"size 0 (best level {ask_size:.0f})")
             return
+        vwap = cost / n
         rec = {"intent": it["id"], "hyp": it["hyp"], "ticker": it["ticker"], "event": it["event"], "side": side,
-               "price": ask, "count": n, "fair": it.get("fair_side"), "fair_now": it.get("fair_now"),
+               "price": limit_px, "vwap": round(vwap, 4), "count": n, "fair": it.get("fair_side"), "fair_now": it.get("fair_now"),
                "settle_ts": it.get("settle_ts"), "book_ask_size": ask_size, "lab_price": it["price"], "decision_age_s":
                (now_utc() - pd.Timestamp(it["ts"])).total_seconds()}
         if self.mode == "shadow":
-            self._open(rec | {"filled": n, "fee": taker_fee(ask, n), "maker": False})
+            self._open(rec | {"price": vwap, "filled": n, "fee": taker_fee(vwap, n), "maker": False})
             self.j.write("shadow_fill", **rec)
             return
         self.send(it, rec, tif="immediate_or_cancel")
@@ -305,7 +328,7 @@ class Executor:
         rec = {"intent": it["id"], "hyp": it["hyp"], "ticker": it["ticker"], "event": it["event"], "side": side,
                "price": price, "count": n, "fair": it.get("fair_side"), "settle_ts": it.get("settle_ts"),
                "expires": it.get("expires"), "spot0": it.get("spot")}
-        key = f"{it['hyp']}|{it['event']}"
+        key = slot_key(it["hyp"], it["event"])
         if self.mode == "shadow":
             self.st.resting[key] = rec | {"order_id": None, "posted": str(now_utc())}
             self.j.write("shadow_quote", **rec)
@@ -373,14 +396,14 @@ class Executor:
         return None
 
     def _open(self, rec):
-        key = f"{rec['hyp']}|{rec['event']}"
+        key = slot_key(rec["hyp"], rec["event"])
         self.st.positions[key] = rec | {"opened": str(now_utc())}
         self.st.trades.append(str(now_utc()))
         self.st.trades = self.st.trades[-50:]
         self.j.write("position_open", **self.st.positions[key])
 
     def cancel_quote(self, it):
-        key = f"{it['hyp']}|{it['event']}"
+        key = slot_key(it["hyp"], it["event"])
         q = self.st.resting.pop(key, None)
         if q is None:
             return

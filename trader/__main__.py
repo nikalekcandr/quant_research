@@ -4,7 +4,8 @@
     python -m trader test-order [--mode demo]       post a 1-contract bid far below the market, read it back, cancel
     python -m trader run       [--mode shadow|demo|live] [--once]
     python -m trader status    [--mode ...]         open positions, resting quotes, today's and total P&L
-    python -m trader report    [--mode ...]         every settled trade vs the lab's paper trade of the same intent
+    python -m trader report    [--mode ...]         every settled trade + the sequential test (trader/monitor.py)
+    python -m trader lab-sprt                       the sequential test on the lab's paper wing trades
     python -m trader cancel-all [--mode demo|live]
     python -m trader kill | unkill                  the kill switch file data/trader/KILL (run loop cancels and exits)
 Live trading needs all three: settings mode "live", the flag --real-money and the environment KALSHI_ALLOW_LIVE=1.
@@ -21,6 +22,7 @@ import pandas as pd
 
 from trader.client import Kalshi, KalshiError
 from trader.executor import Executor, Spot
+from trader.monitor import hourly_from_trades, sprt
 from trader.settings import DATA, Settings, credentials
 
 
@@ -120,11 +122,27 @@ def cmd_report(cfg, a):
     print(s[["t", "key", "side", "price", "count", "result", "pnl", "maker"]].to_string(index=False))
     print(f"\n{len(s)} trades, hit {100 * (s.pnl > 0).mean():.0f}%, P&L ${s.pnl.sum():+.2f}, "
           f"{100 * s.per.mean():+.2f}¢ per contract")
+    hourly = s.groupby(pd.to_datetime(s["t"], utc=True).dt.floor("h"))["per"].sum()
+    print("sequential test (trader/monitor.py):", sprt(hourly))
+
+
+def cmd_lab_sprt(cfg, a):
+    """The same sequential test on the lab's paper wing trades (data/lab/ledger.csv)."""
+    import json as _json
+    from trader.settings import ROOT
+    led = pd.read_csv(ROOT / "data" / "lab" / "ledger.csv")
+    w = led[(led["event"] == "CLOSE") & led["hyp"].isin(["W03", "W04", "W05", "W06"])].copy()
+    w["ev"] = w["info"].map(lambda x: _json.loads(x)["legs"][0]["event"])
+    w["pnl_per_contract"] = w["pnl"] / w["qty"]
+    w["t"] = pd.to_datetime(w["ts"], utc=True, format="mixed")
+    w["settle_ts"] = pd.to_datetime(w["exit_ts"], utc=True, format="mixed").dt.floor("h")
+    print(f"{len(w)} closed paper wing trades {w.groupby('hyp').size().to_dict()}")
+    print(sprt(hourly_from_trades(w, event_col="ev")))
 
 
 def main():
     ap = argparse.ArgumentParser(prog="python -m trader")
-    ap.add_argument("cmd", choices=["check", "test-order", "run", "status", "report", "cancel-all", "kill", "unkill"])
+    ap.add_argument("cmd", choices=["check", "test-order", "run", "status", "report", "lab-sprt", "cancel-all", "kill", "unkill"])
     ap.add_argument("--mode", choices=["shadow", "demo", "live"], default=None)
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--real-money", action="store_true")
@@ -142,7 +160,7 @@ def main():
         a.mode = a.mode or cfg.mode
         try:
             {"check": cmd_check, "test-order": cmd_test_order, "run": cmd_run, "status": cmd_status,
-             "report": cmd_report}[a.cmd](cfg, a)
+             "report": cmd_report, "lab-sprt": cmd_lab_sprt}[a.cmd](cfg, a)
         except KalshiError as e:
             sys.exit(str(e))
 

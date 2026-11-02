@@ -129,8 +129,8 @@ def test_price_string_and_fees():
 def test_shadow_take_records_a_fill(tmp_path):
     ex, _ = make(tmp_path)
     ex.handle(intent())
-    assert "W04|KXBTCD-26NOV0213" in ex.st.positions
-    assert ex.st.positions["W04|KXBTCD-26NOV0213"]["filled"] == 5      # $5 / 0.92 → 5 contracts
+    assert "early|KXBTCD-26NOV0213" in ex.st.positions
+    assert ex.st.positions["early|KXBTCD-26NOV0213"]["filled"] == 5      # $5 / 0.92 → 5 contracts
 
 
 @pytest.mark.parametrize("kw,reason", [
@@ -160,14 +160,14 @@ def test_fair_value_is_refreshed_to_the_current_spot(tmp_path):
     assert "edge" in events(ex)[-1]["reason"]
     ex2, _ = make(tmp_path / "b")
     ex2.handle(intent(hyp="W03", fair=0.945, spot=78050.0))      # spot fell since the decision: edge grew
-    assert "W03|KXBTCD-26NOV0213" in ex2.st.positions
+    assert "late|KXBTCD-26NOV0213" in ex2.st.positions
 
 
 def test_one_position_per_rule_and_event_and_hour_limit(tmp_path):
     ex, _ = make(tmp_path, max_trades_per_hour=1)
     ex.handle(intent())
     ex.handle(intent())
-    assert events(ex)[-1]["reason"] == "already in this rule and event"
+    assert events(ex)[-1]["reason"] == "already in this slot and event"
     ex.handle(intent(hyp="W03", fair=0.96))
     assert events(ex)[-1]["reason"] == "max trades per hour"
 
@@ -192,7 +192,7 @@ def test_demo_ioc_fill_and_settlement_and_daily_limit(tmp_path):
     ex.handle(intent())
     assert v.sent and v.sent[0]["tif"] == "immediate_or_cancel" and v.sent[0]["count"] == 1
     assert v.sent[0]["client_order_id"]
-    p = ex.st.positions["W04|KXBTCD-26NOV0213"]
+    p = ex.st.positions["early|KXBTCD-26NOV0213"]
     p["settle_ts"] = str(pd.Timestamp.now(tz="UTC") - pd.Timedelta(minutes=5))
     ex.settle()
     st = [e for e in events(ex) if e["what"] == "settled"][0]
@@ -200,7 +200,7 @@ def test_demo_ioc_fill_and_settlement_and_daily_limit(tmp_path):
     # a losing settlement trips the daily limit
     ex.handle(intent(hyp="W03", fair=0.96))
     v.result = "yes"
-    ex.st.positions["W03|KXBTCD-26NOV0213"]["settle_ts"] = str(pd.Timestamp.now(tz="UTC") - pd.Timedelta(minutes=5))
+    ex.st.positions["late|KXBTCD-26NOV0213"]["settle_ts"] = str(pd.Timestamp.now(tz="UTC") - pd.Timedelta(minutes=5))
     ex.settle()
     ex.handle(intent(hyp="W05", fair=0.96))
     assert events(ex)[-1]["reason"] == "daily loss limit"
@@ -213,16 +213,16 @@ def test_demo_unfilled_ioc_opens_nothing(tmp_path):
 
 
 def test_maker_quote_then_cancel_with_partial_fill(tmp_path):
-    ex, v = make(tmp_path, mode="demo", fill="partial", demo_contracts=3)
+    ex, v = make(tmp_path, mode="demo", fill="partial", demo_contracts=3, maker_rules=["W05"])
     ex.handle(intent(kind="quote", hyp="W05", price=0.91, fair=0.94))   # bid for NO at 0.91 = sell YES at 9¢
     assert v.sent[0]["post_only"] and v.sent[0]["tif"] == "good_till_canceled"
-    assert "W05|KXBTCD-26NOV0213" in ex.st.resting
+    assert "late|KXBTCD-26NOV0213" in ex.st.resting
     ex.handle(intent(kind="cancel", hyp="W05"))
-    assert v.cancelled and ex.st.positions["W05|KXBTCD-26NOV0213"]["filled"] == 1
+    assert v.cancelled and ex.st.positions["late|KXBTCD-26NOV0213"]["filled"] == 1
 
 
 def test_post_only_never_crosses(tmp_path):
-    ex, v = make(tmp_path, mode="demo")
+    ex, v = make(tmp_path, mode="demo", maker_rules=["W05"])
     ex.handle(intent(kind="quote", hyp="W05", price=0.92, fair=0.96))   # 0.92 = the NO ask: would take
     assert not v.sent and "cross" in events(ex)[-1]["reason"]
 
@@ -248,3 +248,36 @@ def test_lab_emits_intents(tmp_path, monkeypatch):
     intents.from_order(o, pd.Timestamp("2026-11-02 13:40", tz="UTC"))
     rec = json.loads((tmp_path / "i.jsonl").read_text())
     assert rec["kind"] == "take" and rec["fair_side"] == 0.95 and rec["spot"] == 78000.0 and rec["margin"] == 0.0
+
+
+def test_maker_quotes_are_off_by_default(tmp_path):
+    ex, v = make(tmp_path, mode="demo")
+    ex.handle(intent(kind="quote", hyp="W05", price=0.91, fair=0.94))
+    assert not v.sent and not ex.st.resting
+
+
+def test_w03_and_w05_share_one_slot(tmp_path):
+    """W05 bets on the same strike and side as W03: a second position in the same hour is refused."""
+    ex, _ = make(tmp_path)
+    ex.handle(intent(hyp="W03", fair=0.96))
+    ex.handle(intent(hyp="W05", fair=0.96))
+    assert events(ex)[-1]["reason"] == "already in this slot and event"
+    ex.handle(intent(hyp="W04"))                                   # the other slot is free
+    assert "early|KXBTCD-26NOV0213" in ex.st.positions
+
+
+def test_book_sweep_stops_where_the_edge_ends(tmp_path):
+    """Asks for NO at 0.92 (40 contracts) and 0.93 (400): $50 budget wants 54; 25% of level one = 10, then the
+    second level has edge 0.95 − 0.93 − 0.01 = 1¢ ≥ 0 for W04 → 54 − 10 = 44 more, capped at 25% of 400 = 100."""
+    ex, v = make(tmp_path, risk_per_trade_usd=50, max_contracts=100)
+    v._book = Book("T", [(0.08, 40), (0.07, 400)], [(0.91, 500)], time.time())
+    ex.handle(intent(price=0.93))
+    p = ex.st.positions["early|KXBTCD-26NOV0213"]
+    assert p["filled"] == 54 and p["vwap"] == pytest.approx((10 * 0.92 + 44 * 0.93) / 54, abs=1e-4)
+    ex2, v2 = make(tmp_path / "b", risk_per_trade_usd=50, max_contracts=100)
+    v2._book = Book("T", [(0.08, 40), (0.07, 400)], [(0.91, 500)], time.time())
+    ex2.handle(intent(price=0.93, fair=0.94))                      # level two: 0.94 − 0.93 − 0.01 = 0 → still ok
+    ex3, v3 = make(tmp_path / "c", risk_per_trade_usd=50, max_contracts=100)
+    v3._book = Book("T", [(0.08, 40), (0.07, 400)], [(0.91, 500)], time.time())
+    ex3.handle(intent(price=0.93, fair=0.939))                     # level two edge < 0: only level one, 10 contracts
+    assert ex3.st.positions["early|KXBTCD-26NOV0213"]["filled"] == 10

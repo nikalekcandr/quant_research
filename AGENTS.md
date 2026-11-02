@@ -85,6 +85,12 @@ Language: code and comments in English, most docs (`README.md`, `RUN_ME.md`, rep
   executor re-checks them on the live production book with the fair value refreshed to the current spot, sizes,
   and trades in shadow / demo / live mode. Shadow runs on the lab computer; demo needs the user's demo API key.
 
+* **Audit 03.11.2026 (`results/studies/options_wings_audit.md`):** O02 was a funding-rate bet booked as a locked
+  arbitrage (0 signals once hedged with the same-expiry future) → retired, all trades voided (`VOID_ALL`). O01 is real
+  but ≈ $2 per option. W05 = W03 and W06 = W04 on the same strike: the executor keeps one position per slot and hour.
+  Maker quotes on wings are adversely selected (W03 wing pays 16.5% when our offer is lifted vs 4.8% when not) →
+  the executor takes immediately (IOC, book walk), maker mode off. Sequential test: `trader/monitor.py`.
+
 ## Good next tasks
 
 * Run `studies/kx15_study.py` on the full Kalshi 15-minute history; the same design for Polymarket 5m/15m.
