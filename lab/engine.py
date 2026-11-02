@@ -266,11 +266,15 @@ class Lab:
                     return
                 c = self.minutes.close
                 w = c[(c.index >= exp - pd.Timedelta(minutes=30)) & (c.index < exp)]
-                if len(w) < 25:
-                    if now - exp > pd.Timedelta(hours=6):
-                        self.book.close(pid, now, None, np.nan, np.nan, {"unresolved": True})
-                    return
-                ST = float(w.mean())
+                if len(w) >= 25:
+                    ST = float(w.mean())
+                else:
+                    # minutes missing (computer asleep, feed gap): Deribit's official delivery price of that day
+                    ST = self._deribit_delivery(exp)
+                    if ST is None:
+                        if now - exp > pd.Timedelta(hours=6):
+                            self.book.close(pid, now, None, np.nan, np.nan, {"unresolved": True})
+                        return
                 k = float(p["info"]["strike"])          # numpy numbers were stored as strings in the JSON
                 pay = abs(ST - k)
                 sgn = 1 if p["side"] == "long" else -1
@@ -278,6 +282,18 @@ class Lab:
                 mid = (float(p["info"]["bid"]) + float(p["info"]["ask"])) / 2
                 self.book.close(pid, now, pay, pnl, sgn * (pay - mid), {"S_T": ST})
                 log(f"SETTLE O04 {p['venue']} {p['side']} straddle pnl ${pnl:+.0f}")
+
+    def _deribit_delivery(self, exp):
+        """Deribit BTC delivery (settlement) price of the expiry day, or None."""
+        try:
+            r = self.http.get("https://www.deribit.com/api/v2/public/get_delivery_prices",
+                              {"index_name": "btc_usd", "offset": 0, "count": 10})
+            for d in ((r or {}).get("result") or {}).get("data") or []:
+                if d.get("date") == exp.strftime("%Y-%m-%d"):
+                    return float(d["delivery_price"])
+        except Exception:
+            log_exc("deribit delivery price")
+        return None
 
     # ============================================================== fast loop (thread)
     def fast_loop(self, stop):

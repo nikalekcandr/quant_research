@@ -236,6 +236,9 @@ class Book:
         ledger_write({"event": "OPEN", "ts": now, "id": pid, "hyp": o.hyp, "family": family, "venue": o.venue,
                       "instrument": o.instrument, "side": o.side, "qty": o.qty, "price": o.price, "fee": o.fee,
                       "fair": o.fair, "edge": o.edge, "unit": o.unit, "info": info, "code": self.code})
+        if family == "W":
+            from lab import intents          # outbound copy for the live executor (trader/); never raises
+            intents.from_order(o, now)
         return True
 
     def close(self, pid: str, now: pd.Timestamp, exit_price: float, pnl: float, pnl_gross: float, extra: dict | None = None):

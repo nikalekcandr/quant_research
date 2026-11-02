@@ -85,6 +85,8 @@ RETIRED = {
     "D19": "no signal in 30 h",
     "D20": "−0.09% per trade; Binance flow reverses by 0.1 bp — far below fees",
     "V06": "−12.3¢ per trade on 7 trades; stale quotes are caught within 15 s",
+    "O04": "Deribit 2023–2026, 805 trades: −$62 per straddle (t −1.8), long side −$120 (t −2.0); the lab's variance "
+           "forecast loses to Deribit IV at this horizon (QLIKE 0.285 vs 0.216, DM t 3.6); live 29.10 win was the hack",
     "W02": "4 months of Kalshi ladder candles: −$23.5 per contract on 5 707 trades (−0.41¢, t −0.9); live +30/30 was October",
 }
 
@@ -1234,6 +1236,49 @@ def o04(ctx):
             out.append(Order(hyp="O04", kind="option", venue=v, instrument=f"{exp:%Y-%m-%d}-{k:.0f}-straddle", side="short",
                              price=bid, fee=fb, fair=fair, edge=bid - fair - fb, settle_ts=str(exp), unit="$/BTC straddle",
                              key=f"O04|{v}|{exp}", info=info))
+    return out
+
+
+@hyp("O05", "O", "Sell the daily ATM straddle at 16:00 UTC", "16:03–16:13 UTC, each venue, the expiry 08:00 UTC next day "
+     "(~16 h away), ATM strike nearest the forward: sell call + put at the bids, no hedge, held to settlement (30-min "
+     "average before 08:00 UTC); one per venue and expiry",
+     "Deribit 2023-01..2026-11 (1 401 expiries, studies/o04_straddle.py): the straddle pays 0.81–0.91 of its mid; sold "
+     "at quoted bids +$46 per 1 BTC straddle per day (t 2.0, 3 of 4 years > 0), at traded-print spreads +$90 (t 3.9, "
+     "every year > 0); worst day −$7k, max drawdown −$28k per 1 BTC: the night-time variance premium (options price one "
+     "flat vol for the day, the hours after 16 UTC are the quietest)", frozen="2026-11-02 23:30")
+def o05(ctx):
+    if not (ctx.now.hour == 16 and ctx.now.minute in (3, 13)):
+        return []
+    o = _options_snapshot(ctx)
+    if o is None:
+        return []
+    S = ctx.tick.get("bn_mid")
+    if S is None or not np.isfinite(S):
+        return []
+    out = []
+    for v, g in o.groupby("venue"):
+        tau_h = (g["expiry"] - ctx.now).dt.total_seconds() / 3600
+        g = g[(tau_h >= 12) & (tau_h <= 20)]
+        if g.empty:
+            continue
+        exp = g["expiry"].min()
+        g = g[g["expiry"] == exp]
+        F = float(g["F"].median())
+        k = g.loc[(g["strike"] - F).abs().idxmin(), "strike"]
+        c, p = g[(g["strike"] == k) & (g["cp"] == "C")], g[(g["strike"] == k) & (g["cp"] == "P")]
+        if c.empty or p.empty:
+            continue
+        c, p = c.iloc[0], p.iloc[0]
+        bid, ask = c["bid"] + p["bid"], c["ask"] + p["ask"]
+        if not (np.isfinite(bid) and bid > 0 and np.isfinite(ask) and ask > bid):
+            continue
+        fb = option_fee(c["bid"], S) + option_fee(p["bid"], S)
+        var = ctx.minutes.forecast_var(ctx.now, exp - pd.Timedelta(minutes=15))
+        fair = _straddle_fair(F, k, S * math.sqrt(var)) if np.isfinite(var) else np.nan
+        info = {"strike": k, "F": F, "fair": fair, "bid": bid, "ask": ask, "expiry": str(exp)}
+        out.append(Order(hyp="O05", kind="option", venue=v, instrument=f"{exp:%Y-%m-%d}-{k:.0f}-straddle", side="short",
+                         price=bid, fee=fb, fair=fair, edge=None, settle_ts=str(exp), unit="$/BTC straddle",
+                         key=f"O05|{v}|{exp}", info=info))
     return out
 
 
