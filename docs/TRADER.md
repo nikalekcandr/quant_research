@@ -102,23 +102,23 @@ Shadow-режим уже запущен на компьютере как зад�
 
 ## 4. Подключение демо-счёта
 
-Проще всего — без переменных окружения:
 1. **https://demo.kalshi.co** → профиль → API Keys → Create New API Key.
-2. Положить в папку проекта (папка `data/trader/` не попадает в git):
-   * `data\trader\keys\demo_key_id.txt` — id ключа одной строкой;
-   * `data\trader\keys\demo.pem` — скачанный приватный ключ.
-3. Всё. Задача лаборатории `jobs/trader_demo_now.py` каждые 10 минут проверяет, есть ли ключ. Когда находит:
-   сверяет часы, показывает баланс, ставит и снимает тестовую заявку 1 контракт по 1¢, затем запускает исполнитель
-   с профилем `demo_plumbing`: каждое решение крыльев → IOC на 1 контракт по демо-цене. Лог —
-   `logs\jobs\trader_demo_now.log`, журнал — `data\trader\journal_demo.jsonl`.
+2. Положить в папку `data\trader\keys\demo\` (не попадает в git):
+   * скачанный файл приватного ключа — **имя любое**: программа сама найдёт файл с текстом `PRIVATE KEY`;
+   * id ключа с сайта — вставить в любой текстовый файл там же, например `key_id.txt`.
+3. Всё. Задача `jobs/trader_demo_v2_now.py` проверяет папку каждую минуту и пишет в
+   `logs\jobs\trader_demo_v2_now.log`, что нашла. Когда найдёт оба файла: сверит часы, покажет баланс, поставит и
+   снимет тестовую заявку 1 контракт по 1¢ и запустит исполнитель с профилем `demo_plumbing`: каждое решение
+   крыльев → IOC на 1 контракт. Журнал — `data\trader\journal_demo.jsonl`.
 4. Смотреть: `python -m trader status --mode demo`, `python -m trader report --mode demo`.
 
-Переменные окружения `KALSHI_DEMO_KEY_ID` / `KALSHI_DEMO_KEY_FILE` по-прежнему работают и имеют приоритет.
+Переменные окружения `KALSHI_DEMO_KEY_ID` / `KALSHI_DEMO_KEY_FILE` имеют приоритет. Второй экземпляр исполнителя в
+том же режиме не запустится (`data/trader/lock_<mode>.json`), чтобы заявки не уходили дважды.
 
 **Профили** (`trader/profiles/*.json`) накладываются поверх `data/trader/settings.json`: `demo_plumbing` (демо,
 1 контракт, без проверки edge по демо-цене) и `live_1contract` (реальные деньги, 1 контракт, ≤ 2 позиций, стоп −$3
 в день). Запуск: `python -m trader run --profile live_1contract --real-money` при наличии
-`data\trader\keys\prod_key_id.txt`, `prod.pem` и пустого файла `data\trader\keys\ALLOW_LIVE`.
+ключа в `data\trader\keys\prod\` (как для демо) и пустого файла `data\trader\keys\ALLOW_LIVE`.
 
 ## 5. Переход на реальные деньги: чек-лист
 

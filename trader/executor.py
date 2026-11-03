@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -149,6 +150,19 @@ class Executor:
         self.kill_file = root / "KILL"
         if self.st.offset == 0 and intents_path.exists():
             self.st.offset = intents_path.stat().st_size   # first start: ignore old decisions
+        # one executor per mode: two copies would send every order twice
+        self.lock = root / f"lock_{self.mode}.json"
+        if self.lock.exists():
+            try:
+                other = json.loads(self.lock.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                other = {}
+            if other.get("pid") != os.getpid() and time.time() - self.lock.stat().st_mtime < 90:
+                raise RuntimeError(f"another {self.mode} executor is running (pid {other.get('pid')}): {self.lock}")
+        self._touch_lock()
+
+    def _touch_lock(self):
+        self.lock.write_text(json.dumps({"pid": os.getpid(), "t": str(now_utc())}), encoding="utf-8")
 
     # -------------------------------------------------------------- intents
     def read_intents(self) -> list[dict]:
@@ -499,6 +513,7 @@ class Executor:
         except Exception as e:  # noqa: BLE001
             self.j.write("error", where="periodic", error=repr(e)[:300])
         self.st.save(self.state_path)
+        self._touch_lock()
         (self.root / f"heartbeat_{self.mode}.json").write_text(json.dumps({
             "t": str(now_utc()), "open": len(self.st.positions), "resting": len(self.st.resting),
             "realised_today": self.st.realised.get(self._today(), 0.0)}), encoding="utf-8")

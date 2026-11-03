@@ -136,7 +136,7 @@ def test_shadow_take_records_a_fill(tmp_path):
 @pytest.mark.parametrize("kw,reason", [
     ({"age_s": 60}, "stale intent"),
     ({"spot": 79000.0}, "spot moved"),               # > 20 bp: refuse outright
-    ({"price": 0.91}, "price moved"),                 # the ask (0.92) is above what the lab decided to pay
+    ({"price": 0.89}, "price moved"),                 # the ask (0.92) is 3¢ above the lab's price: beyond 2 ticks
     ({"fair": 0.92}, "edge"),                          # fair − price − fee < 0
     ({"left_min": 1}, "too close to settlement"),
     ({"hyp": "W03", "fair": 0.935}, "edge"),          # W03 needs ≥ 1¢
@@ -309,3 +309,29 @@ def test_one_contract_profile_takes_a_thin_level(tmp_path):
     v._book = Book("T", [(0.08, 2)], [(0.91, 500)], time.time())       # only 2 contracts offered at 0.92
     ex.handle(intent())
     assert ex.st.positions["early|KXBTCD-26NOV0213"]["filled"] == 1
+
+
+def test_scan_key_dir_finds_keys_under_any_name(tmp_path):
+    from trader.settings import scan_key_dir
+    d = tmp_path / "demo"
+    d.mkdir()
+    (d / "my-kalshi-download.txt").write_text("-----BEGIN RSA PRIVATE KEY-----\nabc\n-----END RSA PRIVATE KEY-----\n")
+    (d / "id.txt").write_text("key id: 4b0c8a8e-1f1e-4c8a-9d2b-0a1b2c3d4e5f\n")
+    kid, kf = scan_key_dir(d)
+    assert kid == "4b0c8a8e-1f1e-4c8a-9d2b-0a1b2c3d4e5f" and kf.endswith("my-kalshi-download.txt")
+    assert scan_key_dir(tmp_path / "prod") == (None, None)
+
+
+def test_second_executor_for_the_same_mode_refuses_to_start(tmp_path):
+    ex, v = make(tmp_path)
+    (tmp_path / "lock_shadow.json").write_text(json.dumps({"pid": -1, "t": "now"}))   # another live process
+    with pytest.raises(RuntimeError):
+        Executor(ex.cfg, None, v, FakeSpot(), intents_path=tmp_path / "intents.jsonl", root=tmp_path)
+
+
+def test_pays_a_tick_more_when_the_edge_still_clears(tmp_path):
+    """Lab decided at 0.92, the ask is now 0.93: with slippage_ticks = 2 the order goes if fair − 0.93 − fee ≥ margin."""
+    ex, v = make(tmp_path)
+    v._book = book(yes_bid=0.07, no_bid=0.91)                      # NO ask 0.93
+    ex.handle(intent(price=0.92, fair=0.95))
+    assert ex.st.positions["early|KXBTCD-26NOV0213"]["price"] == pytest.approx(0.93)

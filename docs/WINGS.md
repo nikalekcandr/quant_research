@@ -100,7 +100,7 @@ edge = bid дешёвой стороны − её справедливая це�
 | Этап | Что | Критерий перехода |
 |---|---|---|
 | 0. Тень (идёт) | реальный стакан без заявок, `journal_shadow.jsonl` | ≥ 2 недели; цена лаборатории доступна в ≥ 70% решений; среднее проскальзывание ≤ 0,5¢ |
-| 1. Демо | ключ в `data/trader/keys/` → задача `trader_demo_now` сама проверит подпись, заявку и отмену и запустит исполнитель на 1 контракт | 50+ заявок, журнал = `/portfolio/fills` = `/positions`, ноль ошибок |
+| 1. Демо | ключ в `data/trader/keys/demo/` → задача `trader_demo_v2_now` сама проверит подпись, заявку и отмену и запустит исполнитель на 1 контракт | 50+ заявок, журнал = `/portfolio/fills` = `/positions`, ноль ошибок |
 | 2. Реальные деньги, 1 контракт | профиль `live_1contract`: 1 контракт, ≤ 2 позиций, стоп −$3 за день | 150–200 сделок; проскальзывание ≤ 0,5¢; тест Вальда не на нижней границе |
 | 3. Масштаб | $5 → $25 → $50 риска на сделку | тест Вальда подтвердил edge; живой результат в доверительном интервале бэктеста |
 
@@ -110,14 +110,13 @@ edge = bid дешёвой стороны − её справедливая це�
 ## 10. Как запускать
 
 ```powershell
-# демо: два файла, остальное задача сделает сама
-data\trader\keys\demo_key_id.txt     # id ключа одной строкой
-data\trader\keys\demo.pem            # приватный ключ с demo.kalshi.co
+# демо: два файла в data\trader\keys\demo\ (имена любые), остальное задача сделает сама
+#   скачанный приватный ключ с demo.kalshi.co + key_id.txt с id ключа
 python -m trader status --mode demo  # что происходит
 python -m trader report --mode demo  # рассчитанные сделки + тест Вальда
 
 # реальные деньги, 1 контракт (только руками, в отдельном окне)
-data\trader\keys\prod_key_id.txt, data\trader\keys\prod.pem, пустой файл data\trader\keys\ALLOW_LIVE
+#   ключ и key_id.txt в data\trader\keys\prod\ + пустой файл data\trader\keys\ALLOW_LIVE
 python -m trader check --mode live
 python -m trader run --profile live_1contract --real-money
 
