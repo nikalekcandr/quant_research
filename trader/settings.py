@@ -79,7 +79,9 @@ def scan_key_dir(folder: Path) -> tuple[str | None, str | None]:
             text = p.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        if "PRIVATE KEY" in text:
+        bare = text.strip()
+        if "PRIVATE KEY" in text or (re.fullmatch(r"[A-Za-z0-9+/=\s]{60,}", bare or "x")
+                                     and bare.startswith(("MC4CAQAw", "MII"))):   # PKCS#8 base64: Ed25519 / RSA
             key_file = key_file or str(p)
             m = re.search(_UUID, p.name)
             key_id = key_id or (m.group(0) if m else None)

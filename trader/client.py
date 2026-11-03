@@ -34,8 +34,13 @@ class KalshiError(RuntimeError):
 
 
 def load_private_key(path: str | Path):
+    """PEM, or a bare base64 PKCS#8 body without the BEGIN/END lines (some downloads and copy-pastes lose them)."""
+    import base64
     from cryptography.hazmat.primitives import serialization
-    return serialization.load_pem_private_key(Path(path).read_bytes(), password=None)
+    raw = Path(path).read_bytes()
+    if b"PRIVATE KEY" in raw:
+        return serialization.load_pem_private_key(raw, password=None)
+    return serialization.load_der_private_key(base64.b64decode(b"".join(raw.split())), password=None)
 
 
 def sign(key, message: str) -> str:
