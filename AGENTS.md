@@ -23,6 +23,7 @@ Language: code and comments in English, most docs (`README.md`, `RUN_ME.md`, rep
 | `run_all.py`, `backfill.py`, `daily_update.py` | full pipeline, history backfill, nightly update |
 | `live.py`, `live_once.py`, `src/live_forecast.py`, `forecasts_live/` | live out-of-sample forecasts, SHA-256 chained — **never edit files in `forecasts_live/`** |
 | `research.py` | research layer R1–R21 (regimes, classic inefficiencies, vol model zoo) → `reports/research.md` |
+| `deploy/server/` | Ubuntu server: setup.sh (systemd services for lab, shadow, demo, logger), status.sh, update.sh — docs/SERVER.md |
 | `trader/` | Kalshi executor for the wing rules: signed REST client, risk checks, shadow / demo / live (docs/TRADER.md) |
 | `lab/` + `lab_daemon.py` | the alpha lab: feeds (7 venues), short binaries (Polymarket 5m/15m/1h, Kalshi 15m and hourly ladder), hypothesis registry `lab/signals.py`, paper book + hash-chained ledger `lab/core.py`, vol zoo, ML, report `reports/lab.html` |
 | `jobs/` | one-off background scripts, started by the lab daemon (`lab/jobs.py`); `jobs/done/*.json` = finished |
