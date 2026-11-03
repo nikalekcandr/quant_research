@@ -335,3 +335,31 @@ def test_pays_a_tick_more_when_the_edge_still_clears(tmp_path):
     v._book = book(yes_bid=0.07, no_bid=0.91)                      # NO ask 0.93
     ex.handle(intent(price=0.92, fair=0.95))
     assert ex.st.positions["early|KXBTCD-26NOV0213"]["price"] == pytest.approx(0.93)
+
+
+def test_v2_order_mapping_and_cancel_routing():
+    """V2 create-order wants the YES leg only; buy NO 0.92 = ask YES 0.08; cancel carries the ticker."""
+    from trader.client import Kalshi, KalshiError
+    k = Kalshi("demo")
+    calls = []
+
+    def fake(method, path, params=None, body=None, auth=True, retries=2):
+        calls.append((method, path, params, body))
+        if method == "POST":
+            return {"order_id": "o1", "client_order_id": body["client_order_id"], "fill_count": "1.00",
+                    "remaining_count": "0.00", "average_fill_price": "0.0800", "average_fee_paid": "0.01"}
+        if method == "GET":
+            raise KalshiError(404, "{}", method, path)
+        return {"order_id": "o1", "reduced_by": "0.00"}
+    k.request = fake
+    o = k.create_order("KXBTCD-X", "no", 1, 0.92, tif="immediate_or_cancel", client_order_id="c1")
+    m, path, _, body = calls[0]
+    assert path == "/portfolio/events/orders" and body["side"] == "ask" and body["price"] == "0.0800"
+    assert body["count"] == "1" and body["time_in_force"] == "immediate_or_cancel" and "expiration_time" not in body
+    assert o["status"] == "executed" and o["fill_count_fp"] == "1.00" and o["average_fill_price_dollars"] == "0.9200"
+    assert k.order("o1")["order_id"] == "o1"                       # GET 404 -> what the POST returned
+    k.cancel("o1")
+    assert calls[-1][1] == "/portfolio/events/orders/o1" and calls[-1][2] == {"market_ticker": "KXBTCD-X"}
+    k.create_order("KXBTCD-X", "yes", 1, 0.01, tif="good_till_canceled", post_only=True, expiration_ts=99)
+    b = calls[-1][3]
+    assert b["side"] == "bid" and b["price"] == "0.0100" and b["post_only"] and b["expiration_time"] == 99
