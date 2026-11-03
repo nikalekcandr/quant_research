@@ -34,8 +34,13 @@ class KalshiError(RuntimeError):
 
 
 def load_private_key(path: str | Path):
+    """PEM, or a bare base64 PKCS#8 body without the BEGIN/END lines (some downloads and copy-pastes lose them)."""
+    import base64
     from cryptography.hazmat.primitives import serialization
-    return serialization.load_pem_private_key(Path(path).read_bytes(), password=None)
+    raw = Path(path).read_bytes()
+    if b"PRIVATE KEY" in raw:
+        return serialization.load_pem_private_key(raw, password=None)
+    return serialization.load_der_private_key(base64.b64decode(b"".join(raw.split())), password=None)
 
 
 def sign(key, message: str) -> str:
@@ -149,6 +154,7 @@ class Kalshi:
         self.key = load_private_key(key_file) if key_file else None
         self.s = requests.Session()
         self.timeout = timeout
+        self._placed: dict[str, dict] = {}      # order_id -> what create_order returned
         self.read_bucket = TokenBucket(rate=10, burst=20)
         self.write_bucket = TokenBucket(rate=5, burst=10)
         self.clock_offset_ms = 0                          # server − local, from the Date header
@@ -247,9 +253,6 @@ class Kalshi:
                 break
         return out
 
-    def order(self, order_id: str) -> dict:
-        return self.request("GET", f"/portfolio/orders/{order_id}").get("order", {})
-
     def fills(self, **params) -> list:
         out, cursor = [], None
         for _ in range(20):
@@ -263,34 +266,69 @@ class Kalshi:
     def create_order(self, ticker: str, side: str, count: int, price: float, *, action: str = "buy",
                      tif: str = "immediate_or_cancel", post_only: bool = False, expiration_ts: int | None = None,
                      client_order_id: str | None = None, reduce_only: bool = False) -> dict:
-        """Limit order. tif: immediate_or_cancel (taker, never worse than `price`), good_till_canceled (with
-        post_only=True: maker; rejected instead of crossing), fill_or_kill."""
+        """Limit order via the V2 endpoint (POST /portfolio/events/orders; the V1 /portfolio/orders POST answers
+        410 since 2026). `side`/`action`/`price` are in our terms (buy NO at 0.92); V2 wants the YES leg only:
+        buy YES p -> bid p, sell YES p -> ask p, buy NO q -> ask 1-q, sell NO q -> bid 1-q.
+        tif: immediate_or_cancel (taker, never worse than `price`), good_till_canceled (with post_only=True:
+        maker; rejected instead of crossing), fill_or_kill. Returns an order dict with V1-style keys."""
         if side not in ("yes", "no") or action not in ("buy", "sell") or count < 1:
             raise ValueError("bad order")
-        body = {"ticker": ticker, "side": side, "action": action, "count": int(count), "type": "limit",
-                f"{side}_price_dollars": price_str(price), "client_order_id": client_order_id or str(uuid.uuid4()),
-                "cancel_order_on_pause": True, "self_trade_prevention_type": "taker_at_cross"}
-        if tif != "good_till_canceled":
-            body["time_in_force"] = tif
+        buy_yes = (side == "yes") == (action == "buy")
+        yes_price = price if side == "yes" else 1.0 - price
+        cid = client_order_id or str(uuid.uuid4())
+        body = {"ticker": ticker, "side": "bid" if buy_yes else "ask", "count": f"{int(count)}",
+                "price": price_str(yes_price), "time_in_force": tif, "client_order_id": cid,
+                "self_trade_prevention_type": "taker_at_cross", "cancel_order_on_pause": True}
         if post_only:
             body["post_only"] = True
-        if expiration_ts:
-            body["expiration_ts"] = int(expiration_ts)
+        if expiration_ts and tif == "good_till_canceled":
+            body["expiration_time"] = int(expiration_ts)
         if reduce_only:
             body["reduce_only"] = True
-        return self.request("POST", "/portfolio/orders", body=body, retries=0).get("order", {})
+        r = self.request("POST", "/portfolio/events/orders", body=body, retries=0)
+        r = r.get("order", r)
+        filled, remaining = dollars(r.get("fill_count", 0)), dollars(r.get("remaining_count", 0))
+        status = "resting" if remaining > 0 and tif == "good_till_canceled" else ("executed" if filled else "canceled")
+        avg = r.get("average_fill_price")
+        o = {"order_id": r.get("order_id"), "client_order_id": r.get("client_order_id", cid), "ticker": ticker,
+             "side": side, "action": action, "status": status, "fill_count_fp": f"{filled:.2f}",
+             "remaining_count_fp": f"{remaining:.2f}", "initial_count": int(count),
+             f"{side}_price_dollars": price_str(price), "raw_v2": r}
+        if avg is not None:     # V2 reports the YES-leg price; convert back to our side
+            o["average_fill_price_dollars"] = price_str(dollars(avg) if side == "yes" else 1.0 - dollars(avg))
+        if r.get("average_fee_paid") is not None:
+            o["average_fee_paid_dollars"] = r["average_fee_paid"]
+        self._placed[o["order_id"]] = o
+        return o
 
-    def cancel(self, order_id: str) -> dict:
-        return self.request("DELETE", f"/portfolio/orders/{order_id}", retries=1)
+    def order(self, order_id: str) -> dict:
+        """The exchange's view of an order (GET /portfolio/orders/{id}); falls back to what the POST returned if
+        the read endpoint is gone or the order is not visible yet."""
+        try:
+            o = self.request("GET", f"/portfolio/orders/{order_id}").get("order", {})
+        except KalshiError as e:
+            if e.status not in (404, 410):
+                raise
+            o = {}
+        return o or self._placed.get(order_id, {})
+
+    def cancel(self, order_id: str, ticker: str | None = None) -> dict:
+        ticker = ticker or self._placed.get(order_id, {}).get("ticker")
+        try:
+            r = self.request("DELETE", f"/portfolio/events/orders/{order_id}",
+                             {"market_ticker": ticker} if ticker else None, retries=1)
+        except KalshiError as e:
+            if e.status not in (404, 410):
+                raise
+            r = self.request("DELETE", f"/portfolio/orders/{order_id}", retries=1)    # legacy
+        if order_id in self._placed:
+            self._placed[order_id]["status"] = "canceled"
+        st = {"status": "canceled", "reduced_by": r.get("reduced_by")}
+        return {**r, "order": {**r.get("order", {}), **st}}
 
     def cancel_all(self) -> int:
-        n = 0
-        for o in self.orders(status="resting"):
-            try:
-                self.cancel(o["order_id"])
-                n += 1
-            except KalshiError:
-                pass
+        n = len(self.orders(status="resting"))
+        self.request("DELETE", "/portfolio/events/orders", retries=1)
         return n
 
 

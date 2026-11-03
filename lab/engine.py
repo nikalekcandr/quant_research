@@ -131,6 +131,11 @@ class Lab:
         except Exception:
             log_exc("minutes update")
         tick = feeds.tick(self.http, now)
+        # the spot written into the executor's intents must be THIS tick's: the wing rules run before Wings.step,
+        # and taking it from there stamped every W03/W04 decision with the previous minute's price (02.11 20:31:
+        # 76 857 instead of 76 795, a fake 8-bp move that made the executor refuse good trades)
+        from lab import intents
+        intents.SPOT = tick.get("cb_mid") or tick.get("usd_mid")
         append_rows(day_file(TICKS, now), [tick])
         tr = pd.DataFrame([tick])
         self.ticks = tr if self.ticks is None else pd.concat([self.ticks, tr], ignore_index=True)
@@ -300,6 +305,9 @@ class Lab:
         nxt = time.time()
         while not stop.is_set():
             nxt += 15
+            if "D09" in signals.RETIRED and not any(h.loop == "fast" and not h.retired for h in signals.REGISTRY):
+                time.sleep(15)                       # nothing uses the 15-s ticks (wings-only lab)
+                continue
             try:
                 r = feeds.fast_tick(self.http_fast)
                 self.fast.append(r)
@@ -322,6 +330,8 @@ class Lab:
             time.sleep(max(0.5, nxt - time.time()))
 
     def fast_markets_step(self):
+        if not any(h.loop == "fast" and not h.retired for h in signals.REGISTRY):
+            return                                   # no active 15-s rule: no requests
         now = utcnow()
         if not self.fast or self.ticks is None:
             return

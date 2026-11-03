@@ -1,0 +1,13 @@
+{
+  "_what": "first real-money test: one contract per trade, two slots per hour, stop after −$3 in a day; run with --real-money and KALSHI_ALLOW_LIVE=1",
+  "mode": "live",
+  "rules": ["W03", "W04", "W05", "W06"],
+  "maker_rules": [],
+  "risk_per_trade_usd": 1.0,
+  "max_contracts": 1,
+  "max_open_positions": 2,
+  "max_trades_per_hour": 2,
+  "daily_loss_limit_usd": 3.0,
+  "max_intent_age_s": 15.0,
+  "slippage_ticks": 1
+}

@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -149,6 +150,19 @@ class Executor:
         self.kill_file = root / "KILL"
         if self.st.offset == 0 and intents_path.exists():
             self.st.offset = intents_path.stat().st_size   # first start: ignore old decisions
+        # one executor per mode: two copies would send every order twice
+        self.lock = root / f"lock_{self.mode}.json"
+        if self.lock.exists():
+            try:
+                other = json.loads(self.lock.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                other = {}
+            if other.get("pid") != os.getpid() and time.time() - self.lock.stat().st_mtime < 90:
+                raise RuntimeError(f"another {self.mode} executor is running (pid {other.get('pid')}): {self.lock}")
+        self._touch_lock()
+
+    def _touch_lock(self):
+        self.lock.write_text(json.dumps({"pid": os.getpid(), "t": str(now_utc())}), encoding="utf-8")
 
     # -------------------------------------------------------------- intents
     def read_intents(self) -> list[dict]:
@@ -262,7 +276,9 @@ class Executor:
                 fair = f1
         edge = fair - price - fee_per
         if edge < it.get("margin", 0.0) - 1e-9:
-            return f"edge {100 * edge:+.2f}¢ < margin {100 * it.get('margin', 0):.0f}¢ at {price:.2f}"
+            move = (1e4 * (s1 / it["spot"] - 1)) if it.get("spot") and math.isfinite(s1) else float("nan")
+            return (f"edge {100 * edge:+.2f}¢ < margin {100 * it.get('margin', 0):.0f}¢ at {price:.2f} "
+                    f"(lab fair {it['fair_side']:.4f} → {fair:.4f}, spot {move:+.1f} bp)")
         return None
 
     def take(self, it: dict, book: Book):
@@ -291,7 +307,10 @@ class Executor:
         for px, qty in book.asks(side):
             if n >= target or px > limit + 1e-9 or fair - px - taker_fee(px) < it.get("margin", 0.0) - 1e-9:
                 break
-            take_n = min(target - n, int(self.cfg.max_book_share * qty)) if self.mode != "demo" else target - n
+            cap = int(self.cfg.max_book_share * qty)
+            if cap < 1 and qty >= 1 and target == 1:
+                cap = 1                                  # a 1-contract order may take a thin level
+            take_n = min(target - n, cap) if self.mode != "demo" else target - n
             if take_n < 1:
                 break
             n, limit_px, cost = n + take_n, px, cost + take_n * px
@@ -494,6 +513,7 @@ class Executor:
         except Exception as e:  # noqa: BLE001
             self.j.write("error", where="periodic", error=repr(e)[:300])
         self.st.save(self.state_path)
+        self._touch_lock()
         (self.root / f"heartbeat_{self.mode}.json").write_text(json.dumps({
             "t": str(now_utc()), "open": len(self.st.positions), "resting": len(self.st.resting),
             "realised_today": self.st.realised.get(self._today(), 0.0)}), encoding="utf-8")

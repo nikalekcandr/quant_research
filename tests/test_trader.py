@@ -136,7 +136,7 @@ def test_shadow_take_records_a_fill(tmp_path):
 @pytest.mark.parametrize("kw,reason", [
     ({"age_s": 60}, "stale intent"),
     ({"spot": 79000.0}, "spot moved"),               # > 20 bp: refuse outright
-    ({"price": 0.91}, "price moved"),                 # the ask (0.92) is above what the lab decided to pay
+    ({"price": 0.89}, "price moved"),                 # the ask (0.92) is 3¢ above the lab's price: beyond 2 ticks
     ({"fair": 0.92}, "edge"),                          # fair − price − fee < 0
     ({"left_min": 1}, "too close to settlement"),
     ({"hyp": "W03", "fair": 0.935}, "edge"),          # W03 needs ≥ 1¢
@@ -281,3 +281,85 @@ def test_book_sweep_stops_where_the_edge_ends(tmp_path):
     v3._book = Book("T", [(0.08, 40), (0.07, 400)], [(0.91, 500)], time.time())
     ex3.handle(intent(price=0.93, fair=0.939))                     # level two edge < 0: only level one, 10 contracts
     assert ex3.st.positions["early|KXBTCD-26NOV0213"]["filled"] == 10
+
+
+def test_credentials_from_key_files(tmp_path, monkeypatch):
+    import trader.settings as S
+    for k in ("KALSHI_DEMO_KEY_ID", "KALSHI_DEMO_KEY_FILE", "KALSHI_KEY_ID", "KALSHI_KEY_FILE"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setattr(S, "KEYS", tmp_path)
+    assert S.credentials("demo") == (None, None)
+    (tmp_path / "demo_key_id.txt").write_text("abc-123\n")
+    (tmp_path / "demo.pem").write_text("x")
+    assert S.credentials("demo") == ("abc-123", str(tmp_path / "demo.pem"))
+    assert S.credentials("live") == (None, None)                      # demo keys never serve live
+
+
+def test_profiles_load_on_top_of_settings(tmp_path):
+    from trader.settings import Settings
+    live = Settings.load(tmp_path / "s.json", profile="live_1contract")
+    assert live.mode == "live" and live.max_contracts == 1 and live.daily_loss_limit_usd == 3.0
+    demo = Settings.load(tmp_path / "s.json", profile="demo_plumbing")
+    assert demo.mode == "demo" and demo.demo_ignore_edge and demo.demo_contracts == 1
+    assert Settings.load(tmp_path / "s.json").mode == "shadow"
+
+
+def test_one_contract_profile_takes_a_thin_level(tmp_path):
+    ex, v = make(tmp_path, risk_per_trade_usd=1.0, max_contracts=1)
+    v._book = Book("T", [(0.08, 2)], [(0.91, 500)], time.time())       # only 2 contracts offered at 0.92
+    ex.handle(intent())
+    assert ex.st.positions["early|KXBTCD-26NOV0213"]["filled"] == 1
+
+
+def test_scan_key_dir_finds_keys_under_any_name(tmp_path):
+    from trader.settings import scan_key_dir
+    d = tmp_path / "demo"
+    d.mkdir()
+    (d / "my-kalshi-download.txt").write_text("-----BEGIN RSA PRIVATE KEY-----\nabc\n-----END RSA PRIVATE KEY-----\n")
+    (d / "id.txt").write_text("key id: 4b0c8a8e-1f1e-4c8a-9d2b-0a1b2c3d4e5f\n")
+    kid, kf = scan_key_dir(d)
+    assert kid == "4b0c8a8e-1f1e-4c8a-9d2b-0a1b2c3d4e5f" and kf.endswith("my-kalshi-download.txt")
+    assert scan_key_dir(tmp_path / "prod") == (None, None)
+
+
+def test_second_executor_for_the_same_mode_refuses_to_start(tmp_path):
+    ex, v = make(tmp_path)
+    (tmp_path / "lock_shadow.json").write_text(json.dumps({"pid": -1, "t": "now"}))   # another live process
+    with pytest.raises(RuntimeError):
+        Executor(ex.cfg, None, v, FakeSpot(), intents_path=tmp_path / "intents.jsonl", root=tmp_path)
+
+
+def test_pays_a_tick_more_when_the_edge_still_clears(tmp_path):
+    """Lab decided at 0.92, the ask is now 0.93: with slippage_ticks = 2 the order goes if fair − 0.93 − fee ≥ margin."""
+    ex, v = make(tmp_path)
+    v._book = book(yes_bid=0.07, no_bid=0.91)                      # NO ask 0.93
+    ex.handle(intent(price=0.92, fair=0.95))
+    assert ex.st.positions["early|KXBTCD-26NOV0213"]["price"] == pytest.approx(0.93)
+
+
+def test_v2_order_mapping_and_cancel_routing():
+    """V2 create-order wants the YES leg only; buy NO 0.92 = ask YES 0.08; cancel carries the ticker."""
+    from trader.client import Kalshi, KalshiError
+    k = Kalshi("demo")
+    calls = []
+
+    def fake(method, path, params=None, body=None, auth=True, retries=2):
+        calls.append((method, path, params, body))
+        if method == "POST":
+            return {"order_id": "o1", "client_order_id": body["client_order_id"], "fill_count": "1.00",
+                    "remaining_count": "0.00", "average_fill_price": "0.0800", "average_fee_paid": "0.01"}
+        if method == "GET":
+            raise KalshiError(404, "{}", method, path)
+        return {"order_id": "o1", "reduced_by": "0.00"}
+    k.request = fake
+    o = k.create_order("KXBTCD-X", "no", 1, 0.92, tif="immediate_or_cancel", client_order_id="c1")
+    m, path, _, body = calls[0]
+    assert path == "/portfolio/events/orders" and body["side"] == "ask" and body["price"] == "0.0800"
+    assert body["count"] == "1" and body["time_in_force"] == "immediate_or_cancel" and "expiration_time" not in body
+    assert o["status"] == "executed" and o["fill_count_fp"] == "1.00" and o["average_fill_price_dollars"] == "0.9200"
+    assert k.order("o1")["order_id"] == "o1"                       # GET 404 -> what the POST returned
+    k.cancel("o1")
+    assert calls[-1][1] == "/portfolio/events/orders/o1" and calls[-1][2] == {"market_ticker": "KXBTCD-X"}
+    k.create_order("KXBTCD-X", "yes", 1, 0.01, tif="good_till_canceled", post_only=True, expiration_ts=99)
+    b = calls[-1][3]
+    assert b["side"] == "bid" and b["price"] == "0.0100" and b["post_only"] and b["expiration_time"] == 99

@@ -23,6 +23,7 @@ Language: code and comments in English, most docs (`README.md`, `RUN_ME.md`, rep
 | `run_all.py`, `backfill.py`, `daily_update.py` | full pipeline, history backfill, nightly update |
 | `live.py`, `live_once.py`, `src/live_forecast.py`, `forecasts_live/` | live out-of-sample forecasts, SHA-256 chained — **never edit files in `forecasts_live/`** |
 | `research.py` | research layer R1–R21 (regimes, classic inefficiencies, vol model zoo) → `reports/research.md` |
+| `deploy/server/` | Ubuntu server: setup.sh (systemd services for lab, shadow, demo, logger), status.sh, update.sh — docs/SERVER.md |
 | `trader/` | Kalshi executor for the wing rules: signed REST client, risk checks, shadow / demo / live (docs/TRADER.md) |
 | `lab/` + `lab_daemon.py` | the alpha lab: feeds (7 venues), short binaries (Polymarket 5m/15m/1h, Kalshi 15m and hourly ladder), hypothesis registry `lab/signals.py`, paper book + hash-chained ledger `lab/core.py`, vol zoo, ML, report `reports/lab.html` |
 | `jobs/` | one-off background scripts, started by the lab daemon (`lab/jobs.py`); `jobs/done/*.json` = finished |
@@ -90,6 +91,11 @@ Language: code and comments in English, most docs (`README.md`, `RUN_ME.md`, rep
   but ≈ $2 per option. W05 = W03 and W06 = W04 on the same strike: the executor keeps one position per slot and hour.
   Maker quotes on wings are adversely selected (W03 wing pays 16.5% when our offer is lifted vs 4.8% when not) →
   the executor takes immediately (IOC, book walk), maker mode off. Sequential test: `trader/monitor.py`.
+
+* **Wings only (03.11.2026):** the lab runs W03–W06 and nothing else (`FOCUS` in `lab/signals.py`; markets snapshot
+  = Kalshi hourly ladder with 45 live books). Resting offers with a large model edge lose in all 32 variants
+  (`studies/wings_maker.py`). Everything about the strategy: `docs/WINGS.md`. Demo starts by itself when
+  `data/trader/keys/demo_key_id.txt` + `demo.pem` exist (`jobs/trader_demo_now.py`); real money: profile `live_1contract`.
 
 ## Good next tasks
 
