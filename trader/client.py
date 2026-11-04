@@ -233,6 +233,15 @@ class Kalshi:
             return dollars(r.get(name)) / 100 if r.get(name) is not None else float("nan")
         return {"cash": usd("balance"), "portfolio_value": usd("portfolio_value"), "raw": r}
 
+    def shard_transfer(self, amount_usd: float, src_shard: int = 0, dst_shard: int = 2) -> dict:
+        """Move cash between exchange shards of the event-contract account. Balances are per shard, and crypto
+        series (KXBTCD) trade on shard 2 while deposits land on shard 0: an order there with no shard-2 cash is
+        rejected 404 insufficient_shard_balance. Amount is sent in centicents."""
+        body = {"source": "event_contract", "destination": "event_contract", "amount": int(round(amount_usd * 10000)),
+                "source_exchange_shard": src_shard, "destination_exchange_shard": dst_shard,
+                "client_transfer_id": str(uuid.uuid4())}
+        return self.request("POST", "/portfolio/intra_exchange_instance_transfer", body=body, retries=0)
+
     def positions(self, **params) -> list:
         out, cursor = [], None
         for _ in range(20):
