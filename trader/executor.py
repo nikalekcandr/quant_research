@@ -399,6 +399,8 @@ class Executor:
             pass
         filled = fill_count(o)
         fees = dollars(o.get("taker_fees_dollars", o.get("maker_fees_dollars", 0))) or 0.0
+        if not fees and o.get("average_fee_paid_dollars") is not None:     # V2 create-order response (04.11)
+            fees = round(dollars(o["average_fee_paid_dollars"]) * fill_count(o), 4)
         self.j.write("order_result", intent=it["id"], order_id=oid, status=o.get("status"), filled=filled,
                      fees=fees)
         if open_position and filled > 0:
