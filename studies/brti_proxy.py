@@ -26,6 +26,7 @@ from scipy.stats import norm, t as student_t
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from studies import wings_ladder as wl  # noqa: E402
+wl.LAD, wl.MIN = Path("data/raw/kalshi_kxbtcd_60m"), Path("data/interim/minutes.parquet")   # wl reads sys.argv
 
 USD = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("data/raw/usd_minutes")
 TICKS = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("data/lab/ticks")
@@ -86,7 +87,7 @@ def main():
     venues = {"binance (USDT)": pd.DataFrame({"c": bn, "typ": bn})}
     for nm, lab in (("cb", "coinbase"), ("bs", "bitstamp"), ("kr", "kraken")):
         d = candles(nm)
-        if d is not None:
+        if d is not None and len(d) > 10000:      # Kraken's API keeps 720 minutes only: too short to use here
             venues[lab] = d
     if "coinbase" in venues and "bitstamp" in venues:
         cb, bs = venues["coinbase"], venues["bitstamp"]

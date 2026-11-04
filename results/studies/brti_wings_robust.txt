@@ -1,0 +1,18 @@
+                                               t          trades         ¢/trade        
+half                                     Jul–Aug Sep–Oct Jul–Aug Sep–Oct Jul–Aug Sep–Oct
+rule                    spot                                                            
+W03 frozen (normal ≥1¢) binance×basis       1.06    2.51   220.0   427.0    2.29    3.65
+                        coinbase×basis      0.83    0.39   144.0   258.0    2.17    0.81
+                        mean cb+bs×basis    1.60    0.66   174.0   320.0    3.60    1.22
+W03 t4 ≥0               binance×basis       0.61    1.35   587.0   963.0    0.84    1.42
+                        coinbase×basis      0.19    1.30   481.0   758.0    0.29    1.54
+                        mean cb+bs×basis    0.99    1.42   548.0   867.0    1.40    1.58
+W03 t4 ≥1¢              binance×basis       0.18    1.53   504.0   858.0    0.27    1.71
+                        coinbase×basis     -0.05    1.91   376.0   614.0   -0.10    2.46
+                        mean cb+bs×basis    0.87    2.28   443.0   729.0    1.37    2.67
+W04 frozen (t4 ≥0)      binance×basis       1.37    2.45   688.0   980.0    1.23    1.77
+                        coinbase×basis      0.33    2.40   609.0   853.0    0.34    1.86
+                        mean cb+bs×basis    0.82    2.69   696.0   948.0    0.76    1.95
+W04 t4 ≥1¢              binance×basis       0.69    1.53   528.0   809.0    0.75    1.28
+                        coinbase×basis     -0.19    1.27   445.0   654.0   -0.24    1.20
+                        mean cb+bs×basis   -0.19    2.34   528.0   769.0   -0.22    1.92

@@ -1,0 +1,16 @@
+does the Binance–USD gap at h−τ predict the settlement beyond the USD spot? y=log(E/(USD·b)), x=log(BN·b_bn/(USD·b_usd)); HAC
+τ= 1 Dec–Aug: beta=0.07 t=3.1 R2=0.003 sd(x)=2.38bp n=5722
+τ= 1 Sep–Nov: beta=0.04 t=1.5 R2=0.002 sd(x)=2.02bp n=1363
+τ= 2 Dec–Aug: beta=0.06 t=1.4 R2=0.001 sd(x)=2.41bp n=5722
+τ= 2 Sep–Nov: beta=0.14 t=2.0 R2=0.004 sd(x)=1.98bp n=1363
+τ= 5 Dec–Aug: beta=0.17 t=1.9 R2=0.001 sd(x)=2.41bp n=5721
+τ= 5 Sep–Nov: beta=0.15 t=1.3 R2=0.001 sd(x)=2.00bp n=1363
+τ=10 Dec–Aug: beta=0.01 t=0.0 R2=0.000 sd(x)=2.41bp n=5721
+τ=10 Sep–Nov: beta=0.12 t=0.5 R2=0.000 sd(x)=2.00bp n=1363
+τ=15 Dec–Aug: beta=-0.19 t=-1.2 R2=0.000 sd(x)=2.40bp n=5721
+τ=15 Sep–Nov: beta=-0.08 t=-0.3 R2=0.000 sd(x)=1.99bp n=1363
+τ=30 Dec–Aug: beta=-0.21 t=-0.8 R2=0.000 sd(x)=2.40bp n=5721
+τ=30 Sep–Nov: beta=0.20 t=0.5 R2=0.000 sd(x)=1.95bp n=1363
+USD return next 1 min on de-meaned BN/USD gap: beta=0.06 t=7.2 R2=0.0003
+USD return next 2 min on de-meaned BN/USD gap: beta=0.05 t=3.7 R2=0.0001
+USD return next 5 min on de-meaned BN/USD gap: beta=0.02 t=0.6 R2=0.0000
