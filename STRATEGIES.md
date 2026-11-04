@@ -63,6 +63,7 @@ _29.10.2026 20:00 MSK. Live: settled trades / clusters (entry hours), mean per t
 | W03 | Sell the most overpriced 10–20¢ wing, last 5–15 min (Kalshi hourly) | Kalshi hourly ladder, 5–15 minutes before the hour: among strikes whose cheap side bids 10–20¢, sell the one whose bid exceeds our fair value + fee by the most, if by ≥ 1¢; one per hour; held to settlement | 2026-10-29 20:00 | — | chosen on Jul–Aug: +3.0¢ (t 1.6); Sep–Oct test +3.6¢/hour (t 2.7) |
 | W04 | Sell the most overpriced 6–10¢ wing, 15–30 min left (Kalshi hourly) | as W03 with cheap bids 6–10¢, 15–30 minutes left, Student-t(4) fair value, edge ≥ 0 | 2026-10-29 20:00 | — | Jul–Aug +1.2¢ (t 1.3); Sep–Oct test +1.8¢ (t 2.5) |
 | W07 | W03 + storm filter (paper only) | as W03, but no trade when the realised variance of the last 60 minutes > 1.5× what the model expected for them (studies/storm_filter.py) | 2026-11-04 12:30 | — | cut chosen on Jul–Aug; Sep–Oct +5.1¢ (t 3.3) on the Binance spot, +2.9¢ (t 1.4) on the USD spot vs W03 +3.65 / +1.2¢; 42 variants tried |
+| W08 | Weekend wings, no model (paper only) | hours closing Sat/Sun UTC: sell the dearest 6–10¢ wing with 15–30 min left; one per hour; no fair-value filter (studies/wings_weekend.py) | 2026-11-04 13:00 | — | one per hour Jul–Aug +3.0¢ (t 2.6), Sep–Oct +2.3¢ (t 1.9), October +0.2¢; found by looking at regimes |
 
 
 ## Retired (36)

@@ -1034,6 +1034,45 @@ def w07(ctx):
     return _wings_opt(ctx, "W07", 0.10, 0.20, 5, 15, "ln", 0.01)
 
 
+# ================================================================== W08: weekend wings without a model (frozen 04.11.2026)
+@hyp("W08", "W", "Weekend wings: sell the dearest 6–10¢ wing, 15–30 min left, Sat/Sun only, no model",
+     "Kalshi hourly ladder, hours closing on Saturday or Sunday (UTC): among strikes whose cheap side bids 6–10¢ with "
+     "15–30 minutes left, sell the dearest one; one per hour; held to settlement; no fair-value filter",
+     "studies/wings_weekend.py: wing prices are the same on weekends (8.1¢) but pay 4.9% vs 8.1% on weekdays; one per "
+     "hour Jul–Aug +3.0¢ (t 2.6), Sep–Oct +2.3¢ (t 1.9), October +0.2¢ — found after looking at regimes: paper only",
+     frozen="2026-11-04 13:00")
+def w08(ctx):
+    m = ctx.markets
+    if m is None or m.empty:
+        return []
+    k = m[(m["venue"] == "kalshi") & (m["kind"] == "kx_ladder_1h")]
+    best = None
+    for _, r in k.iterrows():
+        end = pd.Timestamp(r["end"])
+        if end.dayofweek < 5:
+            continue
+        bid, ask = r["bid"], r["ask"]
+        if not (np.isfinite(bid) and np.isfinite(ask)) or ask - bid > 0.03:
+            continue
+        left = (end - ctx.now).total_seconds() / 60
+        if not (15 <= left <= 30) or ctx.book.has_key(f"W08|{r['event']}"):
+            continue
+        for cheap, c_bid in (("yes", bid), ("no", 1 - ask)):
+            if 0.06 <= c_bid <= 0.10 and (best is None or c_bid > best[0]):
+                best = (c_bid, r, cheap, left)
+    if best is None:
+        return []
+    c_bid, r, cheap, left = best
+    px = 1 - c_bid
+    side = "no" if cheap == "yes" else "yes"
+    leg = {"venue": "kalshi", "kind": r["kind"], "market": r["market"], "event": r["event"], "side": side, "price": px,
+           "fee": kalshi_fee(px)}
+    return [Order(hyp="W08", kind="binary", venue="kalshi", instrument=r["market"], side=side, price=px,
+                  fee=kalshi_fee(px), fair=None, edge=None, settle_ts=str(r["end"]), unit="$/contract",
+                  key=f"W08|{r['event']}", info={"legs": [leg], "mid": (r["bid"] + r["ask"]) / 2,
+                                                 "left_min": round(left, 1), "wing_price": c_bid})]
+
+
 @hyp("W05", "W", "Wings 10–20¢ — blended fair value, no US open, maker first", "Kalshi hourly ladder, 5–15 min left, "
      "hours not settling 13–15 UTC: best strike by edge vs a fair value with variance = sqrt(lab EWMA × gbm_long); "
      "offer the cheap side at its ask (paper post-only, queue-aware fills from the tape); at 7 min left take the bid "
@@ -1369,7 +1408,7 @@ FAMILIES = {"D": "Directional BTC", "P": "Prediction markets: fair value", "V": 
 # the report, and it can be switched back on by removing it from PAUSED_EXCEPT / emptying FOCUS. Paused rules are put
 # into RETIRED so that every loop that checks RETIRED (engine, tape, maker, flow, lead–lag, ML) stops for them, and
 # the markets snapshot fetches only the Kalshi hourly ladder (lab/markets.py).
-FOCUS = {"W03", "W04", "W05", "W06", "W07"}   # W07 added 04.11 (paper; the executor trades W03–W06)
+FOCUS = {"W03", "W04", "W05", "W06", "W07", "W08"}   # W07, W08 added 04.11 (paper; the executor trades W03–W06)
 PAUSED = "paused 03.11.2026: the lab runs the wing rules W03–W06 only"
 if FOCUS:
     for _h in REGISTRY:
