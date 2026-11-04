@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from studies import wings_ladder as wl  # noqa: E402
 
 HIST = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("data/raw/pm_ladder_1h/hist")
-EXTRA = [Path(x) for x in sys.argv[2:]]
+EXTRA = [Path(x) for x in sys.argv[2:] if not x.startswith("--")]
 SPLIT = pd.Timestamp("2026-09-01", tz="UTC")
 
 
@@ -119,5 +119,31 @@ def main():
     print("\n".join(lines))
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and "--months" not in sys.argv:
     main()
+
+
+def by_month_fresh():
+    """Staleness check: by month, and only minutes where the price changed vs the minute before (a fresh quote)."""
+    S = minutes()
+    d = load(S)
+    d = d.sort_values(["market", "ts"])
+    d["fresh"] = d.groupby("market").p.diff().ne(0) & d.groupby("market").p.diff().notna()
+    rows = []
+    for sub, dd in (("all minutes", d), ("fresh minutes only", d[d.fresh])):
+        c = frame(dd, 0.01)
+        for nm, p in {"W09 = W03": (0.10, 0.20, 5, 15, "normal", 0.01), "W10 = W04": (0.06, 0.10, 15, 30, "t4", 0.0)}.items():
+            g = run(c, *p)
+            for mon, gg in g.groupby(g["T"].dt.strftime("%Y-%m")):
+                m, t, n = st(gg)
+                rows.append({"sample": sub, "rule": nm, "month": mon, "n": n, "¢/trade": m, "t": t})
+    R = pd.DataFrame(rows).pivot_table(index=["sample", "rule"], columns="month", values="¢/trade").round(2)
+    N = pd.DataFrame(rows).pivot_table(index=["sample", "rule"], columns="month", values="n")
+    txt = ["## Staleness check: ¢ per trade by month (h = 1¢)", "", R.to_markdown(), "", "trades:", "", N.to_markdown(), ""]
+    p = Path("results/studies/pm_wings.md")
+    p.write_text(p.read_text(encoding="utf-8") + "\n" + "\n".join(txt), encoding="utf-8")
+    print("\n".join(txt))
+
+
+if __name__ == "__main__" and "--months" in sys.argv:
+    by_month_fresh()
