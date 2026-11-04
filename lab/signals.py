@@ -987,6 +987,53 @@ def w04(ctx):
     return _wings_opt(ctx, "W04", 0.06, 0.10, 15, 30, "t4", 0.0)
 
 
+# ================================================================== W07: W03 + storm filter (frozen 04.11.2026)
+_STORM = {"key": None, "R60": None}
+
+
+def storm_ratio(ctx, window: int = 60) -> float | None:
+    """Realised variance of the last `window` 1-minute returns / the variance the wings model expected for them:
+    EWMA (half-life 60 min) of deseasonalised squared returns × the hour-of-week profile of the last 28 days, the
+    level taken one minute before each minute (studies/storm_filter.py, same formula). Binance minutes."""
+    c = ctx.minutes.close.dropna()
+    if len(c) < 40 * 1440:
+        return None
+    key = c.index[-1]
+    if _STORM["key"] == key:
+        return _STORM["R60"]
+    c = c[c.index > key - pd.Timedelta(days=40)]
+    r2 = np.log(c).diff() ** 2
+    idx = c.index
+    how = idx.dayofweek * 24 + idx.hour
+    df = pd.DataFrame({"r2": r2.values, "how": how, "day": idx.floor("D")}, index=idx)
+    daily = df.groupby(["day", "how"])["r2"].mean().unstack()
+    sea = daily.rolling(28, min_periods=7).mean().shift(1)
+    sea = sea.div(sea.mean(axis=1), axis=0)
+    day_last = df["day"].iloc[-1]
+    if day_last not in sea.index:
+        return None
+    tail = df.iloc[-(window + 2000):].copy()
+    tail["sea"] = [float(sea.loc[d, h]) if (d in sea.index and np.isfinite(sea.loc[d, h])) else 1.0
+                   for d, h in zip(tail["day"], tail["how"])]
+    lvl = (tail["r2"] / tail["sea"]).ewm(halflife=60, min_periods=120).mean()
+    exp = (lvl * tail["sea"]).shift(1)
+    out = float(tail["r2"].iloc[-window:].sum() / exp.iloc[-window:].sum()) if np.isfinite(exp.iloc[-window:].sum()) else None
+    _STORM.update(key=key, R60=out)
+    return out
+
+
+@hyp("W07", "W", "W03 + storm filter: skip when the last hour moved > 1.5× the model's variance", "as W03 (10–20¢ "
+     "cheap bid, 5–15 min left, normal fair, edge ≥ 1¢, one per hour), but no trade when the realised variance of the "
+     "last 60 minutes exceeds 1.5× what the model expected for them", "studies/storm_filter.py: cut chosen on Jul–Aug; "
+     "Sep–Oct test +5.1¢ per trade (t 3.3) vs W03 +3.65¢ on the Binance spot, +2.9¢ (t 1.4) vs +1.2¢ on the USD "
+     "spot; skipped trades lost on both halves and both spots; 42 variants tried — paper only", frozen="2026-11-04 12:30")
+def w07(ctx):
+    R = storm_ratio(ctx, 60)
+    if R is None or R > 1.5:
+        return []
+    return _wings_opt(ctx, "W07", 0.10, 0.20, 5, 15, "ln", 0.01)
+
+
 @hyp("W05", "W", "Wings 10–20¢ — blended fair value, no US open, maker first", "Kalshi hourly ladder, 5–15 min left, "
      "hours not settling 13–15 UTC: best strike by edge vs a fair value with variance = sqrt(lab EWMA × gbm_long); "
      "offer the cheap side at its ask (paper post-only, queue-aware fills from the tape); at 7 min left take the bid "
@@ -1322,7 +1369,7 @@ FAMILIES = {"D": "Directional BTC", "P": "Prediction markets: fair value", "V": 
 # the report, and it can be switched back on by removing it from PAUSED_EXCEPT / emptying FOCUS. Paused rules are put
 # into RETIRED so that every loop that checks RETIRED (engine, tape, maker, flow, lead–lag, ML) stops for them, and
 # the markets snapshot fetches only the Kalshi hourly ladder (lab/markets.py).
-FOCUS = {"W03", "W04", "W05", "W06"}
+FOCUS = {"W03", "W04", "W05", "W06", "W07"}   # W07 added 04.11 (paper; the executor trades W03–W06)
 PAUSED = "paused 03.11.2026: the lab runs the wing rules W03–W06 only"
 if FOCUS:
     for _h in REGISTRY:
