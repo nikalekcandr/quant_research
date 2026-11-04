@@ -935,13 +935,13 @@ def w02(ctx):
 
 
 # ================================================================== W03/W04: wings chosen on history (frozen 29.10 20:00 MSK)
-def _wings_opt(ctx, hid, lo, hi, l0, l1, model, margin):
+def _wings_opt(ctx, hid, lo, hi, l0, l1, model, margin, venue="kalshi", kind="kx_ladder_1h"):
     """Kalshi hourly ladder, one trade per hour: among strikes whose cheap side bids lo..hi with l0..l1 minutes
     left, sell the cheap side with the largest model edge if edge ≥ margin (studies/wings_ladder.py)."""
     m = ctx.markets
     if m is None or m.empty:
         return []
-    k = m[(m["venue"] == "kalshi") & (m["kind"] == "kx_ladder_1h")]
+    k = m[(m["venue"] == venue) & (m["kind"] == kind)]
     best = None
     for _, r in k.iterrows():
         bid, ask = r["bid"], r["ask"]
@@ -953,20 +953,24 @@ def _wings_opt(ctx, hid, lo, hi, l0, l1, model, margin):
         p = fair_value(ctx, r, model)
         if p is None:
             continue
+        fee_fn = kalshi_fee if venue == "kalshi" else (lambda x, fr=(r.get("fee_rate") or 0.0): pm_fee(x, fr))
         for cheap, c_bid, fair in (("yes", bid, p), ("no", 1 - ask, 1 - p)):
             if not (lo <= c_bid <= hi):
                 continue
             px = 1 - c_bid
-            edge = c_bid - fair - kalshi_fee(px)
+            edge = c_bid - fair - fee_fn(px)
             if edge >= margin and (best is None or edge > best[0]):
                 best = (edge, r, cheap, px, fair, left)
     if best is None:
         return []
     edge, r, cheap, px, fair, left = best
     side = "no" if cheap == "yes" else "yes"
-    leg = {"venue": "kalshi", "kind": r["kind"], "market": r["market"], "event": r["event"], "side": side, "price": px,
-           "fee": kalshi_fee(px)}
-    return [Order(hyp=hid, kind="binary", venue="kalshi", instrument=r["market"], side=side, price=px, fee=kalshi_fee(px),
+    fee = kalshi_fee(px) if venue == "kalshi" else pm_fee(px, r.get("fee_rate") or 0.0)
+    leg = {"venue": venue, "kind": r["kind"], "market": r["market"], "event": r["event"], "side": side, "price": px,
+           "fee": fee}
+    if venue != "kalshi":
+        leg["token"] = r.get("token")
+    return [Order(hyp=hid, kind="binary", venue=venue, instrument=r["market"], side=side, price=px, fee=fee,
                   fair=1 - fair, edge=edge, settle_ts=str(r["end"]), unit="$/contract", key=f"{hid}|{r['event']}",
                   info={"legs": [leg], "mid": (r["bid"] + r["ask"]) / 2, "left_min": round(left, 1),
                         "wing_price": 1 - px, "size": r.get("bid_size") if cheap == "yes" else r.get("ask_size")})]
@@ -1032,6 +1036,22 @@ def w07(ctx):
     if R is None or R > 1.5:
         return []
     return _wings_opt(ctx, "W07", 0.10, 0.20, 5, 15, "ln", 0.01)
+
+
+# ================================================================== W09/W10: W03/W04 on the Polymarket hourly ladder (frozen 04.11.2026)
+@hyp("W09", "W", "W03 on Polymarket: sell the most overpriced 10–20¢ wing, last 5–15 min (Polymarket hourly ladder)",
+     "Polymarket 'Bitcoin above K, <h> ET' (Binance BTC/USDT 1-hour candle close): as W03 — cheap side bids 10–20¢, "
+     "5–15 min left, normal fair value from the Binance mid, edge after the Polymarket fee ≥ 1¢, one per hour",
+     "the Kalshi wings transferred; history test studies/pm_wings.py; paper only", frozen="2026-11-04 13:30")
+def w09(ctx):
+    return _wings_opt(ctx, "W09", 0.10, 0.20, 5, 15, "ln", 0.01, venue="polymarket", kind="pm_ladder_1h")
+
+
+@hyp("W10", "W", "W04 on Polymarket: sell the most overpriced 6–10¢ wing, 15–30 min left (Polymarket hourly ladder)",
+     "as W04 (cheap side 6–10¢, 15–30 min left, Student-t(4) fair value, edge ≥ 0) on the Polymarket hourly ladder",
+     "the Kalshi wings transferred; history test studies/pm_wings.py; paper only", frozen="2026-11-04 13:30")
+def w10(ctx):
+    return _wings_opt(ctx, "W10", 0.06, 0.10, 15, 30, "t4", 0.0, venue="polymarket", kind="pm_ladder_1h")
 
 
 # ================================================================== W08: weekend wings without a model (frozen 04.11.2026)
@@ -1408,7 +1428,7 @@ FAMILIES = {"D": "Directional BTC", "P": "Prediction markets: fair value", "V": 
 # the report, and it can be switched back on by removing it from PAUSED_EXCEPT / emptying FOCUS. Paused rules are put
 # into RETIRED so that every loop that checks RETIRED (engine, tape, maker, flow, lead–lag, ML) stops for them, and
 # the markets snapshot fetches only the Kalshi hourly ladder (lab/markets.py).
-FOCUS = {"W03", "W04", "W05", "W06", "W07", "W08"}   # W07, W08 added 04.11 (paper; the executor trades W03–W06)
+FOCUS = {"W03", "W04", "W05", "W06", "W07", "W08", "W09", "W10"}   # W07–W10 added 04.11 (paper; the executor trades W03–W06)
 PAUSED = "paused 03.11.2026: the lab runs the wing rules W03–W06 only"
 if FOCUS:
     for _h in REGISTRY:

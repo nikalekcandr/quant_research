@@ -205,7 +205,9 @@ def snapshot(http, now, fast=False) -> pd.DataFrame:
     from lab import signals
     if signals.FOCUS and not fast:
         # wings-only lab: the Kalshi hourly ladder with live books for up to 45 strikes, nothing else
-        jobs = (("kalshi", lambda h, n: kalshi_short(h, n, only_hourly=True, books=45)),)
+        jobs = (("kalshi", lambda h, n: kalshi_short(h, n, only_hourly=True, books=45)),
+                # 04.11: the same wing rules on the Polymarket hourly ladder (W09/W10), live CLOB books
+                ("polymarket", lambda h, n: polymarket_short(h, n, ("pm_ladder_1h",))))
     for name, fn in jobs:
         pk = name + ("_fast" if fast else "")
         if _PAUSE.get(pk) is not None and now < _PAUSE[pk]:
