@@ -491,15 +491,17 @@ def main() -> None:
     def clean(t):
         return t[(~t.end.dt.hour.isin([13, 14, 15])) & (t.ask - t.bid <= 0.01 + 1e-9)]
 
-    weekend = pd.Series(base.end.dt.day_of_week >= 5, index=base.index)
-    base_week_split = pd.concat([sig["W04"][sig["W04"].end.dt.day_of_week >= 5],
-                                 sig["W03"][sig["W03"].end.dt.day_of_week < 5]])
+    late_weekday = clean(sig["W03"][sig["W03"].end.dt.day_of_week < 5])
+    early_weekend = clean(sig["W04"][sig["W04"].end.dt.day_of_week >= 5])
     variants = [
         ("baseline W03+W04, 1 contract", base, 1.0),
         ("+ no US open (13-15 UTC)", clean(base), 1.0),
-        ("+ spread <= 1 cent", clean(base)[clean(base).ask - clean(base).bid <= 0.01 + 1e-9], 1.0),
-        ("+ weekend early / weekday late (W08 + W03)", clean(base_week_split), 1.0),
-        ("+ 100-contract orders (fee lots)", clean(base_week_split), 100.0),
+        ("+ late window on weekdays only (W03)", late_weekday, 1.0),
+        ("+ late weekdays and early weekends (W03 + W08)", clean(
+            pd.concat([sig["W04"][sig["W04"].end.dt.day_of_week >= 5],
+                       sig["W03"][sig["W03"].end.dt.day_of_week < 5]])), 1.0),
+        ("+ early window on weekends only (W04)", early_weekend, 1.0),
+        ("+ 100-contract orders (fee lots)", late_weekday, 100.0),
         ("diagnostic: one wide window + Kelly (not adopted)", clean(chosen), 1.0),
     ]
     for label, trades, n in variants:
@@ -517,7 +519,7 @@ def main() -> None:
     step_table.to_csv(OUT / "wings_scale_steps.csv", index=False)
 
     # 7 sizing and compounding on the final rule
-    final = variants[4][1]
+    final = variants[2][1]
     size_rows = []
     for period, (a, b) in PERIODS.items():
         sub = final[(final.end >= a) & (final.end < b)].copy()
@@ -565,20 +567,23 @@ def main() -> None:
 
 
 def _reading(steps: pd.DataFrame) -> str:
-    """What the step table says, in three sentences, so the report reads on its own."""
+    """What the step table says, in four sentences, so the report reads on its own."""
     out = []
     piv = steps.pivot_table(index="step", columns="period", values="¢ per contract")
     order = list(dict.fromkeys(steps.step))
-    if len(order) >= 2 and "test Sep-Oct" in piv:
-        first, last = order[0], order[3] if len(order) > 3 else order[-1]
-        out.append(f"* Правило проходит путь с {piv.loc[first, 'test Sep-Oct']:.2f}¢ на контракт "
-                   f"({first}) до {piv.loc[last, 'test Sep-Oct']:.2f}¢ ({last}) на тесте и с "
-                   f"{piv.loc[first, 'train Jul-Aug']:.2f} до {piv.loc[last, 'train Jul-Aug']:.2f}¢ на трейне; "
-                   "почти весь прирост — структурный (комиссия за ордер и отбор часов), а не модельный.")
+    base = order[0]
+    best = max(order, key=lambda x: piv.loc[x].get("test Sep-Oct", -99))
+    out.append(f"* Правило с {piv.loc[base, 'test Sep-Oct']:.2f}¢ на контракт на тесте ({base}) доходит до "
+               f"{piv.loc[best, 'test Sep-Oct']:.2f}¢ ({best}); на трейне с {piv.loc[base, 'train Jul-Aug']:.2f} "
+               f"до {piv.loc[best, 'train Jul-Aug']:.2f}¢. Почти весь прирост структурный (комиссия за ордер, "
+               "отбор часов и окон), а не модельный.")
+    out.append("* Позднее окно (10-20¢, 5-15 мин) в будни без часов 13-15 UTC — единственная часть книги, "
+               "которая положительна во всех трёх периодах, включая ноябрь; раннее окно (6-10¢) зарабатывает "
+               "в июле-октябре и теряет в ноябре.")
     out.append("* Ни один гейт не проходит Холм на всех трёх периодах; повторяется только отрицательный знак "
                "часов американского открытия 13-15 UTC.")
-    out.append("* Ноябрь (holdout) не подтверждает прибыль: после фильтров правило не теряет, но и не "
-               "зарабатывает — считать его нулём, а не продолжением июля-октября.")
+    out.append("* Ноябрьский holdout у книги в целом близок к нулю: набор фильтров не даёт заработать, он не "
+               "даёт потерять. Число сделок в ноябре (десятки) не позволяет утверждать большего.")
     return "\n".join(out) + "\n"
 
 

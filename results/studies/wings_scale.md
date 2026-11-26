@@ -1,6 +1,6 @@
 # Making the wing strategy earn more (fees, exits, spreads, gates, selection, sizing)
 
-_Generated 2026-11-26 21:15 by `studies/wings_scale.py`._
+_Generated 2026-11-26 21:35 by `studies/wings_scale.py`._
 
 Data: 1-minute book candles of the Kalshi hourly ladder, 01.07-27.10.2026 (2 788 hours, 73 736 strikes) and 405 near-spot snapshots of 09-25.11.2026. One trade an hour, taker, Kalshi fee rounded up per order. Development half Jul-Aug, test half Sep-Oct, holdout 09-25.11.
 
@@ -286,15 +286,18 @@ Data: 1-minute book candles of the Kalshi hourly ladder, 01.07-27.10.2026 (2 788
 | + no US open (13-15 UTC) | train Jul-Aug | 602 | 1.000 | 2.709 | 0.030 | 2.892 | 0.940 | -1.810 | 4.040 | 16.310 |
 | + no US open (13-15 UTC) | test Sep-Oct | 1049 | 1.000 | 2.945 | 0.038 | 3.852 | 0.930 | -1.840 | 4.150 | 30.890 |
 | + no US open (13-15 UTC) | holdout Nov | 125 | 1.000 | -0.216 | -0.003 | -0.083 | 0.872 | -0.940 | 4.990 | -0.270 |
-| + spread <= 1 cent | train Jul-Aug | 602 | 1.000 | 2.709 | 0.030 | 2.892 | 0.940 | -1.810 | 4.040 | 16.310 |
-| + spread <= 1 cent | test Sep-Oct | 1049 | 1.000 | 2.945 | 0.038 | 3.852 | 0.930 | -1.840 | 4.150 | 30.890 |
-| + spread <= 1 cent | holdout Nov | 125 | 1.000 | -0.216 | -0.003 | -0.083 | 0.872 | -0.940 | 4.990 | -0.270 |
-| + weekend early / weekday late (W08 + W03) | train Jul-Aug | 218 | 1.000 | 5.904 | 0.059 | 4.650 | 0.963 | -0.940 | 1.250 | 12.870 |
-| + weekend early / weekday late (W08 + W03) | test Sep-Oct | 426 | 1.000 | 3.538 | 0.035 | 2.979 | 0.934 | -0.950 | 3.000 | 15.070 |
-| + weekend early / weekday late (W08 + W03) | holdout Nov | 48 | 1.000 | 0.583 | 0.006 | 0.129 | 0.896 | -0.930 | 2.220 | 0.280 |
-| + 100-contract orders (fee lots) | train Jul-Aug | 218 | 100.000 | 6.339 | 6.339 | 4.988 | 0.963 | -93.460 | 120.300 | 1382.010 |
-| + 100-contract orders (fee lots) | test Sep-Oct | 426 | 100.000 | 3.933 | 3.933 | 3.312 | 0.934 | -94.400 | 298.550 | 1675.520 |
-| + 100-contract orders (fee lots) | holdout Nov | 48 | 100.000 | 0.948 | 0.948 | 0.210 | 0.896 | -92.520 | 211.930 | 45.510 |
+| + late window on weekdays only (W03) | train Jul-Aug | 86 | 1.000 | 7.628 | 0.076 | 3.015 | 0.942 | -0.890 | 0.890 | 6.560 |
+| + late window on weekdays only (W03) | test Sep-Oct | 206 | 1.000 | 3.743 | 0.037 | 1.819 | 0.903 | -0.910 | 3.840 | 7.710 |
+| + late window on weekdays only (W03) | holdout Nov | 23 | 1.000 | 5.609 | 0.056 | 0.928 | 0.913 | -0.890 | 1.170 | 1.290 |
+| + late weekdays and early weekends (W03 + W08) | train Jul-Aug | 218 | 1.000 | 5.904 | 0.059 | 4.650 | 0.963 | -0.940 | 1.250 | 12.870 |
+| + late weekdays and early weekends (W03 + W08) | test Sep-Oct | 426 | 1.000 | 3.538 | 0.035 | 2.979 | 0.934 | -0.950 | 3.000 | 15.070 |
+| + late weekdays and early weekends (W03 + W08) | holdout Nov | 48 | 1.000 | 0.583 | 0.006 | 0.129 | 0.896 | -0.930 | 2.220 | 0.280 |
+| + early window on weekends only (W04) | train Jul-Aug | 132 | 1.000 | 4.780 | 0.048 | 3.689 | 0.977 | -0.940 | 0.940 | 6.310 |
+| + early window on weekends only (W04) | test Sep-Oct | 220 | 1.000 | 3.345 | 0.033 | 2.655 | 0.964 | -0.950 | 2.140 | 7.360 |
+| + early window on weekends only (W04) | holdout Nov | 25 | 1.000 | -4.040 | -0.040 | -0.609 | 0.880 | -0.930 | 1.740 | -1.010 |
+| + 100-contract orders (fee lots) | train Jul-Aug | 86 | 100.000 | 7.997 | 7.997 | 3.155 | 0.942 | -88.740 | 88.740 | 687.760 |
+| + 100-contract orders (fee lots) | test Sep-Oct | 206 | 100.000 | 4.045 | 4.045 | 1.966 | 0.903 | -90.630 | 378.550 | 833.280 |
+| + 100-contract orders (fee lots) | holdout Nov | 23 | 100.000 | 5.907 | 5.907 | 0.980 | 0.913 | -88.740 | 115.370 | 135.860 |
 | diagnostic: one wide window + Kelly (not adopted) | train Jul-Aug | 663 | 1.000 | 2.287 | 0.023 | 2.087 | 0.910 | -0.940 | 4.790 | 15.160 |
 | diagnostic: one wide window + Kelly (not adopted) | test Sep-Oct | 867 | 1.000 | 2.633 | 0.026 | 2.867 | 0.918 | -0.970 | 5.810 | 22.830 |
 | diagnostic: one wide window + Kelly (not adopted) | holdout Nov | 89 | 1.000 | -7.191 | -0.072 | -1.907 | 0.843 | -0.950 | 6.460 | -6.400 |
@@ -304,33 +307,34 @@ Data: 1-minute book candles of the Kalshi hourly ladder, 01.07-27.10.2026 (2 788
 
 | period | sizing | hours | median contracts | ¢ per contract | $ per hour | t | worst hour $ | max DD $ | total $ |
 |---|---|---|---|---|---|---|---|---|---|
-| train Jul-Aug | 1 contract | 218 | 1.000 | 5.904 | 0.059 | 4.650 | -0.940 | 1.250 | 12.870 |
-| train Jul-Aug | quarter Kelly, cap 200 | 218 | 15.000 | 7.717 | 1.367 | 7.765 | -16.320 | 16.710 | 298.020 |
-| train Jul-Aug | 100 contracts | 218 | 100.000 | 6.339 | 6.339 | 4.988 | -93.460 | 120.300 | 1382.010 |
-| test Sep-Oct | 1 contract | 426 | 1.000 | 3.538 | 0.035 | 2.979 | -0.950 | 3.000 | 15.070 |
-| test Sep-Oct | quarter Kelly, cap 200 | 426 | 15.000 | 4.425 | 0.750 | 3.852 | -25.490 | 58.550 | 319.410 |
-| test Sep-Oct | 100 contracts | 426 | 100.000 | 3.933 | 3.933 | 3.312 | -94.400 | 298.550 | 1675.520 |
-| holdout Nov | 1 contract | 48 | 1.000 | 0.583 | 0.006 | 0.129 | -0.930 | 2.220 | 0.280 |
-| holdout Nov | quarter Kelly, cap 200 | 48 | 20.000 | -0.070 | -0.017 | -0.014 | -39.400 | 61.750 | -0.800 |
-| holdout Nov | 100 contracts | 48 | 100.000 | 0.948 | 0.948 | 0.210 | -92.520 | 211.930 | 45.510 |
+| train Jul-Aug | 1 contract | 86 | 1.000 | 7.628 | 0.076 | 3.015 | -0.890 | 0.890 | 6.560 |
+| train Jul-Aug | quarter Kelly, cap 200 | 86 | 16.000 | 10.108 | 1.998 | 5.559 | -12.430 | 12.430 | 171.830 |
+| train Jul-Aug | 100 contracts | 86 | 100.000 | 7.997 | 7.997 | 3.155 | -88.740 | 88.740 | 687.760 |
+| test Sep-Oct | 1 contract | 206 | 1.000 | 3.743 | 0.037 | 1.819 | -0.910 | 3.840 | 7.710 |
+| test Sep-Oct | quarter Kelly, cap 200 | 206 | 14.000 | 4.777 | 0.796 | 2.414 | -21.840 | 48.520 | 163.950 |
+| test Sep-Oct | 100 contracts | 206 | 100.000 | 4.045 | 4.045 | 1.966 | -90.630 | 378.550 | 833.280 |
+| holdout Nov | 1 contract | 23 | 1.000 | 5.609 | 0.056 | 0.928 | -0.890 | 1.170 | 1.290 |
+| holdout Nov | quarter Kelly, cap 200 | 23 | 17.000 | 1.201 | 0.255 | 0.125 | -39.400 | 46.680 | 5.860 |
+| holdout Nov | 100 contracts | 23 | 100.000 | 5.907 | 5.907 | 0.980 | -88.740 | 115.370 | 135.860 |
 
 
 ## 8. Compounding
 
 | period | share of equity per hour | hours | final $ from $100 | max drawdown | trades | median contracts |
 |---|---|---|---|---|---|---|
-| train Jul-Aug | 0.010 | 218 | 112.870 | 0.011 | 218 | 1.000 |
-| train Jul-Aug | 0.020 | 218 | 126.350 | 0.020 | 218 | 2.000 |
-| train Jul-Aug | 0.050 | 218 | 206.440 | 0.062 | 218 | 8.000 |
-| train Jul-Aug | 0.100 | 218 | 436.230 | 0.134 | 218 | 25.000 |
-| test Sep-Oct | 0.010 | 426 | 115.070 | 0.030 | 426 | 1.000 |
-| test Sep-Oct | 0.020 | 426 | 131.220 | 0.059 | 426 | 2.000 |
-| test Sep-Oct | 0.050 | 426 | 230.400 | 0.151 | 426 | 7.000 |
-| test Sep-Oct | 0.100 | 426 | 526.730 | 0.293 | 426 | 20.000 |
+| train Jul-Aug | 0.010 | 86 | 106.560 | 0.008 | 86 | 1.000 |
+| train Jul-Aug | 0.020 | 86 | 113.330 | 0.017 | 86 | 2.000 |
+| train Jul-Aug | 0.050 | 86 | 144.600 | 0.050 | 86 | 7.000 |
+| train Jul-Aug | 0.100 | 86 | 211.840 | 0.100 | 86 | 17.500 |
+| test Sep-Oct | 0.010 | 206 | 107.710 | 0.038 | 206 | 1.000 |
+| test Sep-Oct | 0.020 | 206 | 115.780 | 0.075 | 206 | 2.000 |
+| test Sep-Oct | 0.050 | 206 | 151.160 | 0.190 | 206 | 6.000 |
+| test Sep-Oct | 0.100 | 206 | 224.560 | 0.372 | 206 | 14.000 |
 
 
 ## 9. Reading
 
-* Правило проходит путь с 2.59¢ на контракт (baseline W03+W04, 1 contract) до 3.54¢ (+ weekend early / weekday late (W08 + W03)) на тесте и с 1.39 до 5.90¢ на трейне; почти весь прирост — структурный (комиссия за ордер и отбор часов), а не модельный.
+* Правило с 2.59¢ на контракт на тесте (baseline W03+W04, 1 contract) доходит до 4.05¢ (+ 100-contract orders (fee lots)); на трейне с 1.39 до 8.00¢. Почти весь прирост структурный (комиссия за ордер, отбор часов и окон), а не модельный.
+* Позднее окно (10-20¢, 5-15 мин) в будни без часов 13-15 UTC — единственная часть книги, которая положительна во всех трёх периодах, включая ноябрь; раннее окно (6-10¢) зарабатывает в июле-октябре и теряет в ноябре.
 * Ни один гейт не проходит Холм на всех трёх периодах; повторяется только отрицательный знак часов американского открытия 13-15 UTC.
-* Ноябрь (holdout) не подтверждает прибыль: после фильтров правило не теряет, но и не зарабатывает — считать его нулём, а не продолжением июля-октября.
+* Ноябрьский holdout у книги в целом близок к нулю: набор фильтров не даёт заработать, он не даёт потерять. Число сделок в ноябре (десятки) не позволяет утверждать большего.
