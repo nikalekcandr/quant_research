@@ -87,7 +87,7 @@ def _last_ts_csv(path, column: int = 0, unit: str = "ms") -> pd.Timestamp | None
 
 def audit(as_of: str | None = None) -> pd.DataFrame:
     """One row per source: what is on disk, how old it is, and what would fill the hole."""
-    now = pd.Timestamp(as_of, tz="UTC") if as_of else pd.Timestamp.utcnow().tz_localize("UTC")
+    now = pd.to_datetime(as_of, utc=True) if as_of else pd.Timestamp.now("UTC")
     rows = []
 
     def add(source, path, last, command, note=""):
@@ -100,24 +100,24 @@ def audit(as_of: str | None = None) -> pd.DataFrame:
     spot = _last_file_date("BTCUSDT-1m-*.zip", binance)
     recent = _last_ts_csv(binance / "recent.csv.gz")
     add("spot 1m", binance, max([x for x in (spot, recent) if x is not None], default=None),
-        "python -m src.download.binance")
+        "python -m src.download.update --only binance")
 
     perp = config.RAW / "perp"
     p_arch = _last_file_date("BTCUSDT-1m-*.zip", perp) if perp.exists() else None
     p_rec = _last_ts_csv(perp / "recent_klines.csv.gz")
     add("perp 1m + basis", perp, max([x for x in (p_arch, p_rec) if x is not None], default=None),
-        "python -m src.download.perp --interim", "" if perp.exists() else "never downloaded")
+        "python -m src.download.update --only perp --build", "" if perp.exists() else "never downloaded")
 
     funding = config.RAW / "funding/btc_funding.csv.gz"
     last_f = None
     if funding.exists():
         f = pd.read_csv(funding)
         last_f = pd.to_datetime(f.ts.max(), unit="ms", utc=True) if len(f) else None
-    add("funding 8h", funding, last_f, "python -m src.download.funding")
+    add("funding 8h", funding, last_f, "python -m src.download.update --only funding")
 
     ladder = config.RAW / "kalshi_kxbtcd_60m"
     add("Kalshi ladder", ladder, _last_file_date("*.csv.gz", ladder),
-        "python -m src.download.kalshi --hours", "one request per hour of history")
+        "python -m src.download.update --only kalshi", "one request per hour of history (~50 per day)")
 
     books = config.RAW / "wing_gap_candles"
     add("November books", books, _last_file_date("*.csv.gz", books), "(live logger)",
@@ -129,11 +129,12 @@ def audit(as_of: str | None = None) -> pd.DataFrame:
         c = pd.read_csv(cal)
         last_c = pd.to_datetime(c.date.max(), utc=True)
         hole = largest_hole(c.date)
-    add("macro calendar", cal, last_c, "python -m src.download.macro",
+    add("macro calendar", cal, last_c, "python -m src.download.update --only macro",
         f"largest hole {hole} days" if hole else "")
 
     der = config.RAW / "deribit/dailies"
-    add("Deribit dailies", der, _last_file_date("*.csv.gz", der), "python -m src.download.deribit")
+    add("Deribit dailies", der, _last_file_date("*.csv.gz", der),
+        "python -m src.download.update --only deribit")
     return pd.DataFrame(rows)
 
 

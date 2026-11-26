@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import subprocess
 import sys
 import time
 import traceback
@@ -53,15 +54,49 @@ def log_to_file(name: str, also_console: bool = True) -> Path:
     return path
 
 
-def keep_awake():
-    """Windows: no idle sleep while this process runs (long downloads), no admin rights needed."""
-    if sys.platform != "win32":
-        return
+KEEPER = None          # the child process that holds the sleep inhibitor, if any
+
+
+def keep_awake() -> bool:
+    """Ask the OS not to idle the machine to sleep while this process runs (long downloads, live logging).
+
+    Windows: SetThreadExecutionState, no admin rights.  macOS: `caffeinate -i -m -w <pid>`, which exits by
+    itself when this process does.  Linux: `systemd-inhibit --what=idle:sleep`, same lifetime.  Best effort:
+    returns True if an inhibitor was installed, False otherwise, and never raises — a missing inhibitor must
+    not stop a download.
+    """
+    global KEEPER
+    if KEEPER is not None:
+        return True
     try:
-        import ctypes
-        ctypes.windll.kernel32.SetThreadExecutionState(0x80000000 | 0x00000001)
+        if sys.platform == "win32":
+            import ctypes
+            ctypes.windll.kernel32.SetThreadExecutionState(0x80000000 | 0x00000001)
+            return True
+        if sys.platform == "darwin":
+            KEEPER = subprocess.Popen(["caffeinate", "-i", "-m", "-w", str(os.getpid())],
+                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return True
+        exe = shutil.which("systemd-inhibit")
+        if not exe:
+            return False
+        KEEPER = subprocess.Popen([exe, "--what=idle:sleep", "--who=quant_research",
+                                   "--why=long download or live logger", "sleep", "inf"],
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True
     except Exception:
-        pass
+        return False
+
+
+def keep_awake_off() -> None:
+    """Drop the inhibitor (used by tests and by scripts that call keep_awake in a short-lived job)."""
+    global KEEPER
+    if KEEPER is not None:
+        try:
+            KEEPER.terminate()
+        except Exception:
+            pass
+        KEEPER = None
 
 
 # ------------------------------------------------------------------ a lock file shared by the long jobs

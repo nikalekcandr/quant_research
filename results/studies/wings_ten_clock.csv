@@ -1,0 +1,6 @@
+minute of hour,minutes,mean |r| bps,mean r bps,t of mean,share of |r|
+00-04 (settlement avg),167653,4.116,-0.0063,-0.38,8.7
+05-24,670607,4.018,0.0128,1.59,34.1
+25-54,1005900,3.923,0.0072,1.11,49.9
+55-59,167650,3.479,0.0059,0.42,7.4
+sign(last minute) == sign(hour),33530,,0.499,,
