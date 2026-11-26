@@ -1,0 +1,7 @@
+rule,period,trades,half-spread ¢,taker ¢,"maker, 0 fee ¢","maker, 25 bp ¢",maker wins %
+W03,train Jul-Aug,129,0.539,3.829,5.547,5.516,90.7
+W03,test Sep-Oct,328,0.534,3.326,5.03,5.0,89.9
+W03,November,51,0.52,-5.804,-4.147,-4.179,80.4
+W04,train Jul-Aug,618,0.52,1.243,2.763,2.744,94.2
+W04,test Sep-Oct,920,0.515,2.573,4.088,4.069,95.4
+W04,November,120,0.504,-5.642,-4.138,-4.157,86.7

@@ -1,5 +1,11 @@
 # Перечень квант-литературы для дальнейшего развития проекта
 
+> **Новое (26.11).** Появился структурированный корпус: `data/lit/bibliography.csv` (201 работа, 13 доменов,
+> статус «использовано / кандидат / нужны данные») и сгенерированная из него
+> **[`docs/MEGA_ENCYCLOPEDIA.md`](MEGA_ENCYCLOPEDIA.md)**. Этот файл остаётся коротким списком «что читать
+> по приоритету»; всё, что нужно для отбора гипотез и для расширения до тысяч записей импортом
+> (`python -m src.lit.import_openalex`), — там.
+
 > Ниже собрана литература, **ещё не использованная** в проекте (в список намеренно не включены уже применённые работы: Corsi 2009 HAR, HARQ, Barndorff-Nielsen & Shephard BV/MedRV, Patton & Sheppard 2015, Carr & Wu 2009, Britten-Jones & Neuberger 2000, Carr & Madan 2005, Avellaneda & Stoikov 2008, Kyle 1985, Hasbrouck 1995, Cont et al. 2014, Gu-Kelly-Xiu 2020, Hansen MCS, DM/HLN, Grimit CRPS, R1–R21 и др.).
 > Для каждой работы указано, **как именно её можно применить** в `quant_research`.
 
