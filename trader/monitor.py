@@ -13,6 +13,27 @@ import math
 
 import pandas as pd
 
+
+def demo_checks(events):
+    """Count unique submitted intents and exchange responses for the demo plumbing check."""
+    sent, replies, rejected, filled = set(), set(), set(), set()
+    for e in events:
+        key = e.get("intent")
+        if not isinstance(key,str) or not key:
+            continue
+        kind = e.get("what")
+        if kind == "order_sent":
+            sent.add(key)
+        elif kind == "order_rejected":
+            rejected.add(key)
+        elif kind == "order_result":
+            replies.add(key)
+            if e.get("filled",0) > 0:
+                filled.add(key)
+    return {"Отправлено":len(sent), "Ответ со статусом":len(sent & replies),
+            "С исполнением":len(sent & filled), "Отклонено":len(sent & rejected),
+            "Без конечного ответа в журнале":len(sent - rejected - replies)}
+
 MU1, SD = 0.0328, 0.299            # $ per active hour, one contract per slot
 ALPHA, BETA = 0.05, 0.20
 SLOT = {"W03": "late", "W05": "late", "W04": "early", "W06": "early"}

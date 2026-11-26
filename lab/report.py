@@ -232,70 +232,12 @@ def md(df, d=4):
 def write(lab_obj, now):
     RESULTS.mkdir(parents=True, exist_ok=True)
     led = read_ledger()
-    lb, fam = leaderboard(led)
+    from lab import wing_report
+    wing_report.write(led, now)
+    lb, _ = leaderboard(led)
     lb.to_csv(RESULTS / "leaderboard.csv")
     cal = calibration(lab_obj, now)
     cal.to_csv(RESULTS / "calibration.csv", index=False)
     zoo, zdm = VolZoo.score(lab_obj.minutes)
     zoo.to_csv(RESULTS / "volzoo_scores.csv", index=False)
     zdm.to_csv(RESULTS / "volzoo_dm.csv", index=False)
-    ic = ML.information_coefficient(lab_obj.minutes)
-    hl = health(now)
-    try:
-        hb = json.loads(HEARTBEAT.read_text(encoding="utf-8"))
-    except Exception:
-        hb = {}
-    figs = charts(led)
-    show = lb[["family", "hypothesis", "unit", "trades", "clusters", "open", "mean net", "t", "Holm p", "hit rate", "total net",
-               "mean gross", "DSR", "verdict"]]
-    up = (now - lab_obj.started).total_seconds() / 3600
-    n_closed = int(led["event"].isin(["CLOSE", "INSTANT"]).sum())
-    head = (f"Updated {now:%Y-%m-%d %H:%M} UTC · lab running {up:.1f} h · rules frozen {FROZEN} (version {lab_obj.book.code}) · "
-            f"{n_closed} settled trades, {len(lab_obj.book.pos)} open · last loop {hb.get('loop_seconds', '—')} s")
-    L = ["# Alpha lab — live paper trading\n", f"_{head}_\n",
-         "Every rule was written down before its first live trade. Entry and exit at the real bid/ask, real fees, "
-         "binaries held to the venue's own settlement. Holm controls the family-wise error over all hypotheses with "
-         "≥ 10 trades; DSR is the probability that the per-trade Sharpe beats the best of as many zero-skill rules.\n",
-         "## Leaderboard\n", md(show), "\n## Families\n", md(fam),
-         "\n## Model vs market: who forecasts short-dated binaries better?\n",
-         "Brier score (lower is better) of our fair value and of the market mid over every quoted minute, averaged per "
-         "market; t > 2 means our model is significantly better calibrated than the market.\n", md(cal),
-         "\n## Volatility zoo (QLIKE, lower is better)\n", md(zoo), "\nDiebold–Mariano vs the lab blend:\n\n", md(zdm),
-         "\n## ML forecasts: information coefficient\n", md(ic), "\n## Data health (last hour)\n", md(hl, 1),
-         "\n## Rules\n"]
-    for h in signals.REGISTRY:
-        L.append(f"- **{h.id}** {h.title}. {h.rule}. _{h.source}_")
-    REPORT_MD.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_MD.write_text("\n".join(L), encoding="utf-8")
-    # one self-contained HTML page
-    css = ("body{font-family:system-ui,Segoe UI,Arial;margin:16px;max-width:1300px;color:#111;background:#fff}"
-           "table{border-collapse:collapse;font-size:12px;margin:8px 0}td,th{border:1px solid #ddd;padding:3px 6px;text-align:right}"
-           "th{background:#f3f3f3}td:nth-child(2),td:nth-child(3),td:last-child{text-align:left}h2{margin-top:28px}"
-           ".v-ALPHA{background:#d8f5d0}.small{color:#555;font-size:12px}")
-
-    def html_table(df):
-        if df is None or len(df) == 0:
-            return "<p class=small>(nothing yet)</p>"
-        return df.to_html(float_format=lambda v: f"{v:.4g}", na_rep="—", border=0)
-    H = [f"<!doctype html><html><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
-         f"<title>Alpha lab</title><style>{css}</style><meta http-equiv=refresh content=300></head><body>",
-         f"<h1>Alpha lab — live paper trading</h1><p class=small>{head}</p>",
-         "<h2>Leaderboard</h2>", html_table(show)]
-    for fam_id, img in figs.items():
-        H.append(f"<img style='max-width:100%' src='data:image/png;base64,{img}'>")
-    for k, title in (("markouts", "Markouts after entry (¢, positive = quote moved our way)"),
-                     ("models", "Fair-value models vs market (Brier per market)"),
-                     ("capacity", "Capacity at the top of the book"), ("lead_lag", "Do Polymarket 5-min quotes lead Binance?"),
-                     ("buckets", "Where the P&L comes from")):
-        f = RESULTS / f"analysis_{k}.csv"
-        if f.exists():
-            try:
-                H += [f"<h2>{title}</h2>", html_table(pd.read_csv(f))]
-            except Exception:
-                pass
-    H += ["<h2>Model vs market (Brier)</h2>", html_table(cal), "<h2>Volatility zoo</h2>", html_table(zoo),
-          html_table(zdm), "<h2>ML information coefficient</h2>", html_table(ic), "<h2>Data health</h2>", html_table(hl),
-          "<h2>Rules</h2><ul>"]
-    H += [f"<li><b>{h.id}</b> {h.title}. {h.rule}. <i>{h.source}</i></li>" for h in signals.REGISTRY]
-    H.append("</ul></body></html>")
-    REPORT_HTML.write_text("\n".join(H), encoding="utf-8")

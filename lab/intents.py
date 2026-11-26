@@ -20,11 +20,13 @@ import math
 import pandas as pd
 
 from lab.core import LAB
+from trader.settings import Settings
 
 INTENTS = LAB / "intents.jsonl"
 MARGIN = {"W03": 0.01, "W04": 0.0, "W05": 0.01, "W06": 0.0}
 ENABLED = set(MARGIN)
 SPOT: float | None = None          # set every loop by lab.wings.Wings.step: Coinbase mid of the latest tick
+MODEL_SPOT: float | None = None    # USD basket used by the BRTI probability model
 
 
 def _num(x):
@@ -41,11 +43,21 @@ def emit(kind: str, hyp: str, ticker: str, event: str, side: str, price: float, 
     if hyp not in ENABLED:
         return
     try:
+        # Existing executor processes keep their startup config. Gate new entries
+        # at the source as well, while allowing cancellations to reach old orders.
+        if kind in ("take", "quote") and hyp not in Settings.load().rules:
+            return
+        if kind in ("take","quote"):
+            from lab.wing_regime import read
+            if read(pd.Timestamp.now(tz="UTC"))["blocked"]:
+                return
         rec = {"id": f"{hyp}|{event}|{kind}|{pd.Timestamp(now).value // 10**9}", "ts": str(pd.Timestamp(now)),
                "kind": kind, "hyp": hyp, "ticker": ticker, "event": event, "side": side, "price": round(float(price), 4),
                "fair_side": _num(fair_side), "margin": MARGIN[hyp], "spot": _num(SPOT),
                "settle_ts": None if settle_ts is None else str(settle_ts),
                "expires": None if expires is None else str(expires)}
+        if hyp == "W04":
+            rec["model_spot"] = _num(MODEL_SPOT)
         rec.update({k: (_num(v) if isinstance(v, (int, float)) else v) for k, v in extra.items()})
         with open(INTENTS, "a", encoding="utf-8") as f:
             f.write(json.dumps(rec, separators=(",", ":")) + "\n")

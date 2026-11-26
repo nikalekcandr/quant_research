@@ -21,7 +21,7 @@ KEYS = DATA / "keys"                   # git-ignored: <env>_key_id.txt and <env>
 @dataclass
 class Settings:
     mode: str = "shadow"                 # shadow (prod books, no orders) | demo (orders on demo) | live (real money)
-    rules: list = field(default_factory=lambda: ["W03", "W04", "W05", "W06"])
+    rules: list = field(default_factory=lambda: ["W04", "W06"])
     # maker quotes are OFF: on Jul–Oct candles a resting offer on a wing is lifted mostly when the wing is about to
     # pay (W03: 16.5% pay-off when lifted vs 4.8% when not; studies/wings_execution.py) — taking now earns more
     maker_rules: list = field(default_factory=list)
@@ -57,7 +57,9 @@ class Settings:
             path.write_text(json.dumps(asdict(cls()), indent=2), encoding="utf-8")
         raw = json.loads(path.read_text(encoding="utf-8"))
         if profile:
+            allowed = raw.get("rules", cls().rules)
             raw.update(json.loads((PROFILES / f"{profile}.json").read_text(encoding="utf-8")))
+            raw["rules"] = [rule for rule in raw.get("rules", allowed) if rule in allowed]
         known = {k: v for k, v in raw.items() if k in cls.__dataclass_fields__ and not k.startswith("_")}
         return cls(**known)
 

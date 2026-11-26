@@ -90,7 +90,13 @@ def atomic_write(path: Path, text: str):
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(text, encoding="utf-8")
-    os.replace(tmp, path)
+    for attempt in range(20):           # Windows: WinError 5 while another process has the file open
+        try:
+            os.replace(tmp, path)
+            return
+        except PermissionError:
+            time.sleep(0.5)
+    path.write_text(text, encoding="utf-8")
 
 
 def append_rows(path: Path, rows: list[dict]):
@@ -164,7 +170,7 @@ def read_ledger() -> pd.DataFrame:
         return pd.DataFrame(columns=LEDGER_COLS)
     d = pd.read_csv(LEDGER, dtype={"id": str, "info": str})
     for c in ("ts", "exit_ts"):
-        d[c] = pd.to_datetime(d[c], utc=True, errors="coerce")
+        d[c] = pd.to_datetime(d[c], utc=True, format="mixed", errors="coerce")
     return d
 
 

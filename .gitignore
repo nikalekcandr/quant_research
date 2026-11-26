@@ -12,3 +12,13 @@ data/lab/heartbeat.json
 # executor: private keys, live state and journals stay on the trading machine
 *.pem
 data/trader/
+# Local account material, execution state and machine-specific observations
+*.pem
+*.p12
+*.pfx
+*.key
+.env
+.env.*
+trader/keys/
+data/trader/
+data/raw/wing_gap_candles/sleep.csv

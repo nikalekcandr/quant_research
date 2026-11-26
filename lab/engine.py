@@ -20,6 +20,7 @@ from lab.flow import Flow
 from lab.maker import Maker
 from lab.tape import Tape
 from lab.wings import Wings
+from lab.wing_calibration import record_forecasts
 from lab.core import (FAST, HEARTBEAT, LAB, MARKETS, PERP_FEE, TICKS, Book, Order, append_rows, atomic_write, day_file,
                       lab_http, log, log_exc, utcnow)
 from lab.history import Minutes
@@ -135,7 +136,10 @@ class Lab:
         # and taking it from there stamped every W03/W04 decision with the previous minute's price (02.11 20:31:
         # 76 857 instead of 76 795, a fake 8-bp move that made the executor refuse good trades)
         from lab import intents
+        from lab.wing_regime import publish
+        publish(self.minutes.close,now)
         intents.SPOT = tick.get("cb_mid") or tick.get("usd_mid")
+        intents.MODEL_SPOT = tick.get("usd_mid")
         append_rows(day_file(TICKS, now), [tick])
         tr = pd.DataFrame([tick])
         self.ticks = tr if self.ticks is None else pd.concat([self.ticks, tr], ignore_index=True)
@@ -195,6 +199,10 @@ class Lab:
             except Exception:
                 log_exc("wings")
             self.book.save()
+        try:
+            record_forecasts(ctx)
+        except Exception:
+            log_exc("wing forecast collection")
         self.heartbeat(now, time.time() - t0)
 
     def close_due(self, ctx):

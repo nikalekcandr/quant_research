@@ -171,28 +171,35 @@ def _with_book(http, row, fetch=True):
         pass
 
 
-def _levels(side):
+def _levels(side, dollars):
     out = []
     for lv in side or []:
         try:
             p, q = float(lv[0]), float(lv[1])
         except (TypeError, ValueError, IndexError):
             continue
-        out.append((p / 100 if p > 1 else p, q))
+        price = p if dollars else p/100
+        if 0<price<1 and np.isfinite(q) and q>0:
+            out.append((price,q))
     return out
 
 
 def kalshi_book(http, ticker):
     """Best YES bid / ask from GET /markets/{ticker}/orderbook (YES bids and NO bids; YES ask = 1 − best NO bid)."""
-    res = http.get(f"{KALSHI}/markets/{ticker}/orderbook", {"depth": 5}) or {}
+    res = http.get(f"{KALSHI}/markets/{ticker}/orderbook", {"depth": 0 if ticker.startswith("KXBTCD-") else 5}) or {}
     ob = res.get("orderbook") or res.get("orderbook_fp") or {}
-    yes = _levels(ob.get("yes_dollars") or ob.get("yes"))
-    no = _levels(ob.get("no_dollars") or ob.get("no"))
+    yes = _levels(ob.get("yes_dollars",ob.get("yes")), "yes_dollars" in ob)
+    no = _levels(ob.get("no_dollars",ob.get("no")), "no_dollars" in ob)
     if not yes and not no:
         return None
     by = max(yes, key=lambda x: x[0]) if yes else (np.nan, np.nan)
     bn = max(no, key=lambda x: x[0]) if no else (np.nan, np.nan)
-    return {"bid": by[0], "bid_size": by[1], "ask": 1 - bn[0] if np.isfinite(bn[0]) else np.nan, "ask_size": bn[1]}
+    result = {"bid": by[0], "bid_size": by[1], "ask": 1 - bn[0] if np.isfinite(bn[0]) else np.nan, "ask_size": bn[1]}
+    if ticker.startswith("KXBTCD-"):
+        import json
+        result["yes_depth"] = json.dumps(yes)
+        result["no_depth"] = json.dumps(no)
+    return result
 
 
 def snapshot(http, now, fast=False) -> pd.DataFrame:
@@ -205,7 +212,9 @@ def snapshot(http, now, fast=False) -> pd.DataFrame:
     from lab import signals
     if signals.FOCUS and not fast:
         # wings-only lab: the Kalshi hourly ladder with live books for up to 45 strikes, nothing else
-        jobs = (("kalshi", lambda h, n: kalshi_short(h, n, only_hourly=True, books=45)),)
+        jobs = (("kalshi", lambda h, n: kalshi_short(h, n, only_hourly=True, books=45)),
+                # 04.11: the same wing rules on the Polymarket hourly ladder (W09/W10), live CLOB books
+                ("polymarket", lambda h, n: polymarket_short(h, n, ("pm_ladder_1h",))))
     for name, fn in jobs:
         pk = name + ("_fast" if fast else "")
         if _PAUSE.get(pk) is not None and now < _PAUSE[pk]:

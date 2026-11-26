@@ -22,7 +22,7 @@ import pandas as pd
 
 from trader.client import Kalshi, KalshiError
 from trader.executor import Executor, Spot
-from trader.monitor import hourly_from_trades, sprt
+from trader.monitor import demo_checks, hourly_from_trades, sprt
 from trader.settings import DATA, KEYS, Settings, credentials
 
 
@@ -100,8 +100,10 @@ def cmd_status(cfg, a):
     mode = a.mode or cfg.mode
     st = DATA / f"state_{mode}.json"
     s = json.loads(st.read_text()) if st.exists() else {}
-    print(f"mode {mode}: open {len(s.get('positions', {}))}, resting {len(s.get('resting', {}))}, "
-          f"realised by day {s.get('realised', {})}")
+    summary = f"mode {mode}: open {len(s.get('positions', {}))}, resting {len(s.get('resting', {}))}"
+    if mode != "demo":
+        summary += f", realised by day {s.get('realised', {})}"
+    print(summary)
     for k, p in (s.get("positions") or {}).items():
         print(f"  {k}: {p['side']} {p.get('filled')} @ {p['price']:.2f} settles {p.get('settle_ts')}")
     j = _journal(mode)
@@ -117,6 +119,9 @@ def cmd_status(cfg, a):
 def cmd_report(cfg, a):
     mode = a.mode or cfg.mode
     j = _journal(mode)
+    if mode == "demo":
+        print(pd.Series(demo_checks(j.to_dict("records"))).to_string())
+        return
     s = j[j.what == "settled"] if not j.empty else j
     if s.empty:
         print("no settled trades yet")

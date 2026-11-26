@@ -23,6 +23,7 @@ from scipy import stats
 
 import config
 from lab.core import PERP_FEE, Order, kalshi_fee, log, option_fee, pm_fee
+from lab.edge_timing import W12_FIRST_EXPIRY, W12_MARGIN, candidates as early_wing_candidates
 
 ET = "America/New_York"
 MARGIN = 0.03            # minimum edge after fees for every fair-value bet on a binary
@@ -935,13 +936,13 @@ def w02(ctx):
 
 
 # ================================================================== W03/W04: wings chosen on history (frozen 29.10 20:00 MSK)
-def _wings_opt(ctx, hid, lo, hi, l0, l1, model, margin):
+def _wings_opt(ctx, hid, lo, hi, l0, l1, model, margin, venue="kalshi", kind="kx_ladder_1h"):
     """Kalshi hourly ladder, one trade per hour: among strikes whose cheap side bids lo..hi with l0..l1 minutes
     left, sell the cheap side with the largest model edge if edge ≥ margin (studies/wings_ladder.py)."""
     m = ctx.markets
     if m is None or m.empty:
         return []
-    k = m[(m["venue"] == "kalshi") & (m["kind"] == "kx_ladder_1h")]
+    k = m[(m["venue"] == venue) & (m["kind"] == kind)]
     best = None
     for _, r in k.iterrows():
         bid, ask = r["bid"], r["ask"]
@@ -953,20 +954,24 @@ def _wings_opt(ctx, hid, lo, hi, l0, l1, model, margin):
         p = fair_value(ctx, r, model)
         if p is None:
             continue
+        fee_fn = kalshi_fee if venue == "kalshi" else (lambda x, fr=(r.get("fee_rate") or 0.0): pm_fee(x, fr))
         for cheap, c_bid, fair in (("yes", bid, p), ("no", 1 - ask, 1 - p)):
             if not (lo <= c_bid <= hi):
                 continue
             px = 1 - c_bid
-            edge = c_bid - fair - kalshi_fee(px)
+            edge = c_bid - fair - fee_fn(px)
             if edge >= margin and (best is None or edge > best[0]):
                 best = (edge, r, cheap, px, fair, left)
     if best is None:
         return []
     edge, r, cheap, px, fair, left = best
     side = "no" if cheap == "yes" else "yes"
-    leg = {"venue": "kalshi", "kind": r["kind"], "market": r["market"], "event": r["event"], "side": side, "price": px,
-           "fee": kalshi_fee(px)}
-    return [Order(hyp=hid, kind="binary", venue="kalshi", instrument=r["market"], side=side, price=px, fee=kalshi_fee(px),
+    fee = kalshi_fee(px) if venue == "kalshi" else pm_fee(px, r.get("fee_rate") or 0.0)
+    leg = {"venue": venue, "kind": r["kind"], "market": r["market"], "event": r["event"], "side": side, "price": px,
+           "fee": fee}
+    if venue != "kalshi":
+        leg["token"] = r.get("token")
+    return [Order(hyp=hid, kind="binary", venue=venue, instrument=r["market"], side=side, price=px, fee=fee,
                   fair=1 - fair, edge=edge, settle_ts=str(r["end"]), unit="$/contract", key=f"{hid}|{r['event']}",
                   info={"legs": [leg], "mid": (r["bid"] + r["ask"]) / 2, "left_min": round(left, 1),
                         "wing_price": 1 - px, "size": r.get("bid_size") if cheap == "yes" else r.get("ask_size")})]
@@ -985,6 +990,180 @@ def w03(ctx):
      frozen="2026-10-29 20:00")
 def w04(ctx):
     return _wings_opt(ctx, "W04", 0.06, 0.10, 15, 30, "t4", 0.0)
+
+
+@hyp("W12", "W", "Early Kalshi wing with at least 1 cent of net t4 edge",
+     "One paper contract per expiry. Re-rank 6–10 cent wings at each book snapshot 15–30 minutes before expiry. "
+     "Take the first snapshot with net model edge >= 1 cent; choose the best accessible strike at that snapshot.",
+     "Offline test: studies/wings_edge_timing.py; first prospective expiry 2026-11-20 21:00 UTC.",
+     frozen="2026-11-20 23:19")
+def w12(ctx):
+    markets = ctx.markets
+    if markets is None or markets.empty:
+        return []
+    q = markets[markets.venue.eq("kalshi") & markets.kind.eq("kx_ladder_1h")].copy()
+    if q.empty or "book" not in q or "fair_t4" not in q:
+        return []
+    q["ts"] = ctx.now
+    q["end"] = pd.to_datetime(q.end,utc=True)
+    q["left"] = (q.end-q.ts).dt.total_seconds()/60
+    ranked = early_wing_candidates(q[q.end >= W12_FIRST_EXPIRY])
+    orders = []
+    for r in ranked[ranked.edge.ge(W12_MARGIN)].itertuples():
+        key = f"W12|{r.event}"
+        if ctx.book.has_key(key):
+            continue
+        leg = dict(venue="kalshi",kind=r.kind,market=r.market,event=r.event,side=r.side,price=r.price,fee=r.fee)
+        orders.append(Order(hyp="W12",kind="binary",venue="kalshi",instrument=r.market,side=r.side,price=r.price,
+                            fee=r.fee,fair=r.fair_side,edge=r.edge,settle_ts=str(r.end),unit="$/contract",key=key,
+                            info={"legs":[leg],"wing_price":r.wing,"left_min":round(r.left,1),"mid":(r.bid+r.ask)/2,
+                                  "size":r.size}))
+    return orders
+
+
+# ================================================================== W07: W03 + storm filter (frozen 04.11.2026)
+_STORM = {"key": None, "R60": None}
+
+
+def storm_ratio(ctx, window: int = 60) -> float | None:
+    """Realised variance of the last `window` 1-minute returns / the variance the wings model expected for them:
+    EWMA (half-life 60 min) of deseasonalised squared returns × the hour-of-week profile of the last 28 days, the
+    level taken one minute before each minute (studies/storm_filter.py, same formula). Binance minutes."""
+    c = ctx.minutes.close.dropna()
+    if len(c) < 40 * 1440:
+        return None
+    key = c.index[-1]
+    if _STORM["key"] == key:
+        return _STORM["R60"]
+    c = c[c.index > key - pd.Timedelta(days=40)]
+    r2 = np.log(c).diff() ** 2
+    idx = c.index
+    how = idx.dayofweek * 24 + idx.hour
+    df = pd.DataFrame({"r2": r2.values, "how": how, "day": idx.floor("D")}, index=idx)
+    daily = df.groupby(["day", "how"])["r2"].mean().unstack()
+    sea = daily.rolling(28, min_periods=7).mean().shift(1)
+    sea = sea.div(sea.mean(axis=1), axis=0)
+    day_last = df["day"].iloc[-1]
+    if day_last not in sea.index:
+        return None
+    tail = df.iloc[-(window + 2000):].copy()
+    tail["sea"] = [float(sea.loc[d, h]) if (d in sea.index and np.isfinite(sea.loc[d, h])) else 1.0
+                   for d, h in zip(tail["day"], tail["how"])]
+    lvl = (tail["r2"] / tail["sea"]).ewm(halflife=60, min_periods=120).mean()
+    exp = (lvl * tail["sea"]).shift(1)
+    out = float(tail["r2"].iloc[-window:].sum() / exp.iloc[-window:].sum()) if np.isfinite(exp.iloc[-window:].sum()) else None
+    _STORM.update(key=key, R60=out)
+    return out
+
+
+@hyp("W07", "W", "W03 + storm filter: skip when the last hour moved > 1.5× the model's variance", "as W03 (10–20¢ "
+     "cheap bid, 5–15 min left, normal fair, edge ≥ 1¢, one per hour), but no trade when the realised variance of the "
+     "last 60 minutes exceeds 1.5× what the model expected for them", "studies/storm_filter.py: cut chosen on Jul–Aug; "
+     "Sep–Oct test +5.1¢ per trade (t 3.3) vs W03 +3.65¢ on the Binance spot, +2.9¢ (t 1.4) vs +1.2¢ on the USD "
+     "spot; skipped trades lost on both halves and both spots; 42 variants tried — paper only", frozen="2026-11-04 12:30")
+def w07(ctx):
+    R = storm_ratio(ctx, 60)
+    if R is None or R > 1.5:
+        return []
+    return _wings_opt(ctx, "W07", 0.10, 0.20, 5, 15, "ln", 0.01)
+
+
+# ================================================================== W09/W10: W03/W04 on the Polymarket hourly ladder (frozen 04.11.2026)
+@hyp("W09", "W", "W03 on Polymarket: sell the most overpriced 10–20¢ wing, last 5–15 min (Polymarket hourly ladder)",
+     "Polymarket 'Bitcoin above K, <h> ET' (Binance BTC/USDT 1-hour candle close): as W03 — cheap side bids 10–20¢, "
+     "5–15 min left, normal fair value from the Binance mid, edge after the Polymarket fee ≥ 1¢, one per hour",
+     "the Kalshi wings transferred; history test studies/pm_wings.py; paper only", frozen="2026-11-04 13:30")
+def w09(ctx):
+    return _wings_opt(ctx, "W09", 0.10, 0.20, 5, 15, "ln", 0.01, venue="polymarket", kind="pm_ladder_1h")
+
+
+@hyp("W10", "W", "W04 on Polymarket: sell the most overpriced 6–10¢ wing, 15–30 min left (Polymarket hourly ladder)",
+     "as W04 (cheap side 6–10¢, 15–30 min left, Student-t(4) fair value, edge ≥ 0) on the Polymarket hourly ladder",
+     "the Kalshi wings transferred; history test studies/pm_wings.py; paper only", frozen="2026-11-04 13:30")
+def w10(ctx):
+    return _wings_opt(ctx, "W10", 0.06, 0.10, 15, 30, "t4", 0.0, venue="polymarket", kind="pm_ladder_1h")
+
+
+# ================================================================== W08: weekend wings without a model (frozen 04.11.2026)
+@hyp("W08", "W", "Weekend wings: sell the dearest 6–10¢ wing, 15–30 min left, Sat/Sun only, no model",
+     "Kalshi hourly ladder, hours closing on Saturday or Sunday (UTC): among strikes whose cheap side bids 6–10¢ with "
+     "15–30 minutes left, sell the dearest one; one per hour; held to settlement; no fair-value filter",
+     "studies/wings_weekend.py: wing prices are the same on weekends (8.1¢) but pay 4.9% vs 8.1% on weekdays; one per "
+     "hour Jul–Aug +3.0¢ (t 2.6), Sep–Oct +2.3¢ (t 1.9), October +0.2¢ — found after looking at regimes: paper only",
+     frozen="2026-11-04 13:00")
+def w08(ctx):
+    m = ctx.markets
+    if m is None or m.empty:
+        return []
+    k = m[(m["venue"] == "kalshi") & (m["kind"] == "kx_ladder_1h")]
+    best = None
+    for _, r in k.iterrows():
+        end = pd.Timestamp(r["end"])
+        if end.dayofweek < 5:
+            continue
+        bid, ask = r["bid"], r["ask"]
+        if not (np.isfinite(bid) and np.isfinite(ask)) or ask - bid > 0.03:
+            continue
+        left = (end - ctx.now).total_seconds() / 60
+        if not (15 <= left <= 30) or ctx.book.has_key(f"W08|{r['event']}"):
+            continue
+        for cheap, c_bid in (("yes", bid), ("no", 1 - ask)):
+            if 0.06 <= c_bid <= 0.10 and (best is None or c_bid > best[0]):
+                best = (c_bid, r, cheap, left)
+    if best is None:
+        return []
+    c_bid, r, cheap, left = best
+    px = 1 - c_bid
+    side = "no" if cheap == "yes" else "yes"
+    leg = {"venue": "kalshi", "kind": r["kind"], "market": r["market"], "event": r["event"], "side": side, "price": px,
+           "fee": kalshi_fee(px)}
+    return [Order(hyp="W08", kind="binary", venue="kalshi", instrument=r["market"], side=side, price=px,
+                  fee=kalshi_fee(px), fair=None, edge=None, settle_ts=str(r["end"]), unit="$/contract",
+                  key=f"W08|{r['event']}", info={"legs": [leg], "mid": (r["bid"] + r["ask"]) / 2,
+                                                 "left_min": round(left, 1), "wing_price": c_bid})]
+
+
+# ================================================================== W11: weekend wings on both sides of spot (frozen 09.11.2026)
+@hyp("W11", "W", "Weekend wings, one per side: the dearest 6–10¢ wing above AND below spot, 15–30 min left, Sat/Sun",
+     "as W08 (Kalshi hourly ladder, hours closing Saturday/Sunday UTC, cheap side bids 6–10¢, 15–30 min left, no model, "
+     "held to settlement), but one wing per side of spot: the dearest cheap YES (strike above spot) and the dearest "
+     "cheap NO (strike below spot); the two cannot both pay, so the worst hour stays one loss",
+     "studies/wings_weekend2.py: $/hour vs W08 Jul–Aug 0.035 vs 0.030, Sep–Oct 0.032 vs 0.023 (t 2.1 vs 1.9), holdout "
+     "31.10–08.11 0.068 vs 0.070; the second leg alone +0.8¢ / +1.1¢ (t 0.5 / 0.8), legs uncorrelated (−0.06); "
+     "a variant of W08 — paper only", frozen="2026-11-09 23:00")
+def w11(ctx):
+    m = ctx.markets
+    if m is None or m.empty:
+        return []
+    k = m[(m["venue"] == "kalshi") & (m["kind"] == "kx_ladder_1h")]
+    best = {}
+    for _, r in k.iterrows():
+        end = pd.Timestamp(r["end"])
+        if end.dayofweek < 5:
+            continue
+        bid, ask = r["bid"], r["ask"]
+        if not (np.isfinite(bid) and np.isfinite(ask)) or ask - bid > 0.03:
+            continue
+        left = (end - ctx.now).total_seconds() / 60
+        if not (15 <= left <= 30):
+            continue
+        for cheap, c_bid in (("yes", bid), ("no", 1 - ask)):
+            if ctx.book.has_key(f"W11|{r['event']}|{cheap}"):
+                continue
+            if 0.06 <= c_bid <= 0.10 and (cheap not in best or c_bid > best[cheap][0]):
+                best[cheap] = (c_bid, r, left)
+    out = []
+    for cheap, (c_bid, r, left) in best.items():
+        px = 1 - c_bid
+        side = "no" if cheap == "yes" else "yes"
+        leg = {"venue": "kalshi", "kind": r["kind"], "market": r["market"], "event": r["event"], "side": side,
+               "price": px, "fee": kalshi_fee(px)}
+        out.append(Order(hyp="W11", kind="binary", venue="kalshi", instrument=r["market"], side=side, price=px,
+                         fee=kalshi_fee(px), fair=None, edge=None, settle_ts=str(r["end"]), unit="$/contract",
+                         key=f"W11|{r['event']}|{cheap}", info={"legs": [leg], "mid": (r["bid"] + r["ask"]) / 2,
+                                                                "left_min": round(left, 1), "wing_price": c_bid,
+                                                                "wing_side": cheap}))
+    return out
 
 
 @hyp("W05", "W", "Wings 10–20¢ — blended fair value, no US open, maker first", "Kalshi hourly ladder, 5–15 min left, "
@@ -1322,7 +1501,7 @@ FAMILIES = {"D": "Directional BTC", "P": "Prediction markets: fair value", "V": 
 # the report, and it can be switched back on by removing it from PAUSED_EXCEPT / emptying FOCUS. Paused rules are put
 # into RETIRED so that every loop that checks RETIRED (engine, tape, maker, flow, lead–lag, ML) stops for them, and
 # the markets snapshot fetches only the Kalshi hourly ladder (lab/markets.py).
-FOCUS = {"W03", "W04", "W05", "W06"}
+FOCUS = {"W03", "W04", "W05", "W06", "W07", "W08", "W09", "W10", "W11", "W12"}
 PAUSED = "paused 03.11.2026: the lab runs the wing rules W03–W06 only"
 if FOCUS:
     for _h in REGISTRY:

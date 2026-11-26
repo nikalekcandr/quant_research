@@ -49,26 +49,28 @@ def strike_of(ticker: str) -> float | None:
         return None
 
 
-def refresh_fair(fair_side: float, side: str, ticker: str, s0: float, s1: float) -> float | None:
+def refresh_fair(fair_side: float, side: str, ticker: str, s0: float, s1: float, *, t4=False) -> float | None:
     """Move the lab's fair value of the side we buy to the current spot.
 
-    The cheap side's probability c = 1 − fair_side was computed by the lab at spot s0. Under the lab's (log-normal)
-    model c = Φ(±ln(s0/K) / sd), so sd = ±ln(s0/K) / Φ⁻¹(c); the same sd at spot s1 gives the new c. For a wing with
+    Recover the scale from c = F(±ln(s0/K) / scale) using the same distribution
+    as the decision (Student t4 or normal), then hold it fixed at s1. For a wing with
     10–30 minutes left one basis point of spot moves c by about 1¢ — the size of the whole edge — which is why a
     stale fair value must be refreshed rather than trusted.
     """
-    from scipy.stats import norm
+    from scipy.special import ndtr, ndtri, stdtr, stdtrit
     k = strike_of(ticker)
     c = 1 - fair_side
     if k is None or not (0 < c < 1) or not (s0 > 0 and s1 > 0):
         return None
     sign = 1.0 if side == "no" else -1.0          # buying NO: the cheap side is YES = "above K"
-    z = norm.ppf(c)
+    # The t4 unit-variance scaling cancels between inversion and repricing.
+    z = stdtrit(4,c) if t4 else ndtri(c)
     x0 = sign * math.log(s0 / k)
     if abs(z) < 1e-6 or x0 / z <= 0:
         return None
     sd = x0 / z
-    return 1 - float(norm.cdf(sign * math.log(s1 / k) / sd))
+    x = sign * math.log(s1 / k) / sd
+    return 1 - float(stdtr(4,x) if t4 else ndtr(x))
 
 
 # Rules that bet on the same thing share one slot per hourly event (studies/wings_execution.py, 03.11.2026):
@@ -114,9 +116,18 @@ class State:
         return cls()
 
     def save(self, path: Path):
+        text = json.dumps(self.__dict__, default=str, indent=1)
         tmp = path.with_suffix(".tmp")
-        tmp.write_text(json.dumps(self.__dict__, default=str, indent=1), encoding="utf-8")
-        tmp.replace(path)
+        # Windows: a reader (`trader status`, antivirus, the indexer) holding the file open makes the rename fail with
+        # WinError 5; that killed the shadow and demo executors on 04-05.11. Retry for ~10 s, then write in place.
+        for attempt in range(20):
+            try:
+                tmp.write_text(text, encoding="utf-8")
+                tmp.replace(path)
+                return
+            except PermissionError:
+                time.sleep(0.5)
+        path.write_text(text, encoding="utf-8")
 
 
 # ------------------------------------------------------------------ spot (proxy of the BRTI the hourly ladder settles on)
@@ -194,6 +205,10 @@ class Executor:
         key = slot_key(it["hyp"], it["event"])
         if self.kill_file.exists():
             return "kill switch"
+        from lab.wing_regime import read
+        regime = read(now_utc(),self.intents_path.parent/"wing_regime.json")
+        if regime["blocked"]:
+            return "volatility pause: "+regime["reason"]
         if it["hyp"] not in cfg.rules:
             return "rule not enabled"
         if self.st.realised.get(self._today(), 0.0) <= -cfg.daily_loss_limit_usd:
@@ -270,7 +285,10 @@ class Executor:
             return "no fair value in the intent"
         s1 = self.spot.get()
         if it.get("spot") and math.isfinite(s1):
-            f1 = refresh_fair(fair, it["side"], it["ticker"], it["spot"], s1)
+            is_w04 = it.get("hyp") == "W04"
+            model_spot = (it.get("model_spot") or it["spot"]) if is_w04 else it["spot"]
+            projected = model_spot * (s1 / it["spot"]) if is_w04 else s1
+            f1 = refresh_fair(fair, it["side"], it["ticker"], model_spot, projected, t4=is_w04)
             if f1 is not None:
                 it["fair_now"] = f1
                 fair = f1
@@ -399,6 +417,8 @@ class Executor:
             pass
         filled = fill_count(o)
         fees = dollars(o.get("taker_fees_dollars", o.get("maker_fees_dollars", 0))) or 0.0
+        if not fees and o.get("average_fee_paid_dollars") is not None:     # V2 create-order response (04.11)
+            fees = round(dollars(o["average_fee_paid_dollars"]) * fill_count(o), 4)
         self.j.write("order_result", intent=it["id"], order_id=oid, status=o.get("status"), filled=filled,
                      fees=fees)
         if open_position and filled > 0:
@@ -448,6 +468,8 @@ class Executor:
     def watch_quotes(self):
         """Resting maker orders: count fills; cancel if spot ran against us or the quote expired."""
         s1 = self.spot.get()
+        from lab.wing_regime import read
+        paused = bool(self.st.resting) and read(now_utc(),self.intents_path.parent/"wing_regime.json")["blocked"]
         for key, q in list(self.st.resting.items()):
             exp = pd.Timestamp(q["expires"]) if q.get("expires") else None
             adverse = False
@@ -456,16 +478,16 @@ class Executor:
                 # buying NO on "above K" loses if BTC rises; buying YES loses if it falls
                 adverse = (move > self.cfg.quote_cancel_bp) if q["side"] == "no" else (move < -self.cfg.quote_cancel_bp)
             if self.mode == "shadow":
-                if (exp is not None and now_utc() >= exp) or adverse:
+                if paused or (exp is not None and now_utc() >= exp) or adverse:
                     self.st.resting.pop(key)
-                    self.j.write("shadow_quote_end", key=key, reason="adverse spot" if adverse else "expired")
+                    self.j.write("shadow_quote_end", key=key, reason="volatility pause" if paused else "adverse spot" if adverse else "expired")
                 continue
             try:
                 o = self.venue.order(q["order_id"])
             except Exception:  # noqa: BLE001
                 continue
             filled, status = fill_count(o), o.get("status")
-            if status != "resting" or adverse or (exp is not None and now_utc() >= exp):
+            if status != "resting" or paused or adverse or (exp is not None and now_utc() >= exp):
                 if status == "resting":
                     try:
                         self.venue.cancel(q["order_id"])
@@ -473,6 +495,8 @@ class Executor:
                         pass
                     o = self.venue.order(q["order_id"])
                     filled = fill_count(o)
+                    if o.get("status")=="resting":
+                        continue
                 self.st.resting.pop(key, None)
                 self.j.write("quote_end", key=key, status=o.get("status"), filled=filled,
                              reason="adverse spot" if adverse else ("expired" if exp is not None and now_utc() >= exp else status))

@@ -1,0 +1,278 @@
+{
+  "caviar": [
+    [
+      -0.03753404625149706,
+      0.786584340226743,
+      -0.44257029584229823,
+      -0.6263550212438077
+    ],
+    [
+      -0.016722464517532478,
+      0.8063529387293349,
+      -0.24435269651897268,
+      -0.37295485269522144
+    ],
+    [
+      -0.010824275379041215,
+      0.8104491243353742,
+      -0.20301916158169528,
+      -0.24215328479946815
+    ],
+    [
+      -0.0012758471131860242,
+      0.9075553980709715,
+      -0.06790620360335836,
+      -0.04974895611122726
+    ],
+    [
+      -0.0007865919140176435,
+      0.34430413661255044,
+      -0.043740485621730454,
+      0.06171141160215381
+    ],
+    [
+      0.005844199527416299,
+      0.8079523400363489,
+      0.05685914478042652,
+      0.14337948476824294
+    ],
+    [
+      0.010688915823381577,
+      0.7971848767635744,
+      0.20091914447176779,
+      0.27532666647629545
+    ],
+    [
+      0.014555537603902654,
+      0.8065869648297438,
+      0.3248416389614206,
+      0.31231762004920194
+    ],
+    [
+      0.06285721829104116,
+      0.693264206798048,
+      1.0830480281245776,
+      0.5019571630014179
+    ]
+  ],
+  "svi_snapshot_fits": 508,
+  "queue_train": 1261,
+  "queue_test": 1929,
+  "queue_mae": 0.35898656301872894,
+  "queue_state_mae": 0.3593392353357188,
+  "constant_mae": 0.2906098622525241,
+  "results": [
+    {
+      "cohort": "caviar",
+      "model": "t4",
+      "trades": 50,
+      "contracts": 161092,
+      "cost": 149856.44,
+      "roi": 2.6,
+      "net": 3895.56,
+      "delayed": 3551.13,
+      "excluded": 3,
+      "delta_ci_dollars_hour": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cohort": "caviar",
+      "model": "hybrid",
+      "trades": 93,
+      "contracts": 208477,
+      "cost": 192330.69,
+      "roi": 4.627,
+      "net": 8899.31,
+      "delayed": 1630.66,
+      "excluded": 3,
+      "delta_ci_dollars_hour": [
+        -58.9,
+        27.18
+      ]
+    },
+    {
+      "cohort": "caviar",
+      "model": "caviar",
+      "trades": 68,
+      "contracts": 240944,
+      "cost": 224984.71,
+      "roi": -14.052,
+      "net": -31615.71,
+      "delayed": -7623.64,
+      "excluded": 3,
+      "delta_ci_dollars_hour": [
+        -350.61,
+        43.12
+      ]
+    },
+    {
+      "cohort": "ofi_queue",
+      "model": "t4",
+      "trades": 49,
+      "contracts": 153206,
+      "cost": 141654.35,
+      "roi": 1.564,
+      "net": 2215.65,
+      "delayed": 6056.51,
+      "excluded": 1,
+      "delta_ci_dollars_hour": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cohort": "ofi_queue",
+      "model": "hybrid",
+      "trades": 89,
+      "contracts": 206900,
+      "cost": 190987.13,
+      "roi": 1.059,
+      "net": 2021.87,
+      "delayed": 801.93,
+      "excluded": 1,
+      "delta_ci_dollars_hour": [
+        -141.53,
+        21.12
+      ]
+    },
+    {
+      "cohort": "ofi_queue",
+      "model": "ofi_queue",
+      "trades": 20,
+      "contracts": 88734,
+      "cost": 81933.88,
+      "roi": 7.789,
+      "net": 6382.12,
+      "delayed": 5283.29,
+      "excluded": 1,
+      "delta_ci_dollars_hour": [
+        -19.17,
+        8.67
+      ]
+    },
+    {
+      "cohort": "queue_states",
+      "model": "t4",
+      "trades": 49,
+      "contracts": 153206,
+      "cost": 141654.35,
+      "roi": 1.564,
+      "net": 2215.65,
+      "delayed": 6056.51,
+      "excluded": 1,
+      "delta_ci_dollars_hour": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cohort": "queue_states",
+      "model": "hybrid",
+      "trades": 89,
+      "contracts": 206900,
+      "cost": 190987.13,
+      "roi": 1.059,
+      "net": 2021.87,
+      "delayed": 801.93,
+      "excluded": 1,
+      "delta_ci_dollars_hour": [
+        -141.53,
+        21.12
+      ]
+    },
+    {
+      "cohort": "queue_states",
+      "model": "queue_states",
+      "trades": 19,
+      "contracts": 83123,
+      "cost": 76845.95,
+      "roi": 7.624,
+      "net": 5859.05,
+      "delayed": 4910.88,
+      "excluded": 1,
+      "delta_ci_dollars_hour": [
+        -22.11,
+        5.67
+      ]
+    },
+    {
+      "cohort": "svi",
+      "model": "t4",
+      "trades": 49,
+      "contracts": 158285,
+      "cost": 147212.81,
+      "roi": 2.047,
+      "net": 3013.19,
+      "delayed": 3205.37,
+      "excluded": 3,
+      "delta_ci_dollars_hour": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cohort": "svi",
+      "model": "hybrid",
+      "trades": 88,
+      "contracts": 201849,
+      "cost": 186117.83,
+      "roi": 4.172,
+      "net": 7765.17,
+      "delayed": 742.87,
+      "excluded": 3,
+      "delta_ci_dollars_hour": [
+        -68.0,
+        24.12
+      ]
+    },
+    {
+      "cohort": "svi",
+      "model": "svi",
+      "trades": 37,
+      "contracts": 185414,
+      "cost": 172719.34,
+      "roi": -5.695,
+      "net": -9836.34,
+      "delayed": 6831.15,
+      "excluded": 3,
+      "delta_ci_dollars_hour": [
+        -5.71,
+        74.04
+      ]
+    }
+  ],
+  "first_test_expiry": "2026-11-09 19:00:00+00:00",
+  "last_test_expiry": "2026-11-26 14:00:00+00:00",
+  "brier": {
+    "caviar": {
+      "t4": 0.05367080694070993,
+      "caviar": 0.05445376484932878
+    },
+    "svi": {
+      "t4": 0.05363573811698903,
+      "svi": 0.05677749218638979
+    }
+  },
+  "maker_samples": 7,
+  "split_execution": {
+    "n": 161092.0,
+    "split": 133993.0,
+    "full_pnl": 3895.56,
+    "split_pnl": 4097.86
+  },
+  "deribit_download": {
+    "time": "2026-11-22 16:40:30.980435+00:00",
+    "expiry": "2026-11-23 08:00:00+00:00",
+    "rows": 1014,
+    "strikes": 37,
+    "svi": [
+      0.18865271073881776,
+      6.335747139292933,
+      -0.05969133901814555,
+      0.024277992120166392,
+      0.0140205230001852
+    ]
+  }
+}

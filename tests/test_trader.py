@@ -79,10 +79,13 @@ def intent(kind="take", hyp="W04", age_s=2, price=0.92, fair=0.95, spot=78000.0,
 
 def make(tmp_path, mode="shadow", fill="all", result="", **cfg_kw):
     tmp_path.mkdir(parents=True, exist_ok=True)
+    # Exercise historical variants explicitly in engine tests, independent of production admission.
+    cfg_kw.setdefault("rules", ["W03", "W04", "W05", "W06"])
     cfg = Settings(mode=mode, **cfg_kw)
     v = FakeKalshi(book(), fill=fill, result=result)
     ex = Executor(cfg, None if mode == "shadow" else v, v, FakeSpot(), intents_path=tmp_path / "intents.jsonl",
                   root=tmp_path)
+    (tmp_path/"wing_regime.json").write_text(json.dumps({"minute":str(pd.Timestamp.now(tz="UTC")),"blocked":False}))
     return ex, v
 
 
@@ -241,6 +244,7 @@ def test_lab_emits_intents(tmp_path, monkeypatch):
     from lab import intents
     from lab.core import Order
     monkeypatch.setattr(intents, "INTENTS", tmp_path / "i.jsonl")
+    monkeypatch.setattr("lab.wing_regime.read",lambda now: {"blocked":False})
     intents.SPOT = 78000.0
     o = Order(hyp="W04", kind="binary", venue="kalshi", instrument="KX-T1", side="no", price=0.92, fee=0.01,
               fair=0.95, edge=0.02, settle_ts="2026-11-02 14:00:00+00:00",

@@ -51,7 +51,8 @@ def main(argv=None):
     from lab.engine import Lab
     lab = Lab()
     if a.report:
-        lab.report(utcnow(), force=True)
+        from lab import report
+        report.write(lab, utcnow())
         return
     keep_awake()
     if a.once:
