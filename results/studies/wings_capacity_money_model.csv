@@ -1,0 +1,37 @@
+model,gate,period,hours,¢ per hour,t
+logit,без гейта,train Jul-Aug,319,-0.423,-0.276
+logit,без гейта,test Sep-Oct,488,2.975,2.931
+logit,без гейта,November,90,3.189,1.314
+logit,пропуск верхней половины p,train Jul-Aug,74,0.77,0.265
+logit,пропуск верхней половины p,test Sep-Oct,249,2.783,1.978
+logit,пропуск верхней половины p,November,43,1.721,0.438
+logit,пропуск верхних 25 % p,train Jul-Aug,94,-0.021,-0.008
+logit,пропуск верхних 25 % p,test Sep-Oct,381,2.919,2.561
+logit,пропуск верхних 25 % p,November,74,1.986,0.676
+logit,пропуск верхних 10 % p,train Jul-Aug,120,-0.708,-0.28
+logit,пропуск верхних 10 % p,test Sep-Oct,451,3.379,3.335
+logit,пропуск верхних 10 % p,November,87,2.989,1.191
+hgb small,без гейта,train Jul-Aug,319,-0.423,-0.276
+hgb small,без гейта,test Sep-Oct,488,2.975,2.931
+hgb small,без гейта,November,90,3.189,1.314
+hgb small,пропуск верхней половины p,train Jul-Aug,82,-1.134,-0.368
+hgb small,пропуск верхней половины p,test Sep-Oct,242,4.326,3.574
+hgb small,пропуск верхней половины p,November,42,1.643,0.408
+hgb small,пропуск верхних 25 % p,train Jul-Aug,118,-0.873,-0.34
+hgb small,пропуск верхних 25 % p,test Sep-Oct,367,2.425,2.004
+hgb small,пропуск верхних 25 % p,November,64,2.516,0.825
+hgb small,пропуск верхних 10 % p,train Jul-Aug,131,-2.221,-0.85
+hgb small,пропуск верхних 10 % p,test Sep-Oct,446,3.103,2.967
+hgb small,пропуск верхних 10 % p,November,81,2.543,0.946
+mlp 512x3,без гейта,train Jul-Aug,319,-0.423,-0.276
+mlp 512x3,без гейта,test Sep-Oct,488,2.975,2.931
+mlp 512x3,без гейта,November,90,3.189,1.314
+mlp 512x3,пропуск верхней половины p,train Jul-Aug,74,0.865,0.297
+mlp 512x3,пропуск верхней половины p,test Sep-Oct,239,2.088,1.379
+mlp 512x3,пропуск верхней половины p,November,53,3.038,0.947
+mlp 512x3,пропуск верхних 25 % p,train Jul-Aug,110,0.355,0.143
+mlp 512x3,пропуск верхних 25 % p,test Sep-Oct,364,2.412,1.979
+mlp 512x3,пропуск верхних 25 % p,November,75,3.387,1.297
+mlp 512x3,пропуск верхних 10 % p,train Jul-Aug,134,0.276,0.121
+mlp 512x3,пропуск верхних 10 % p,test Sep-Oct,439,2.79,2.576
+mlp 512x3,пропуск верхних 10 % p,November,85,4.024,1.741

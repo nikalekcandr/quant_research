@@ -28,7 +28,7 @@ _26.11.2026. Документ описывает проект целиком: ч
 6. **Спецификация моделей заморожена** 15.10.2026, хэши файлов проверяются (`config.FROZEN_CODE_SHA256`,
    `oos_report.py`); данные с 13.10.2026 — честный out-of-sample.
 7. **Лаборатория ведёт append-only леджер** с хэш-цепочкой; правила гипотез заморожены, изменение = новый ID.
-8. **Тесты:** 19 файлов, 50 тестов через `unittest` (один файл, `test_trader.py`, требует `pytest`, которого
+8. **Тесты:** 21 файл, 83 теста через `unittest` (один файл, `test_trader.py`, требует `pytest`, которого
    нет в `.venv`).
 9. **Горизонты:** `kx1h` (Kalshi, 55 мин), `pm24h`, `pm6d` (Polymarket, сутки и 6 суток).
 10. **Периоды оценки:** pseudo-OOS с 01.01.2026 (`config.EVAL_START`), live-OOS с 09.10.2026
@@ -116,11 +116,14 @@ src/              build.py (сборка выборок)  models.py (13 моде
                   pipeline.py  runner.py  report.py  figures.py  portfolio.py  risk.py  alpha.py  extensions.py
 lab/              engine.py  feeds.py  markets.py  signals.py  intents.py  maker.py  tape.py  flow.py
                   edge_timing.py  history.py  volzoo.py  ml.py  core.py (леджер)  jobs.py  report.py
-studies/          57 исследовательских скриптов (каталог в §11)
-tests/            19 файлов, 50 тестов (unittest; test_trader.py требует pytest)
+studies/          61 исследовательский скрипт (каталог в §10)
+tests/            21 файл, 83 теста (unittest; test_trader.py требует pytest)
+data/lit/         bibliography.csv — хранилище литературы (201 строка)
+src/lit/          build_encyclopedia.py (генератор), import_openalex.py (импорт метаданных)
 docs/             WINGS.md (досье крыла)  ARCHITECTURE.md  IDEAS.md  IDEAS_100.md  EXECUTION.md
                   LITERATURE.md  PROJECT.md  SERVER.md  PROFIT_IDEAS_2026_11.md
-                  DOWNLOAD_AND_LAPTOP.md (как докачать и как подготовить машину)  ENCYCLOPEDIA.md (этот файл)
+                  DOWNLOAD_AND_LAPTOP.md (как докачать и как подготовить машину)
+                  MEGA_ENCYCLOPEDIA.md (генерируется из data/lit/bibliography.csv)  ENCYCLOPEDIA.md (этот файл)
 results/          tables/  figures/  lab/  studies/  research/  reports/
 forecasts_live/   коммитятся ДО известного исхода — настоящий OOS
 ```
@@ -350,6 +353,52 @@ MLP −0.11, классификатор −0.64 — то есть больше �
 где крыло проигрывает целиком; (4) ни выход до расчёта, ни фильтр по прошлому часу, ни подгонка масштаба
 дисперсии не улучшают результат.
 
+### 7.10 Сколько модели выдерживают эти данные (`results/studies/wings_capacity.md`)
+
+Вопрос «давайте обучим очень тяжёлую модель» проверен на собственных метках проекта: 66 990 строк
+(одна строка на страйк в 5-минутном бакете, 3 170 часов), 12 причинных признаков, walk-forward по месяцам,
+финальный тест — сентябрь–октябрь, отдельно — ноябрь.
+
+| модель | параметров | тестовый logloss | константа | AUC | наклон калибровки |
+|---|---|---|---|---|---|
+| логистическая регрессия | 13 | **0.2724** | 0.2904 | **0.695** | **1.02** |
+| бустинг 100×15 | ~2 тыс. листьев | 0.2757 | 0.2904 | 0.683 | 0.74 |
+| MLP 64-32 | 2 945 | 0.2782 | 0.2904 | 0.674 | 0.71 |
+| MLP 256-128-64 | 44 545 | 0.2744 | 0.2904 | 0.691 | 0.87 |
+| MLP 512-512-512 | 532 481 | 0.2757 | 0.2904 | 0.681 | 0.77 |
+| бустинг 600×63 | ~19 тыс. листьев | 0.3246 | 0.2904 | 0.656 | 0.29 |
+
+* **Каждый шаг в ёмкости ухудшает тест.** 13-параметровая логистическая регрессия побивает все сети, включая
+  полумиллионную, и в ноябре тоже (0.284 против 0.297 у MLP 512³).
+* **Кривая обучения плоская**: сеть 256-128-64 на 100 % часов даёт 0.2744, на 50 % — 0.2786 (0.004 разницы);
+  бустинг — 0.3246 → 0.3963. Лёгкая модель от нехватки данных почти не страдает, тяжёлая разваливается.
+* **Контроль на перемешанных метках**: бустинг доводит тренировочный logloss до 0.069 (константа 0.308), а на
+  тесте получает 0.337 против 0.290. С перемешанными метками — то же самое (0.082 → 0.346 против 0.299).
+  Ёмкость есть, сигнала нет.
+* **Откуда AUC 0.69**: только цена рынка (2 признака) — 0.687, только модельная вероятность (2) — 0.691,
+  все 12 — 0.695, только часы и день недели — 0.525. Различает не модель и не календарь, а сама цена.
+   Значит искать надо расхождение цены с реализацией (T3 в `wings_ten.md`), а не предсказание исхода.
+* **Приз и его отсутствие.** Оракул, знающий исход, на тесте дал бы W03 +10.4¢/час (12.13 против 1.74),
+  W04 +4.7¢ (6.89 против 2.16) — потолок любого классификатора. Гейты по обученной модели его не ловят:
+  лучший (бустинг, пропуск верхней половины p) даёт на тесте 4.33¢ против 2.98¢ без гейта, но на трейне
+  −1.13¢. Ни один гейт не держит знак на всех трёх периодах. Макро-гейт забирает +0.09¢ (W04) из +4.72¢,
+  то есть ~2 % приза — но бесплатно и без обучения.
+* **Вывод.** «Сверхобученная модель» здесь не имеет смысла по арифметике, а не по вкусу: независимых
+  наблюдений 1 436 часов, а не 36 тысяч строк; вся различающая способность — это чужая цена; память
+  тратится на шум. ML уместен как (а) оценка неопределённости, (б) сайзинг, (в) отсев риска (макро-часы,
+  тонкие события) — там же лежит и вся найденная альфа.
+
+### 7.11 Библиография и мега-энциклопедия (`docs/MEGA_ENCYCLOPEDIA.md`, `data/lit/bibliography.csv`)
+
+* Хранилище — один CSV (`id, domain, year, authors, title, venue, why, status, confidence, doi`), **201 строка**
+  в 13 доменах, из них 71 уже используется в коде; энциклопедия генерируется из него
+  (`python -m src.lit.build_encyclopedia`), поэтому список правится в одном месте.
+* Массовое расширение — импортом настоящих метаданных: `python -m src.lit.import_openalex data/lit/*.json`
+  (OpenAlex или Semantic Scholar), дедуп по DOI и нормализованному названию, домен по ключевым словам,
+  статус `imported` — то есть «не читано». Так список доходит до тысяч строк без выдуманных ссылок.
+* В песочнице нет доступа к arXiv и издателям, поэтому DOI не придумываются: у курируемых строк `doi` пустой,
+  четыре строки помечены `confidence=medium` и требуют сверки.
+
 ### 7.8 Второе плечо: кэрри (`results/studies/carry_portfolio.md`)
 
 Фандинг предсказуем (corr 0.75 с прошлым средним, знак совпадает в 87 %). Плечо «спот-лонг/перп-шорт при
@@ -390,11 +439,11 @@ MLP −0.11, классификатор −0.64 — то есть больше �
 
 ---
 
-## §10 Каталог `studies/` (57 скриптов)
+## §10 Каталог `studies/` (61 скрипт)
 
 | Группа | Файлы |
 |---|---|
-| Ядро крыла (новое, 26.11) | `wing_panel.py` (панель + примитивы), `wings_scale.py` (комиссия, выходы, спреды, гейты, отбор, сайзинг, компаундинг), `wings_accuracy.py` (Brier/логлосс/калибровка), `wings_ml.py` (GBM/MLP), `carry_portfolio.py` (кэрри + портфель), `wings_sleep.py` (сон/пропуски/залипание), `wings_alpha.py` (относительная стоимость, DSR, PBO), `wings_ten.py` (десять проверок: VRP, ликвидность, калибровка, выход, 1/N, бутстрэп, серии, спред, минута часа, макро) |
+| Ядро крыла (новое, 26.11) | `wing_panel.py` (панель + примитивы), `wings_scale.py` (комиссия, выходы, спреды, гейты, отбор, сайзинг, компаундинг), `wings_accuracy.py` (Brier/логлосс/калибровка), `wings_ml.py` (GBM/MLP), `carry_portfolio.py` (кэрри + портфель), `wings_sleep.py` (сон/пропуски/залипание), `wings_alpha.py` (относительная стоимость, DSR, PBO), `wings_ten.py` (десять проверок: VRP, ликвидность, калибровка, выход, 1/N, бутстрэп, серии, спред, минута часа, макро), `wings_capacity.py` (лестница ёмкости, кривая обучения, оракул) |
 | Крыло, история | `wings_ladder.py`, `wings_varfix.py`, `wings_calibration.py`, `wings_edge_timing.py`, `wings_neighbors.py`, `wings_two_sided.py`, `wings_old_replay.py`, `wings_maker.py`, `wings_execution.py`, `wings_flow.py`, `wings_regime*.py`, `wings_odds_pool.py`, `wings_scale_in.py`, `wings_shapes.py`, `wings_live.py`, `wings_weekend2.py` |
 | Крыло, прикладное | `wing_ten.py`, `wing_capacity_ml.py`, `wing_filters.py`, `wing_consensus.py`, `wing_sizing.py`, `wing_stopping.py`, `wing_sleep_replay.py`, `wing_split_execution.py`, `wing_robustness.py`, `wing_archive_replay.py`, `wing_quant_replay.py`, `wing_quant_archive.py`, `wing_atlas.py`, `wing_public_report.py`, `wing_gap_download.py`, `wing_ledger_capacity.py`, `wing_forecast_settlements.py`, `wing_calibration.py`, `wing_regime.py`, `wing_regime_ml.py`, `w04_entry_stress.py` |
 | Волатильность | `vol_horserace.py`, `short_lags.py`, `gbm_kx1h.py`, `invariance_vol.py`, `microstructure_leadlag.py` |
@@ -485,6 +534,9 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt   # py3.11
 .venv/bin/python -m studies.wings_sleep        # ~8 с, сон/пропуски/залипание
 .venv/bin/python -m studies.wings_alpha        # ~14 с, относительная стоимость + DSR/PBO
 .venv/bin/python -m studies.wings_ten          # ~24 с, десять проверок (VRP, калибровка, бутстрэп, макро)
+.venv/bin/python -m studies.wings_capacity     # ~3 мин, лестница ёмкости моделей и приз оракула
+.venv/bin/python -m src.lit.build_encyclopedia # мега-энциклопедия из data/lit/bibliography.csv
+.venv/bin/python -m src.lit.import_openalex data/lit/*.json   # расширить до тысяч строк
 .venv/bin/python -m src.download.update --audit  # что из данных отстало и чем это докачать
 
 # research-слой и отчёты
