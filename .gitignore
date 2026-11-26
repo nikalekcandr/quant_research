@@ -22,3 +22,9 @@ data/trader/
 trader/keys/
 data/trader/
 data/raw/wing_gap_candles/sleep.csv
+
+# derived study caches (rebuild with `python -c "from studies.wing_panel import build; build(force=True)"`)
+data/interim/wing_panel.parquet
+
+# scratch work, not part of the repository
+.work/
