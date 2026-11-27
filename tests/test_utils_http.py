@@ -79,6 +79,29 @@ class HttpTest(unittest.TestCase):
         self.assertLess(http.min_interval, widened)
         self.assertGreaterEqual(http.min_interval, 0.2)     # never faster than asked
 
+    def test_a_burst_of_429s_widens_the_gap_once(self):
+        """Six threads hit the limit together; multiplying the gap six times pinned it at the ceiling.
+
+        That is what turned a 3-hour Kalshi backlog into ~26 hours at 0.8 requests/s: the gap ratcheted up to
+        the 2 s maximum on one burst and the download never crawled back.
+        """
+        http = Http(min_interval=0.10, retries=2)
+        for _ in range(6):
+            http._penalise(None)
+        self.assertEqual(http.stats["429"], 6)
+        self.assertLessEqual(http.min_interval, 0.10 * 1.25 + 1e-9)
+
+    def test_the_gap_comes_back_after_the_burst(self):
+        http = Http(min_interval=0.10, retries=2, recover_after=5)
+        for _ in range(3):
+            http._penalise(None)
+            time.sleep(0.01)
+        widened = http.min_interval
+        self.assertGreater(widened, 0.10)
+        for _ in range(20):
+            http._relax()
+        self.assertAlmostEqual(http.min_interval, 0.10, places=6)
+
     def test_404_is_none_not_an_error(self):
         http = Http(min_interval=0.0, retries=1)
         self.assertIsNone(http.get(self.url.replace("/x", "/missing")))

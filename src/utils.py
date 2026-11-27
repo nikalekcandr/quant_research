@@ -30,7 +30,7 @@ class Http:
     """
 
     def __init__(self, min_interval: float = 0.06, retries: int = 6, adaptive: bool = True,
-                 max_interval: float = 2.0, recover_after: int = 50):
+                 max_interval: float = 2.0, recover_after: int = 25):
         self.s = requests.Session()
         self.s.headers.update({"User-Agent": config.USER_AGENT, "Accept": "application/json"})
         self.min_interval = min_interval
@@ -43,6 +43,7 @@ class Http:
         self._lock = threading.Lock()   # several download threads share one rate limit
         self._cooldown_until = 0.0      # set by a 429: every thread waits, not just the unlucky one
         self._ok_streak = 0
+        self._last_penalty = -1e9       # a burst of 429s must widen the gap once, not once per thread
         self.stats = {"requests": 0, "429": 0, "errors": 0}
 
     def _wait(self):
@@ -56,13 +57,20 @@ class Http:
             time.sleep(delay)
 
     def _penalise(self, retry_after: float | None) -> None:
-        """A 429 means we are too fast for this venue: pause everyone and widen the gap."""
+        """A 429 means we are too fast for this venue: pause everyone and widen the gap.
+
+        Six threads strike the limit at almost the same moment, so the gap widens once per cooldown rather
+        than once per 429: multiplying by 1.5 six times in a row pinned the interval at the 2 s ceiling and
+        the whole download crawled at 0.5 requests/s for hours.
+        """
         with self._lock:
             self.stats["429"] += 1
-            pause = min(max(retry_after or 0.0, 2.0), 60.0)
-            self._cooldown_until = max(self._cooldown_until, time.monotonic() + pause)
-            if self.adaptive:
-                self.min_interval = min(self.max_interval, max(self.min_interval * 1.5, 0.05))
+            now = time.monotonic()
+            pause = min(max(retry_after or 0.0, 1.0), 30.0)
+            self._cooldown_until = max(self._cooldown_until, now + pause)
+            if self.adaptive and now - self._last_penalty > min(pause, 2.0):
+                self._last_penalty = now
+                self.min_interval = min(self.max_interval, max(self.min_interval * 1.25, 0.05))
                 self._ok_streak = 0
 
     def _relax(self) -> None:
@@ -72,7 +80,7 @@ class Http:
         with self._lock:
             self._ok_streak += 1
             if self._ok_streak >= self.recover_after and self.min_interval > self.base_interval:
-                self.min_interval = max(self.base_interval, self.min_interval * 0.9)
+                self.min_interval = max(self.base_interval, self.min_interval * 0.85)
                 self._ok_streak = 0
 
     @staticmethod

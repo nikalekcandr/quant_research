@@ -43,7 +43,7 @@ import sys
 import threading
 import time
 import traceback
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,7 +59,7 @@ MARKERS = ("download_all.py", "night.py", "src.download.update", "src.download.k
 
 
 def today_utc() -> str:
-    return datetime.utcnow().strftime("%Y-%m-%d")
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 
 def _p(msg: str = "") -> None:
@@ -111,7 +111,7 @@ def steps(args):
 
     out = [(n, upd.SOURCES[n][0], upd.SOURCES[n][1])
            for n in ("binance", "funding", "perp", "deribit", "polymarket", "macro") if n in upd.SOURCES]
-    out.append(("kalshi", "Kalshi часовые лесенки, свечи за весь час",
+    out.append(("kalshi", "Kalshi часовые лесенки, все страйки события одним запросом",
                 lambda s, u, h: kalshi.download_history(s or args.kalshi_since, u, series="KXBTCD",
                                                         minutes=args.kalshi_minutes, workers=args.workers,
                                                         min_interval=args.min_interval, http=h)))
@@ -312,7 +312,7 @@ def run(args, registry=None, http=None, root: Path | None = None, work: Path | N
 
 def _run_body(args, registry=None, http=None, root: Path | None = None, work: Path | None = None) -> dict:
     from src.download import update as upd
-    from src.utils import Http
+    from src.utils import Blocked, Http
 
     root = Path(root or ROOT)
     work = Path(work)
@@ -370,6 +370,10 @@ def _run_body(args, registry=None, http=None, root: Path | None = None, work: Pa
         try:
             fn(since, until, http)
             status_, err = "ok", ""
+        except Blocked as e:
+            status_, err = "skipped", str(e)
+            _p(f"--- {name}: сервер не пускает эту сеть ({err})")
+            _p("    это не потеря данных: календарь релизов уже лежит в data/manual/us_macro_calendar.csv")
         except Exception as e:
             status_, err = "failed", f"{type(e).__name__}: {e}"
             _p(f"!!! {name} упал: {err}")
@@ -442,7 +446,11 @@ def summary_markdown(state: dict) -> str:
     ver = state.get("verify") or {}
     lines += ["", "## Проверка", ""]
     lines.append("всё свежее" if ver.get("ok") else f"отстаёт: {', '.join(ver.get('stale', []))}")
-    bad = [s for s in state.get("sources", []) if s["status"] != "ok"]
+    bad = [s for s in state.get("sources", []) if s["status"] not in ("ok", "skipped")]
+    skipped = [s for s in state.get("sources", []) if s["status"] == "skipped"]
+    if skipped:
+        lines += ["", "Пропущено (сервер не пускает сеть, данные уже есть): "
+                  + ", ".join(s["source"] for s in skipped)]
     lines += ["", "## Что дальше", ""]
     if bad:
         lines.append("Не всё скачалось — повторите ту же команду, она докачает только недостающее.")
@@ -456,8 +464,8 @@ def summary_markdown(state: dict) -> str:
 
 # ------------------------------------------------------------------ status
 PROGRESS_RE = re.compile(
-    r"kalshi: (\d+)/(\d+) days done, ([\d.]+) min elapsed, (\d+) requests "
-    r"\(([\d.]+)/s\), ([\d.]+) days/min, ETA ([^,]+), (\d+) failed")
+    r"kalshi: (\d+)/(\d+) days done, ([\d.]+) min elapsed, (\d+) requests \(([\d.]+)/s\)"
+    r"(?:, gap ([\d.]+) s)?(?:, 429: (\d+))?, ETA ([^,]+), (\d+) failed")
 STEP_RE = re.compile(r"\[(\d\d:\d\d:\d\d)\] === ([^\s:]+): ([^\n]*)")
 
 
@@ -465,9 +473,10 @@ def parse_progress(log_text: str) -> dict | None:
     hits = PROGRESS_RE.findall(log_text)
     if not hits:
         return None
-    done, total, minutes, requests, rps, per_min, eta, failed = hits[-1]
+    done, total, minutes, requests, rps, gap, n429, eta, failed = hits[-1]
     return {"done": int(done), "total": int(total), "minutes": float(minutes), "requests": int(requests),
-            "rps": float(rps), "days_per_min": float(per_min), "eta": eta.strip(), "failed": int(failed)}
+            "rps": float(rps), "gap": float(gap) if gap else None, "n429": int(n429) if n429 else 0,
+            "eta": eta.strip(), "failed": int(failed)}
 
 
 def current_step(log_text: str) -> tuple[str, str] | None:
@@ -518,8 +527,12 @@ def render_status(root: Path) -> int:
     prog = parse_progress(log_text)
     if prog:
         pct = 100 * prog["done"] / max(prog["total"], 1)
+        throttle = ""
+        if prog.get("gap") or prog.get("n429"):
+            throttle = (f", пауза {prog['gap']:.2f} с" if prog.get("gap") else "") + \
+                       (f", 429: {prog['n429']}" if prog.get("n429") else "")
         _p(f"  Kalshi: {prog['done']}/{prog['total']} суток ({pct:.0f}%), {prog['requests']} запросов "
-           f"({prog['rps']:.1f}/с), осталось ~{prog['eta']}, упало дней: {prog['failed']}")
+           f"({prog['rps']:.1f}/с){throttle}, осталось ~{prog['eta']}, упало дней: {prog['failed']}")
     elif step and step[0] == "kalshi" and alive:
         _p("  Kalshi: первая строка прогресса появится примерно через 30 секунд после старта")
     done_sources = state.get("sources", [])

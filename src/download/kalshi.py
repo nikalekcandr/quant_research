@@ -81,7 +81,10 @@ def _human(seconds: float) -> str:
     return f"{seconds:.0f} s"
 
 
-def _reporter(t0: float, total: int, stop: threading.Event, every: float) -> None:
+PRIOR_REQ_PER_DAY = 60      # until one day is done, estimate the ETA from this (24 events x ~2.5 requests)
+
+
+def _reporter(t0: float, total: int, stop: threading.Event, every: float, http: Http | None = None) -> None:
     """One line every `every` seconds: how many days are done, the request rate, and the ETA.
 
     Without it an archive download looks dead: the first day takes a minute or two (a few hundred
@@ -92,10 +95,15 @@ def _reporter(t0: float, total: int, stop: threading.Event, every: float) -> Non
         with _STATS_LOCK:
             failed = STATS["days_failed"]
         el = max(time.time() - t0, 1e-9)
-        per_min = done / el * 60
-        eta = (total - done) / per_min * 60 if done else float("inf")
-        log(f"kalshi: {done}/{total} days done, {el / 60:.1f} min elapsed, {req} requests "
-            f"({req / el:.1f}/s), {per_min:.1f} days/min, ETA {_human(eta)}, {failed} failed")
+        rate = req / el
+        if done:
+            eta = (total - done) * el / done
+        else:                                   # no finished day yet: ETA from the requests we have spent
+            eta = max(total * PRIOR_REQ_PER_DAY - req, 0) / rate if rate > 0 else float("inf")
+        gap = getattr(http, "min_interval", 0.0)
+        n429 = (getattr(http, "stats", None) or {}).get("429", 0)
+        log(f"kalshi: {done}/{total} days done, {el / 60:.1f} min elapsed, {req} requests ({rate:.1f}/s), "
+            f"gap {gap:.2f} s, 429: {n429}, ETA {_human(eta)}, {failed} failed")
 
 
 def event_ticker(close_et: datetime, series: str = "KXBTCD") -> str:
@@ -126,7 +134,8 @@ def markets(http: Http, ev: str) -> tuple[list[dict], bool]:
 
 
 def _candle_row(ticker, c):
-    return {"ticker": ticker, "end_ts": c["end_period_ts"],
+    # `end_period_ts` on every endpoint we use; a missing one drops the row instead of killing the day
+    return {"ticker": ticker, "end_ts": c.get("end_period_ts", c.get("end_ts")),
             "yes_bid": _num(c.get("yes_bid", {}), "close"), "yes_ask": _num(c.get("yes_ask", {}), "close"),
             "last": _num(c.get("price", {}), "close"), "volume": _num(c, "volume"),
             "open_interest": _num(c, "open_interest")}
@@ -145,8 +154,37 @@ def candles(http: Http, tickers: list[str], t0: int, t1: int) -> list[dict]:
     return rows
 
 
+def candles_event(http: Http, series: str, ev: str, t0: int, t1: int, max_pages: int = 6) -> list[dict]:
+    """Every strike of one hourly event in ONE request.
+
+    Kalshi answers with `market_tickers` plus `market_candlesticks` (one array per ticker) for all markets of the
+    event, live or archived — "all events are accessible through this endpoint, even if their associated markets
+    are older than the historical cutoff". Above ~5000 candlesticks it paginates and returns `adjusted_end_ts`,
+    which is the start of the next page. This is the difference between ~400 requests per archived day (one per
+    strike) and ~2 per event: 24 events a day instead of a few hundred requests.
+    """
+    rows, start = [], int(t0)
+    for _ in range(max_pages):
+        _count()
+        res = http.get(f"{BASE}/series/{series}/events/{ev}/candlesticks",
+                       {"start_ts": start, "end_ts": int(t1), "period_interval": 1})
+        res = res or {}
+        tickers = res.get("market_tickers") or []
+        for tk, cs in zip(tickers, res.get("market_candlesticks") or []):
+            for c in (cs or []):
+                row = _candle_row(tk, c)
+                if row["end_ts"] is None or not (t0 <= row["end_ts"] <= t1):
+                    continue                     # a page can overshoot the requested range
+                rows.append(row)
+        nxt = res.get("adjusted_end_ts")
+        if not nxt or int(nxt) >= t1 or int(nxt) <= start:
+            break
+        start = int(nxt)
+    return rows
+
+
 def candles_hist(http: Http, tickers: list[str], t0: int, t1: int) -> list[dict]:
-    """Archived markets: one request per ticker, run in parallel threads."""
+    """Archived markets, one request per ticker — the slow fallback when the event endpoint is unavailable."""
     from concurrent.futures import ThreadPoolExecutor
 
     def one(tk):
@@ -157,6 +195,23 @@ def candles_hist(http: Http, tickers: list[str], t0: int, t1: int) -> list[dict]
 
     with ThreadPoolExecutor(max_workers=THREADS) as ex:
         return [r for part in ex.map(one, tickers) for r in part]
+
+
+def _event_candles(http: Http, series: str, ev: str, t0: int, t1: int, tickers: list[str], live: bool) -> list[dict]:
+    """One request for the whole event; if the endpoint is missing or empty, the old per-strike path.
+
+    The fallback matters more than the speed-up: a day must never be lost because one endpoint changed.
+    """
+    try:
+        rows = candles_event(http, series, ev, t0, t1)
+    except Exception as e:
+        log(f"kalshi: {ev}: event-level candlesticks unavailable ({type(e).__name__}: {str(e)[:120]}); "
+            f"falling back to one request per strike")
+        rows = []
+    if rows:
+        want = {str(t) for t in tickers}
+        return [r for r in rows if str(r["ticker"]) in want]
+    return (candles if live else candles_hist)(http, tickers, t0, t1)
 
 
 def _step_ok(strikes: pd.DataFrame, ranges: bool) -> pd.Series:
@@ -244,18 +299,16 @@ def _one_day_impl(http: Http, day, *, minutes: int, series: str, hour_step: int,
         t_open = max(sec(to_utc(strikes["open_time"].iloc[0])), sec(to_utc(strikes["close_time"].iloc[0])) - 3600)
         t_end = t_open + 60 * minutes
         ranges = series != "KXBTCD"
+        k = (strikes["strike"] + 0.01).round()
         if archived:
-            k = (strikes["strike"] + 0.01).round()
             # range buckets: every bucket near the money; "above" strikes: see _step_ok
             sel = strikes[((k / ref - 1).abs() <= BAND_HIST) & _step_ok(strikes, ranges)]
-            cs = pd.DataFrame(candles_hist(http, list(sel["ticker"]), t_open, t_end))
         else:
             sel = strikes[(strikes["strike"] / ref - 1).abs() <= BAND]
-            cs = pd.DataFrame(candles(http, list(sel["ticker"]), t_open, t_end))
-            if cs.empty:  # the event moved to the archive in the meantime
-                k = (strikes["strike"] + 0.01).round()
-                sel = strikes[((k / ref - 1).abs() <= BAND_HIST) & _step_ok(strikes, ranges)]
-                cs = pd.DataFrame(candles_hist(http, list(sel["ticker"]), t_open, t_end))
+        cs = pd.DataFrame(_event_candles(http, series, ev, t_open, t_end, list(sel["ticker"]), live=not archived))
+        if cs.empty and not archived:  # the event moved to the archive in the meantime
+            sel = strikes[((k / ref - 1).abs() <= BAND_HIST) & _step_ok(strikes, ranges)]
+            cs = pd.DataFrame(candles_hist(http, list(sel["ticker"]), t_open, t_end))
         if cs.empty:
             continue
         cs = cs.merge(sel, on="ticker", how="left")
@@ -280,10 +333,9 @@ def download_history(since: str = config.KALSHI_START, until: str | None = None,
     """One CSV per day: data/raw/kalshi/YYYY-MM-DD.csv.gz with strike metadata and the candles of the first
     `minutes` minutes of each hourly event (the last hour for the daily and weekly 17:00 ET events).
 
-    `workers` days are fetched at the same time, sharing one polite rate limit. Every request is a round-trip
-    of roughly 0.6-1.0 s to Kalshi, so one day (48 requests on a live event, ~400 on an archived one) costs
-    50-60 s sequentially and ~8-15 s with 4 workers; the shared limiter keeps the aggregate rate at
-    1/min_interval requests per second.
+    `workers` days are fetched at the same time, sharing one polite rate limit. A day costs about 2 requests per
+    hourly event (~48 round-trips: the event's markets, then all its strikes in one batch response), so the
+    aggregate rate in requests per second — not the latency of one request — sets the pace.
     """
     http = http or Http(min_interval=min_interval)
     t0 = time.time()
@@ -291,19 +343,27 @@ def download_history(since: str = config.KALSHI_START, until: str | None = None,
     # only complete days: today's file would be saved half-empty and then skipped on the next run
     last_day = pd.Timestamp(until).date() if until else pd.Timestamp(utcnow()).tz_convert(ET).date() - timedelta(days=1)
     out_dir = ensure(raw_dir(series, minutes))
-    days = [day + timedelta(days=i) for i in range((last_day - day).days + 1)]
+    window = [day + timedelta(days=i) for i in range((last_day - day).days + 1)]
+    days = []
+    for d in window:                       # already on disk (and not one of the old sparse days)? not our work
+        f = out_dir / f"{d.isoformat()}.csv.gz"
+        if f.exists() and not (series == "KXBTCD" and _sparse(f)):
+            continue
+        days.append(d)
     log(f"kalshi: downloading {series} hourly ladders {day} .. {last_day}, {minutes} min of candles, "
-        f"{len(days)} day(s), {max(1, workers)} worker(s), into {out_dir}")
-    log(f"kalshi: about {1 / max(min_interval, 1e-3):.0f} requests/s shared by all workers; a live day is "
-        f"~48 requests, an archived one ~400 (candles of archived markets come one ticker per request)")
+        f"{len(days)} day(s) to fetch ({len(window) - len(days)} already on disk), {max(1, workers)} worker(s), "
+        f"into {out_dir}")
+    log(f"kalshi: about {1 / max(min_interval, 1e-3):.0f} requests/s shared by all workers; a day costs ~24 "
+        f"events x 2 requests (the event ticker, then all its strikes in one batch)")
     log("kalshi: one line per finished day; progress with the ETA comes every "
-        f"{report_every:.0f} s — a day can take a minute or two, nothing is stuck")
+        f"{report_every:.0f} s — the first day takes several minutes, nothing is stuck")
     center, lock = {"v": None}, threading.Lock()
     kw = dict(minutes=minutes, series=series, hour_step=hour_step, out_dir=out_dir, center=center, lock=lock)
     with _STATS_LOCK:
         STATS.update(requests=0, days_done=0, days_total=len(days), days_failed=0, failed=[])
     stop = threading.Event()
-    watchdog = threading.Thread(target=_reporter, args=(t0, len(days), stop, report_every), daemon=True)
+    watchdog = threading.Thread(target=_reporter, args=(t0, len(days), stop, report_every), kwargs={"http": http},
+                                daemon=True)
     watchdog.start()
     try:
         if workers <= 1:

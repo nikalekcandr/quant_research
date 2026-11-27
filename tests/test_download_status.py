@@ -18,7 +18,7 @@ LOG = """[12:00:00] закачка: 7 источник(ов), окно до 2026
 [12:03:05] === binance: ok за 3.0 мин
 [12:03:05] === kalshi: Kalshi часовые лесенки (2026-01-01 .. 2026-11-27)
 [12:54:36] kalshi: 2025-01-01 (515 candle rows)
-[13:02:11] kalshi: 83/211 days done, 58.1 min elapsed, 31400 requests (9.0/s), 1.4 days/min, ETA 1.5 h, 2 failed
+[13:02:11] kalshi: 83/211 days done, 58.1 min elapsed, 31400 requests (9.0/s), gap 0.10 s, 429: 3, ETA 1.5 h, 2 failed
 """
 
 
@@ -41,11 +41,20 @@ def make_run(root: Path, log=LOG, finished=None, heartbeat=None):
 class ParseTest(unittest.TestCase):
     def test_last_progress_line_wins(self):
         text = LOG + ("[13:03:11] kalshi: 120/211 days done, 65.0 min elapsed, 44000 requests (11.3/s), "
-                      "1.8 days/min, ETA 50 min, 2 failed\n")
+                      "gap 0.35 s, 429: 17, ETA 50 min, 2 failed\n")
         p = dl.parse_progress(text)
         self.assertEqual((p["done"], p["total"], p["failed"]), (120, 211, 2))
         self.assertEqual(p["eta"], "50 min")
         self.assertAlmostEqual(p["rps"], 11.3)
+        self.assertAlmostEqual(p["gap"], 0.35)
+        self.assertEqual(p["n429"], 17)
+
+    def test_old_lines_without_the_throttle_still_parse(self):
+        p = dl.parse_progress("[13:02:11] kalshi: 5/211 days done, 10.0 min elapsed, 300 requests (0.5/s), "
+                              "ETA 3.0 h, 0 failed\n")
+        self.assertEqual(p["done"], 5)
+        self.assertIsNone(p["gap"])
+        self.assertEqual(p["n429"], 0)
 
     def test_no_progress_yet(self):
         self.assertIsNone(dl.parse_progress(LOG.splitlines()[3]))
