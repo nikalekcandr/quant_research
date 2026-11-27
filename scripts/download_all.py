@@ -30,8 +30,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
+import threading
 import time
 import traceback
 from datetime import datetime, timedelta
@@ -107,10 +109,50 @@ def steps(args):
 
 
 def _p(msg: str = "") -> None:
-    print(msg, flush=True)
+    try:
+        print(f"[{datetime.now():%H:%M:%S}] {msg}" if msg else "", flush=True)
+    except BrokenPipeError:            # piping into `head`/`Select-Object -First` must not print a traceback
+        pass
+
+
+class _Tee:
+    """Write to the screen and to logs/…/run.log at once, so --status works in both modes."""
+
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, data):
+        for st in self.streams:
+            try:
+                st.write(data)
+            except Exception:
+                pass
+
+    def flush(self):
+        for st in self.streams:
+            try:
+                st.flush()
+            except Exception:
+                pass
 
 
 def run(args, registry=None, http=None, root: Path | None = None, work: Path | None = None) -> dict:
+    """Run the download and mirror everything it prints into the run folder."""
+    root = Path(root or ROOT)
+    if work is None:
+        work = root / "logs" / f"download-{datetime.now():%Y%m%d-%H%M%S}"
+    work.mkdir(parents=True, exist_ok=True)
+    handle = open(work / "run.log", "a", encoding="utf-8", buffering=1)
+    original = sys.stdout
+    sys.stdout = _Tee(original, handle)
+    try:
+        return _run_body(args, registry, http, root, work)
+    finally:
+        sys.stdout = original
+        handle.close()
+
+
+def _run_body(args, registry=None, http=None, root: Path | None = None, work: Path | None = None) -> dict:
     """Do the work. Everything is injectable so the tests never touch the network."""
     from src.download import update as upd
     from src.utils import Http
@@ -123,16 +165,26 @@ def run(args, registry=None, http=None, root: Path | None = None, work: Path | N
     if args.only:
         registry = [t for t in registry if t[0] in args.only]
 
-    if work is None:
-        work = root / "logs" / f"download-{datetime.now():%Y%m%d-%H%M%S}"
-    work.mkdir(parents=True, exist_ok=True)
+    work = Path(work)
     until = args.until or today_utc()
     state = {"started": datetime.now().isoformat(timespec="seconds"), "pid": os.getpid(),
              "window": {"until": until}, "sources": [], "build": args.build}
     state_path, summary_path = work / "state.json", work / "summary.md"
 
+    save_lock = threading.Lock()
+
     def save():
-        state_path.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
+        with save_lock:
+            state["heartbeat"] = datetime.now().isoformat(timespec="seconds")
+            state_path.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    stop_beat = threading.Event()
+
+    def beat():
+        while not stop_beat.wait(20):
+            save()
+
+    threading.Thread(target=beat, daemon=True).start()
 
     rows = plan(root, until, args.since, args.only, args.kalshi_since, args.one_second)
     state["plan"] = rows
@@ -194,6 +246,7 @@ def run(args, registry=None, http=None, root: Path | None = None, work: Path | N
         (work / "audit_after.csv").write_text(state["audit_after"], encoding="utf-8")
     except Exception:
         pass
+    stop_beat.set()
     state["finished"] = datetime.now().isoformat(timespec="seconds")
     state["requests"] = dict(http.stats)
     state["final_interval"] = round(http.min_interval, 3)
@@ -235,41 +288,118 @@ def summary_markdown(state: dict) -> str:
     return "\n".join(lines)
 
 
-def status(root: Path | None = None) -> int:
-    root = Path(root or ROOT)
+PROGRESS_RE = re.compile(
+    r"kalshi: (\d+)/(\d+) days done, ([\d.]+) min elapsed, (\d+) requests "
+    r"\(([\d.]+)/s\), ([\d.]+) days/min, ETA ([^,]+), (\d+) failed")
+STEP_RE = re.compile(r"\[(\d\d:\d\d:\d\d)\] === ([^\s:]+): ([^\n]*)")
+
+
+def parse_progress(log_text: str) -> dict | None:
+    """The last Kalshi progress line turned into numbers (it prints one every 30 s)."""
+    hits = PROGRESS_RE.findall(log_text)
+    if not hits:
+        return None
+    done, total, minutes, requests, rps, per_min, eta, failed = hits[-1]
+    return {"done": int(done), "total": int(total), "minutes": float(minutes), "requests": int(requests),
+            "rps": float(rps), "days_per_min": float(per_min), "eta": eta.strip(), "failed": int(failed)}
+
+
+def current_step(log_text: str) -> tuple[str, str] | None:
+    """The source that started and has not reported back yet, plus the time it started."""
+    running = None
+    for stamp, name, rest in STEP_RE.findall(log_text):
+        if " за " in rest or rest.startswith(("ok ", "failed ")):
+            running = None                       # "=== name: ok за ..." closes the step
+        else:
+            running = (name, stamp)
+    return running
+
+
+def _age(state: dict) -> str:
+    try:
+        started = datetime.fromisoformat(state["started"])
+    except (KeyError, ValueError):
+        return "?"
+    end = datetime.fromisoformat(state["finished"]) if state.get("finished") else datetime.now()
+    secs = (end - started).total_seconds()
+    return f"{secs / 3600:.1f} ч" if secs > 5400 else f"{secs / 60:.0f} мин"
+
+
+def render_status(root: Path) -> int:
+    """One screen: is it running, which source is being downloaded, how far, how long is left."""
     runs = sorted((root / "logs").glob("download-*")) if (root / "logs").exists() else []
     if not runs:
         _p("прогонов ещё не было: python scripts/download_all.py")
         return 1
     work = runs[-1]
     state_file, log_file = work / "state.json", work / "run.log"
-    _p(f"последний прогон: {work.name}")
-    if state_file.exists():
-        state = json.loads(state_file.read_text(encoding="utf-8"))
-        _p(f"  завершён: {state['finished']}" if state.get("finished")
-           else "  ещё идёт (или был прерван) — в state.json нет времени окончания")
-        for r in state.get("plan", []):
-            extra = f", не хватало {r['missing']} суток" if "missing" in r else ""
-            _p(f"  план: {r['source']} {r['since']}..{r['until']}{extra}")
-        for s in state.get("sources", []):
-            _p(f"  {s['source']:<12} {s['status']:<7} {s['seconds'] / 60:5.1f} мин"
-               + (f"  {s.get('error', '')[:120]}" if s["status"] != "ok" else ""))
-        if state.get("requests"):
-            _p(f"  запросов: {state['requests'].get('requests', 0)}, 429: {state['requests'].get('429', 0)}, "
-               f"пауза {state.get('final_interval', 0):.2f} с")
-    if log_file.exists():
-        _p("  последние строки журнала:")
-        for line in log_file.read_text(encoding="utf-8", errors="replace").splitlines()[-12:]:
+    log_text = log_file.read_text(encoding="utf-8", errors="replace") if log_file.exists() else ""
+    state = json.loads(state_file.read_text(encoding="utf-8")) if state_file.exists() else {}
+
+    alive = False
+    if state and not state.get("finished"):
+        try:                                     # a heartbeat every 20 s: older means the process is gone
+            beat = datetime.fromisoformat(state.get("heartbeat") or state.get("started"))
+            alive = (datetime.now() - beat).total_seconds() < 90
+        except (TypeError, ValueError):
+            alive = False
+
+    head = f"{work.name} — "
+    head += ("идёт" if alive else ("завершён" if state.get("finished") else "остановлен/прерван"))
+    head += f", {_age(state)}"
+    _p(head)
+    step = current_step(log_text)
+    if step and alive:
+        _p(f"  сейчас: {step[0]} (с {step[1]})")
+    prog = parse_progress(log_text)
+    if prog:
+        pct = 100 * prog["done"] / max(prog["total"], 1)
+        _p(f"  Kalshi: {prog['done']}/{prog['total']} суток ({pct:.0f}%), {prog['requests']} запросов "
+           f"({prog['rps']:.1f}/с), осталось ~{prog['eta']}, упало дней: {prog['failed']}")
+    elif step and step[0] == "kalshi" and alive:
+        _p("  Kalshi: первая строка прогресса появится примерно через 30 секунд после старта")
+    done_sources = state.get("sources", [])
+    if done_sources:
+        _p("  готово: " + ", ".join(f"{s['source']} {s['seconds'] / 60:.1f} мин" for s in done_sources))
+    for s in done_sources:
+        if s["status"] != "ok":
+            _p(f"  !!! {s['source']}: {s.get('error', '')[:140]}")
+    if state.get("requests"):
+        _p(f"  запросов всего: {state['requests'].get('requests', 0)}, 429: {state['requests'].get('429', 0)}")
+    _p(f"  журнал: {log_file}")
+    tail = log_text.splitlines()[-6:]
+    if tail:
+        _p("  последние строки:")
+        for line in tail:
             _p(f"    {line}")
     report = work / "summary.md"
-    _p(f"  отчёт: {report}" if report.exists() else "  (отчёт ещё не написан)")
-    return 0
+    _p(f"  отчёт: {report}" if report.exists() else "")
+    return 0 if (alive or state.get("finished")) else 2
+
+
+def status(root: Path | None = None, watch: float | None = None) -> int:
+    """`--status` once, or `--watch N` — the same screen refreshed every N seconds until the run ends."""
+    root = Path(root or ROOT)
+    if not watch:
+        return render_status(root)
+    try:
+        while True:
+            if sys.stdout.isatty():
+                print("\033[2J\033[H", end="")       # clear screen; plain repeated blocks if not a terminal
+            print(f"обновление каждые {watch:.0f} с, Ctrl+C — выход\n")
+            code = render_status(root)
+            if code != 0:
+                return code
+            time.sleep(watch)
+    except KeyboardInterrupt:
+        _p("\nвыход из --watch, закачка продолжается в фоне")
+        return 0
 
 
 def spawn(args) -> int:
     work = ROOT / "logs" / f"download-{datetime.now():%Y%m%d-%H%M%S}"
     work.mkdir(parents=True, exist_ok=True)
-    log = open(work / "run.log", "w", encoding="utf-8")          # noqa: SIM115 (the child keeps it open)
+    log = open(work / "spawn.log", "w", encoding="utf-8")        # noqa: SIM115 (the child keeps it open)
     cmd = [sys.executable, str(Path(__file__)), "--foreground", "--work-dir", str(work)]
     for flag, value in (("--since", args.since), ("--until", args.until),
                         ("--only", ",".join(args.only) if args.only else None),
@@ -310,11 +440,15 @@ def main(argv=None) -> int:
     ap.add_argument("--dry-run", action="store_true", help="только показать план")
     ap.add_argument("--foreground", action="store_true", help="работать в этом окне, не уходить в фон")
     ap.add_argument("--status", action="store_true", help="итог последнего прогона")
+    ap.add_argument("--watch", type=float, nargs="?", const=15.0, default=None, metavar="SECONDS",
+                    help="обновлять экран статуса каждые N секунд (по умолчанию 15), пока закачка идёт")
     ap.add_argument("--work-dir", default=None, help=argparse.SUPPRESS)
     ap.set_defaults(build=True)
     a = ap.parse_args(argv)
     a.only = [s.strip() for s in a.only.split(",") if s.strip()] if a.only else None
 
+    if a.watch is not None:
+        return status(watch=a.watch)
     if a.status:
         return status()
     until = a.until or today_utc()
