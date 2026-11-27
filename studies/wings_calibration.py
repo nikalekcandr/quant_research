@@ -64,7 +64,9 @@ def books(until,enrich=None,*,since=START):
         q["normal"] = q.fair.where(q.cheap_yes,1-q.fair)
         parts.append(q)
     d = pd.concat(parts,ignore_index=True)
-    outcome = d.market.map(resolve_ladder(d.market.unique(),settlement_cache()))
+    # numeric, not object: pandas 3 keeps a mapped column as strings when any key is missing, and then
+    # `1 - outcome` raises instead of subtracting (this alone broke a dozen wing studies on pandas 3)
+    outcome = pd.to_numeric(d.market.map(resolve_ladder(d.market.unique(),settlement_cache())),errors="coerce")
     # The downloader also archives each event's official BRTI settlement.
     # Adjacent resolved strikes alone do not always bracket an otherwise missing ticker.
     missing = d.loc[outcome.isna(),["event","market"]].drop_duplicates()
@@ -77,7 +79,7 @@ def books(until,enrich=None,*,since=START):
         official = missing.event.map(values.loc[values["min"].eq(values["max"]),"min"])
         strike = pd.to_numeric(missing.market.str.rsplit("-T",n=1).str[-1],errors="coerce")
         valid = official.notna() & strike.notna()
-        extra = dict(zip(missing.market[valid],official[valid].gt(strike[valid]).astype(int)))
+        extra = dict(zip(missing.market[valid],official[valid].gt(strike[valid]).astype(float)))
         outcome = outcome.fillna(d.market.map(extra))
     d["y"] = outcome.where(d.cheap_yes,1-outcome)
     return d,pd.DatetimeIndex(sorted(hours),name="end")
