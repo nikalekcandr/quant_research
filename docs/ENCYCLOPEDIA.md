@@ -495,6 +495,10 @@ MLP −0.11, классификатор −0.64 — то есть больше �
     окном 5–15 мин на ней почти не наблюдаемы (570 строк против 18 078 у архива).
 28. В архиве каждую среду нет 06:00–09:00 UTC (68 часов); в ноябре нет 07:00–10:00 UTC (8 часов). Обе
     дыры в одной полосе — часовые гейты там читать осторожно.
+28б. `No module named 'config'` = файл запущен как скрипт, и в `sys.path` попал `src/download/`, а не корень.
+    В `src/download/*.py` теперь стоит bootstrap (`if __package__ in (None, "")`), поэтому работают оба
+    способа: `python -m src.download.update` и `python src/download/update.py`. Голый запуск `update.py`
+    ничего не качает — печатает аудит.
 29. `for period, (a, b) in periods.items():` затирает переменную `b` (наклон, коэффициент, что угодно).
     Такой цикл уже один раз сломал отчёт; называйте `(p0, p1)`.
 30. `groupby(...).shift()` в цикле по снимкам дорог; для «остатка против соседей» достаточно одной
@@ -538,6 +542,7 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt   # py3.11
 .venv/bin/python -m src.lit.build_encyclopedia # мега-энциклопедия из data/lit/bibliography.csv
 .venv/bin/python -m src.lit.import_openalex data/lit/*.json   # расширить до тысяч строк
 .venv/bin/python -m src.download.update --audit  # что из данных отстало и чем это докачать
+.venv/bin/python -m src.download.update --all    # докачать всё отставшее (без --all — только диагностика)
 
 # research-слой и отчёты
 .venv/bin/python -m src.pipeline               # download → build → models → evaluate

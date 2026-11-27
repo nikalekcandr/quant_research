@@ -1,15 +1,22 @@
 """One entry point for the downloads, with the audit before and after.
 
     python -m src.download.update --audit                 what is stale, how stale, and the command for each source
-    python -m src.download.update                         everything that is behind, newest data first
+    python -m src.download.update --all                   everything that is behind, newest data first
     python -m src.download.update --only kalshi,binance   just these sources
     python -m src.download.update --only kalshi --since 2026-10-27 --until 2026-11-27
-    python -m src.download.update --build                 rebuild the interim tables afterwards
+    python -m src.download.update --only kalshi --build   then rebuild the interim tables of those sources
+
+Run with no arguments at all (an IDE "Run" button) it only prints the audit and the hint, it never starts a
+download: pulling every source by accident is exactly the kind of surprise a "Run" click must not produce.
+
+Both invocation styles work: `python -m src.download.update` from the repository root and
+`python src/download/update.py` (or the green triangle in an IDE), which is why the file bootstraps sys.path
+below. Without that, Python puts src/download/ on the path instead of the root and `import config` fails with
+`ModuleNotFoundError: No module named 'config'`.
 
 Every downloader skips what is already on disk, so an interrupted run is resumed by running the same command
-again. `--from-scratch` re-downloads the history of the chosen sources (it does not delete anything first; the
-downloaders overwrite the same files). Kalshi is the slow one (~80 s per day of hourly ladders, ~50 requests per
-day) — always run it first for the recent weeks, then let the long backfill run in the background.
+again. Kalshi is the slow one (~80 s per day of hourly ladders, ~50 requests per day) — always run it first for
+the recent weeks, then let the long backfill run in the background.
 """
 from __future__ import annotations
 
@@ -19,6 +26,16 @@ import time
 import traceback
 
 import pandas as pd
+
+# --- runnable both ways -------------------------------------------------------
+# `python -m src.download.NAME` and `python src/download/NAME.py` (an IDE "Run" button) must both work:
+# when this file is executed as a script, Python puts src/download/ on sys.path instead of the repository
+# root, and `import config` fails. Put the root back before importing anything from the project.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+# -----------------------------------------------------------------------------
 
 import config
 from src import runner
@@ -102,6 +119,7 @@ def audit_table() -> pd.DataFrame:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="download every source that is behind, one source at a time")
+    ap.add_argument("--all", action="store_true", help="download every stale source (required to start a download)")
     ap.add_argument("--only", default=None, help="comma-separated subset of " + ", ".join(SOURCES))
     ap.add_argument("--since", default=None, help="first date to download (default: config.*_START)")
     ap.add_argument("--until", default=None, help="last date to download (default: now)")
@@ -111,14 +129,18 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
 
     table = audit_table()
-    if a.audit:
+    if a.audit or not (a.all or a.only):
         print(table.to_string(index=False))
         behind = table[(table["gap days"] > 0.5) & table["command"].str.startswith("python")]
-        print(f"\n{len(behind)} source(s) behind; "
-              f"{'run without --audit to fill them' if len(behind) else 'nothing to do'}")
+        print(f"\n{len(behind)} source(s) behind.")
+        if not (a.all or a.only):
+            print("Ничего не скачано: это только диагностика.")
+            print("Чтобы качать — добавьте источник:")
+            print("  python -m src.download.update --all                     # всё, что отстало")
+            print("  python -m src.download.update --only binance,funding    # только эти")
         return 0
 
-    names = plan(a.only)
+    names = ORDER if a.all and not a.only else plan(a.only)
     if not a.no_keep_awake:
         kept = runner.keep_awake()
         log(f"sleep inhibitor: {'installed' if kept else 'not available on this machine'}")

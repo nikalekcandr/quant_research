@@ -29,6 +29,16 @@ import sys
 
 import pandas as pd
 
+# --- runnable both ways -------------------------------------------------------
+# `python -m src.download.NAME` and `python src/download/NAME.py` (an IDE "Run" button) must both work:
+# when this file is executed as a script, Python puts src/download/ on sys.path instead of the repository
+# root, and `import config` fails. Put the root back before importing anything from the project.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+# -----------------------------------------------------------------------------
+
 import config
 
 ROOT = config.ROOT
