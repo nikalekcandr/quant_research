@@ -38,7 +38,7 @@ def simulate_prices(start: str, end: str) -> pd.DataFrame:
     logv_h = base + slow + fast
     hr = t.hour.to_numpy()
     diurnal = np.where((hr >= 13) & (hr < 21), 1.5, np.where((hr >= 0) & (hr < 6), 0.75, 1.0))
-    weekend = np.where(t.dayofweek.to_numpy() >= 5, 0.6, 1.0)
+    weekend = np.where(t.day_of_week.to_numpy() >= 5, 0.6, 1.0)
     var_m = np.exp(np.repeat(logv_h, 60)[: len(t)]) * diurnal * weekend
     z = stats.t.rvs(5, size=len(t), random_state=RNG) / np.sqrt(5 / 3)
     r = np.sqrt(var_m) * z
@@ -166,7 +166,7 @@ def write_deribit(px: pd.DataFrame, since: str):
         S = close.asof(snap)
         atm = np.sqrt(sv.asof(snap) * MIN_PER_YEAR * 1.2) * 100 * np.exp(0.05 * RNG.standard_normal())
         exps = [(snap.normalize() + pd.Timedelta(days=i, hours=8)) for i in range(1, 4)]
-        fri = snap.normalize() + pd.Timedelta(days=(4 - snap.dayofweek) % 7 or 7, hours=8)
+        fri = snap.normalize() + pd.Timedelta(days=(4 - snap.day_of_week) % 7 or 7, hours=8)
         exps += [fri + pd.Timedelta(days=7 * j) for j in range(3)]
         trades = []
         for e in sorted(set(exps)):

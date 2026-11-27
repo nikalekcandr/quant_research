@@ -59,7 +59,7 @@ def variance_model(cb):
     full = pd.date_range(cb.index.min(), cb.index.max(), freq="1min")
     px = cb["close"].reindex(full).ffill()
     r2 = np.log(px).diff() ** 2
-    how = full.dayofweek * 24 + full.hour
+    how = full.day_of_week * 24 + full.hour
     df = pd.DataFrame({"r2": r2.values, "how": how, "day": full.floor("D")}, index=full)
     daily = df.groupby(["day", "how"])["r2"].mean().unstack()               # day x hour-of-week
     sea = daily.rolling(28, min_periods=7).mean().shift(1)                  # past days only
@@ -112,7 +112,7 @@ def build(mk, c, cb):
     c["mid_prev"] = c.groupby("ticker")["mid"].shift(1)
     c.loc[c.groupby("ticker")["tau"].shift(1) != c["tau"] + 2, "mid_prev"] = np.nan      # TAUS are 2 min apart
     c["hour_et"] = c["ts"].dt.tz_convert("America/New_York").dt.hour
-    c["weekend"] = c["ts"].dt.tz_convert("America/New_York").dt.dayofweek >= 5
+    c["weekend"] = c["ts"].dt.tz_convert("America/New_York").dt.day_of_week >= 5
     ok = c["bid"].gt(0) & c["ask"].lt(1) & c["spread"].le(MAX_SPREAD) & c["model"].notna()
     return c[ok].copy(), st
 

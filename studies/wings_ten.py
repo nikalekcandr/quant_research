@@ -225,6 +225,12 @@ def t3_moneyness(d: pd.DataFrame) -> pd.DataFrame:
 def t4_early_exit(d: pd.DataFrame) -> pd.DataFrame:
     """Sell the wing, buy it back after Δ minutes at the ask, instead of holding to settlement."""
     px = d.set_index(["ticker", "ts"])[["bid", "ask"]]
+    # На реальных данных встречаются повторные (тикер, минута) — от пересекавшихся загрузок, — а reindex
+    # по неуникальному MultiIndex падает с «cannot handle a non-unique multi-index». Берём последнюю запись.
+    if px.index.has_duplicates:
+        dups = int(px.index.duplicated().sum())
+        print(f"  в лесенке {dups} повторных строк (тикер, минута) — оставляю последнюю", flush=True)
+        px = px[~px.index.duplicated(keep="last")]
     rows = []
     for r_ in CHAMPS:
         t = book(r_, d)

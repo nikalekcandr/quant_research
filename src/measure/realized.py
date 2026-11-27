@@ -81,7 +81,7 @@ class Minutes:
 
 # ------------------------------------------------------------------ intraday seasonality
 def hour_of_week(ts: pd.DatetimeIndex) -> np.ndarray:
-    return (ts.dayofweek * 24 + ts.hour).to_numpy()
+    return (ts.day_of_week * 24 + ts.hour).to_numpy()
 
 
 def seasonal_profiles(m: Minutes, lookback_days: int = 90) -> dict:

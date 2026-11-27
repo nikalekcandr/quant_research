@@ -62,6 +62,12 @@ CODE_DIRS = ("studies", "src", "scripts")
 LADDER_DIR = ROOT / "data" / "raw" / "kalshi_kxbtcd_60m"
 PER_STUDY_TIMEOUT = 45 * 60
 
+# Ребёнку — UTF-8 и предупреждения «по разу». Windows с русской локалью отдаёт дочернему процессу cp1251,
+# если тот пишет в pipe: на символе ¢ (в названиях колонок — «¢/час») print падал с UnicodeEncodeError,
+# и это выглядело как ошибка исследования. PYTHONWARNINGS=once убирает и заливку одинаковыми
+# предупреждениями pandas (Pandas4Warning про dayofweek повторялся больше пятнадцати минут подряд).
+CHILD_ENV = {**os.environ, "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8", "PYTHONWARNINGS": "once"}
+
 # (исследование, группа, что показывает, оценка в секундах, тяжёлое)
 REGISTRY = [
     # --- панель: то, из чего считаются крылья
@@ -359,11 +365,15 @@ def classify(rc, log_text: str) -> tuple[str, str]:
     if re.search(r"No objects to concatenate|Empty DataFrame|No .* in the study window|not enough|empty", log_text,
                  re.IGNORECASE):
         return "nodata", "нет данных в окне"
-    err = ""
-    for line in reversed(log_text.strip().splitlines()):
-        if line.strip() and not line.startswith(" "):
-            err = line.strip()[:160]
-            break
+    # Сначала ищем настоящую ошибку: без этого в итог попадал последний прогресс-принт
+    # («ошибка: 5665 hours, 50272 strikes …» вместо UnicodeEncodeError).
+    named = [ln.strip() for ln in log_text.splitlines() if re.search(r"\w*(?:Error|Exception)\b", ln)]
+    err = named[-1][:160] if named else ""
+    if not err:
+        for line in reversed(log_text.strip().splitlines()):
+            if line.strip() and not line.startswith(" "):
+                err = line.strip()[:160]
+                break
     return "error", f"ошибка: {err}" if err else "ошибка (см. лог)"
 
 
@@ -377,12 +387,20 @@ def run_study(row: dict, work: Path, index: int, total: int) -> dict:
         with open(log_path, "w", encoding="utf-8", errors="replace") as log:
             proc = subprocess.Popen([sys.executable, "-m", f"studies.{name}"], cwd=str(ROOT),
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-                                    encoding="utf-8", errors="replace", bufsize=1)
+                                    encoding="utf-8", errors="replace", bufsize=1, env=CHILD_ENV)
             deadline = t0 + PER_STUDY_TIMEOUT
+            last, repeats = None, 0
             for line in proc.stdout:
                 log.write(line)
-                lines.append(line.rstrip())
-                _p(f"  | {line.rstrip()[:200]}")
+                text_line = line.rstrip()
+                lines.append(text_line)
+                if text_line == last:
+                    repeats += 1
+                else:
+                    if repeats:
+                        _p(f"  | … то же сообщение ещё {repeats} раз (в логе целиком)")
+                    last, repeats = text_line, 0
+                    _p(f"  | {text_line[:200]}")
                 if time.time() > deadline:
                     proc.kill()
                     break

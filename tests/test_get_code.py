@@ -13,6 +13,22 @@ get_code = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(get_code)
 
 
+class CodeDirsTest(unittest.TestCase):
+    """Каталог с кодом, забытый в CODE_DIRS, — это код, который никогда не обновится.
+
+    Так уже случилось с `lab/`: `studies/*.py` обновлялись, а `lab/core.py` нет, и исследования падали с
+    `cannot import name 'utc_index' from 'lab.core'`.
+    """
+
+    def test_every_code_directory_is_synced(self):
+        skip = {"data", "results", "reports", "logs", "docs_assets", "node_modules"}
+        on_disk = {p.name for p in (ROOT).iterdir()
+                   if p.is_dir() and any(p.rglob("*.py")) and p.name not in skip
+                   and not p.name.startswith((".", "__"))}
+        covered = {d.split("/")[0] for d in get_code.CODE_DIRS}
+        self.assertEqual(sorted(on_disk - covered), [], "каталог с кодом не синхронизируется")
+
+
 class FilterTest(unittest.TestCase):
     def test_code_files_pass(self):
         for p in ("src/download/update.py", "studies/wings_ten.py", "tests/test_lit.py", "scripts/get_code.py",

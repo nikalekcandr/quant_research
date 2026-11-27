@@ -140,6 +140,23 @@ class GeneratedFilesTest(unittest.TestCase):
         self.assertIn("results/", get_code.GENERATED_PREFIXES)
 
 
+class ChildProcessEnvTest(unittest.TestCase):
+    """Ребёнок должен получать UTF-8, иначе на Windows cp1251 убивает print('¢/час')."""
+
+    def test_child_gets_utf8_and_quiet_warnings(self):
+        self.assertEqual(sa.CHILD_ENV["PYTHONUTF8"], "1")
+        self.assertEqual(sa.CHILD_ENV["PYTHONIOENCODING"], "utf-8")
+        self.assertEqual(sa.CHILD_ENV["PYTHONWARNINGS"], "once")
+
+    def test_no_deprecated_dayofweek_left_in_the_code(self):
+        offenders = []
+        for f in list((ROOT / "studies").glob("*.py")) + list((ROOT / "lab").glob("*.py")) \
+                + list((ROOT / "src").rglob("*.py")) + [ROOT / "research.py"]:
+            if f.exists() and "dayofweek" in f.read_text(encoding="utf-8"):
+                offenders.append(str(f.relative_to(ROOT)))
+        self.assertEqual(offenders, [], "pandas 4 переименует dayofweek в day_of_week")
+
+
 class ClassifyTest(unittest.TestCase):
     def test_missing_file(self):
         status, why = sa.classify(1, "Traceback...\nFileNotFoundError: [Errno 2] No such file or directory: "
@@ -156,6 +173,15 @@ class ClassifyTest(unittest.TestCase):
 
     def test_empty_selection_is_data_not_a_crash(self):
         self.assertEqual(sa.classify(1, "ValueError: No objects to concatenate")[0], "nodata")
+
+    def test_error_line_beats_the_last_progress_print(self):
+        log = ("5665 hours, 50252 strikes\n"
+               "Traceback (most recent call last):\n"
+               "UnicodeEncodeError: 'charmap' codec can't encode character '\\xa2'\n"
+               "готово: 5665 hours\n")
+        status, why = sa.classify(1, log)
+        self.assertEqual(status, "error")
+        self.assertIn("UnicodeEncodeError", why)
 
     def test_real_error_keeps_its_text(self):
         status, why = sa.classify(1, "Traceback (most recent call last):\nKeyError: 'rule'")

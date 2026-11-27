@@ -421,7 +421,7 @@ def r01_seasonality(D: Data, reg) -> Result:
     lr = np.log(D.rv_h.clip(lower=1e-12))
     lr = lr[lr > np.log(1e-11)]
     z = lr - lr.rolling(24 * 7, min_periods=24 * 3, center=False).mean().shift(1)   # remove level, real-time
-    how = z.index.dayofweek * 24 + z.index.hour
+    how = z.index.day_of_week * 24 + z.index.hour
     df = pd.DataFrame({"z": z, "how": how, "year": z.index.year}).dropna()
     obs, rows = [], []
     years = sorted(df["year"].unique())
@@ -440,7 +440,7 @@ def r01_seasonality(D: Data, reg) -> Result:
     et_idx = D.rv_h.index.tz_convert(ET)
     td = set(D.trading_days().strftime("%Y-%m-%d"))
     us = np.array([(d.strftime("%Y-%m-%d") in td) and (9.5 <= d.hour + d.minute / 60 < 16) for d in et_idx])
-    wk = D.rv_h.index.dayofweek >= 5
+    wk = D.rv_h.index.day_of_week >= 5
     share = pd.DataFrame({"rv": D.rv_h.values, "us": us, "wk": wk, "year": D.rv_h.index.year}, index=D.rv_h.index)
     srows = []
     for y, g in share.groupby("year"):
@@ -549,7 +549,7 @@ def r05_weekday(D: Data, reg) -> Result:
                  "'The day of the week effect in the cryptocurrency market'; Aharon & Qadan (2019)",
                  "Monday return minus the mean of the other six days of the week > 0", unit="bp/day", scale=1e4, lags=1)
     r = D.r_d.dropna()
-    df = pd.DataFrame({"r": r, "dow": r.index.dayofweek, "wk": r.index.to_period("W-SUN")})
+    df = pd.DataFrame({"r": r, "dow": r.index.day_of_week, "wk": r.index.to_period("W-SUN")})
     g = df.groupby("wk")
     mon = g.apply(lambda x: x.loc[x.dow == 0, "r"].mean() - x.loc[x.dow != 0, "r"].mean() if (x.dow == 0).any() and len(x) >= 5 else np.nan)
     mon.index = mon.index.to_timestamp().tz_localize("UTC")
@@ -572,7 +572,7 @@ def r05_weekday(D: Data, reg) -> Result:
             x = x[x.index >= lo]
         if hi is not None:
             x = x[x.index < hi]
-        ratio = x[x.index.dayofweek >= 5].mean() / x[x.index.dayofweek.isin([1, 2, 3])].mean()
+        ratio = x[x.index.day_of_week >= 5].mean() / x[x.index.day_of_week.isin([1, 2, 3])].mean()
         weeks = x.index.to_period("W-SUN")
         uw = np.unique(weeks)
         rng = np.random.default_rng(0)
@@ -580,7 +580,7 @@ def r05_weekday(D: Data, reg) -> Result:
         grp = {w: x[weeks == w] for w in uw}
         for _ in range(300):
             s = pd.concat([grp[w] for w in rng.choice(uw, len(uw))])
-            bs.append(s[s.index.dayofweek >= 5].mean() / s[s.index.dayofweek.isin([1, 2, 3])].mean())
+            bs.append(s[s.index.day_of_week >= 5].mean() / s[s.index.day_of_week.isin([1, 2, 3])].mean())
         wv.append({"era": era, "weekend RV / Tue-Thu RV": ratio, "90% CI low": np.quantile(bs, .05), "90% CI high": np.quantile(bs, .95)})
     res.details["weekend volatility"] = pd.DataFrame(wv)
     add_strat(res, "R5 long Monday only", df.loc[df.dow == 0, "r"], 2 * COST_BPS / 1e4)
@@ -612,7 +612,7 @@ def r06_macro(D: Data, reg) -> Result:
             base = []
             for k in range(1, 29):
                 b0 = ts - pd.Timedelta(days=k)
-                if b0.dayofweek < 5 and not (cal["ts"].sub(b0).abs() < pd.Timedelta(hours=2)).any():
+                if b0.day_of_week < 5 and not (cal["ts"].sub(b0).abs() < pd.Timedelta(hours=2)).any():
                     base.append((D.r1.loc[b0: b0 + pd.Timedelta(minutes=29)] ** 2).sum())
                 if len(base) >= 20:
                     break
@@ -1257,11 +1257,11 @@ def r21_vol_zoo(D: Data, reg) -> Result:
         x = np.r_[1, F.iloc[-1].values]
         out["HAR (log)"].append(math.exp(x @ b) * np.mean(np.exp(e)))
         # the same with weekday dummies for the target day (BTC weekends are ~0.4x as volatile)
-        tgt_dow = (dd.index + pd.Timedelta(days=1)).dayofweek
+        tgt_dow = (dd.index + pd.Timedelta(days=1)).day_of_week
         Dm = np.stack([(tgt_dow == k).astype(float) for k in range(1, 7)], axis=1)
         b3 = np.linalg.lstsq(np.c_[A, Dm], dd["y"].values, rcond=None)[0]
         e3 = dd["y"].values - np.c_[A, Dm] @ b3
-        dm_x = np.array([float(d.dayofweek == k) for k in range(1, 7)])
+        dm_x = np.array([float(d.day_of_week == k) for k in range(1, 7)])
         out["HAR (log) + weekday"].append(math.exp(np.r_[x, dm_x] @ b3) * np.mean(np.exp(e3)))
         L = pd.DataFrame({"d": hist, "w": hist.rolling(7).mean(), "m": hist.rolling(30).mean()})
         dl = pd.concat([hist.shift(-1).rename("y"), L], axis=1).dropna()
@@ -1279,7 +1279,7 @@ def r21_vol_zoo(D: Data, reg) -> Result:
                     fits[name] = arch_model(rr, mean="Constant", dist="t", **kw).fit(disp="off")
                 except Exception:
                     fits[name] = None
-            G = pd.DataFrame({"d": lh, "w": lh.rolling(7).mean(), "m": lh.rolling(30).mean(), "dow": lh.index.dayofweek,
+            G = pd.DataFrame({"d": lh, "w": lh.rolling(7).mean(), "m": lh.rolling(30).mean(), "dow": lh.index.day_of_week,
                               "ab": np.log(np.abs(r.reindex(lh.index)) + 1e-4)})
             dg = pd.concat([lh.shift(-1).rename("y"), G], axis=1).dropna()
             gb = HistGradientBoostingRegressor(max_iter=200, learning_rate=0.05, max_leaf_nodes=8, min_samples_leaf=20,
@@ -1288,7 +1288,7 @@ def r21_vol_zoo(D: Data, reg) -> Result:
         for name in ("GARCH(1,1)", "GJR", "EGARCH"):
             out[name].append(_garch_next(fits.get(name), name, rr))
         gb, sm = fits["GBM"]
-        xg = np.array([[lh.iloc[-1], lh.iloc[-7:].mean(), lh.iloc[-30:].mean(), (d - pd.Timedelta(days=1)).dayofweek,
+        xg = np.array([[lh.iloc[-1], lh.iloc[-7:].mean(), lh.iloc[-30:].mean(), (d - pd.Timedelta(days=1)).day_of_week,
                         math.log(abs(r.get(d - pd.Timedelta(days=1), 0) or 0) + 1e-4)]])
         out["GBM"].append(math.exp(gb.predict(xg)[0]) * sm)
     idx = days[-len(out["HAR (log)"]):]

@@ -111,7 +111,7 @@ def calendar_features(occ: pd.DataFrame) -> pd.DataFrame:
     shares = []
     for a, b in zip(occ["t"], occ["e"]):
         mins = pd.date_range(a, b, freq="15min", inclusive="left")
-        shares.append(float(np.mean(mins.dayofweek >= 5)) if len(mins) else np.nan)
+        shares.append(float(np.mean(mins.day_of_week >= 5)) if len(mins) else np.nan)
     f["weekend"] = shares
     return f
 

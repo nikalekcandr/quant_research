@@ -15,7 +15,9 @@ title Исследования quant_research
 set "PY=python"
 if exist ".venv\Scripts\python.exe" set "PY=.venv\Scripts\python.exe"
 chcp 65001 >nul
+set PYTHONUTF8=1
 set PYTHONIOENCODING=utf-8
+set PYTHONWARNINGS=once
 echo.
 "%PY%" scripts\study_all.py %*
 echo.

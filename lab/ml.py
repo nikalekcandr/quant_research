@@ -42,7 +42,7 @@ def features(close: pd.Series, volume: pd.Series, at: pd.DatetimeIndex) -> pd.Da
     out["z_1440"] = out["r_1440"] / np.sqrt(np.exp(out["rv_1440"]) * 1440)
     hr = at.hour + at.minute / 60
     out["h_sin"], out["h_cos"] = np.sin(2 * np.pi * hr / 24), np.cos(2 * np.pi * hr / 24)
-    out["dow_sin"], out["dow_cos"] = np.sin(2 * np.pi * at.dayofweek / 7), np.cos(2 * np.pi * at.dayofweek / 7)
+    out["dow_sin"], out["dow_cos"] = np.sin(2 * np.pi * at.day_of_week / 7), np.cos(2 * np.pi * at.day_of_week / 7)
     return pd.DataFrame(out, index=at)
 
 

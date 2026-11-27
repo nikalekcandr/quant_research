@@ -130,7 +130,7 @@ def et_now(now):
 
 
 def trading_day(d) -> bool:
-    return d.dayofweek < 5 and d.strftime("%Y-%m-%d") not in NYSE_HOLIDAYS
+    return d.day_of_week < 5 and d.strftime("%Y-%m-%d") not in NYSE_HOLIDAYS
 
 
 def phi(x):
@@ -507,7 +507,7 @@ def _level(ctx, model):
         r = r[r.index > r.index[-1] - pd.Timedelta(minutes=60)]
         if len(r) >= 40:
             s = ctx.minutes.seasonal()
-            how = r.index.dayofweek * 24 + r.index.hour
+            how = r.index.day_of_week * 24 + r.index.hour
             lv = float(((r ** 2) / s.reindex(how).values).mean())
     elif model == "kxiv":
         v = ctx.cache.get("kx_level_last")
@@ -1038,7 +1038,7 @@ def storm_ratio(ctx, window: int = 60) -> float | None:
     c = c[c.index > key - pd.Timedelta(days=40)]
     r2 = np.log(c).diff() ** 2
     idx = c.index
-    how = idx.dayofweek * 24 + idx.hour
+    how = idx.day_of_week * 24 + idx.hour
     df = pd.DataFrame({"r2": r2.values, "how": how, "day": idx.floor("D")}, index=idx)
     daily = df.groupby(["day", "how"])["r2"].mean().unstack()
     sea = daily.rolling(28, min_periods=7).mean().shift(1)
@@ -1099,7 +1099,7 @@ def w08(ctx):
     best = None
     for _, r in k.iterrows():
         end = pd.Timestamp(r["end"])
-        if end.dayofweek < 5:
+        if end.day_of_week < 5:
             continue
         bid, ask = r["bid"], r["ask"]
         if not (np.isfinite(bid) and np.isfinite(ask)) or ask - bid > 0.03:
@@ -1139,7 +1139,7 @@ def w11(ctx):
     best = {}
     for _, r in k.iterrows():
         end = pd.Timestamp(r["end"])
-        if end.dayofweek < 5:
+        if end.day_of_week < 5:
             continue
         bid, ask = r["bid"], r["ask"]
         if not (np.isfinite(bid) and np.isfinite(ask)) or ask - bid > 0.03:

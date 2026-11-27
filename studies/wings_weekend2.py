@@ -85,7 +85,7 @@ def holdout():
     c = pd.concat([a, b], ignore_index=True)
     c["T"], c["ticker"] = c.end, c.market
     c["pnl"] = c.c_bid - c.c_won - wl.fee(1 - c.c_bid)
-    c = c[c["T"].dt.dayofweek >= 5]
+    c = c[c["T"].dt.day_of_week >= 5]
     return c[c.c_bid.round(6).between(0.06, 0.10) & c.left.between(15, 30)]
 
 

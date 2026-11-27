@@ -183,7 +183,7 @@ def build_panel():
     p["dvol_z"] = (p["dvol"] - p["dvol"].rolling(720, min_periods=720).mean()) / p["dvol"].rolling(720, min_periods=720).std()
     # calendar / seasonality
     p["hour_utc"] = p["t"].dt.hour
-    p["dow"] = p["t"].dt.dayofweek
+    p["dow"] = p["t"].dt.day_of_week
     for k in (1, 2, 3, 6):
         p[f"sin_h{k}"] = np.sin(2 * np.pi * k * p["hour_utc"] / 24.0)
         p[f"cos_h{k}"] = np.cos(2 * np.pi * k * p["hour_utc"] / 24.0)

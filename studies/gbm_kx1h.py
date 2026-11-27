@@ -69,7 +69,7 @@ def features(m, times, ends):
     srf, sff = win("rf", t - pd.Timedelta(minutes=60) - m1, t - m1), win("ff", t - pd.Timedelta(minutes=60) - m1, t - m1)
     lam = (srf / n - sr * sf / n ** 2) / (sff / n - (sf / n) ** 2 + 1e-12)
     X["llam"] = np.log(np.clip(lam, 1e-9, None))
-    X["hour"], X["dow"] = e.hour, e.dayofweek
+    X["hour"], X["dow"] = e.hour, e.day_of_week
     X["minutes"] = (e - t).total_seconds() / 60
     y = np.log(win("r2", t - m1, e - m1) + 1e-12)
     return X, y
