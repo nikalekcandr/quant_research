@@ -26,6 +26,7 @@ whole-hour download takes about as long as the default one.
 from __future__ import annotations
 
 import threading
+import time
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -53,6 +54,46 @@ HIST_STRIKE_STEP = 200     # ... and every second strike ($200 apart)
 THREADS = 8                # parallel requests for archived events (the shared rate limit still applies)
 WORKERS = 4                # days fetched at the same time (--workers); the rate limit is shared anyway
 MIN_INTERVAL = 0.15        # seconds between requests, aggregate across threads (--min-interval)
+REPORT_EVERY = 30.0        # seconds between progress lines (a day can take a minute or two)
+
+# live counters, reset by every download_history() call: used for the progress line and the ETA
+STATS = {"requests": 0, "days_done": 0, "days_total": 0}
+_STATS_LOCK = threading.Lock()
+
+
+def _count(n: int = 1) -> None:
+    with _STATS_LOCK:
+        STATS["requests"] += n
+
+
+def _snapshot() -> tuple[int, int]:
+    with _STATS_LOCK:
+        return STATS["days_done"], STATS["requests"]
+
+
+def _human(seconds: float) -> str:
+    if seconds != seconds or seconds == float("inf"):      # NaN or unknown
+        return "?"
+    if seconds >= 5400:
+        return f"{seconds / 3600:.1f} h"
+    if seconds >= 90:
+        return f"{seconds / 60:.0f} min"
+    return f"{seconds:.0f} s"
+
+
+def _reporter(t0: float, total: int, stop: threading.Event, every: float) -> None:
+    """One line every `every` seconds: how many days are done, the request rate, and the ETA.
+
+    Without it an archive download looks dead: the first day takes a minute or two (a few hundred
+    requests per archived day), and until it finishes nothing is printed at all.
+    """
+    while not stop.wait(every):
+        done, req = _snapshot()
+        el = max(time.time() - t0, 1e-9)
+        per_min = done / el * 60
+        eta = (total - done) / per_min * 60 if done else float("inf")
+        log(f"kalshi: {done}/{total} days done, {el / 60:.1f} min elapsed, {req} requests "
+            f"({req / el:.1f}/s), {per_min:.1f} days/min, ETA {_human(eta)}")
 
 
 def event_ticker(close_et: datetime, series: str = "KXBTCD") -> str:
@@ -72,10 +113,12 @@ def _num(d: dict, key: str):
 
 def markets(http: Http, ev: str) -> tuple[list[dict], bool]:
     """Strikes of one hourly event and whether it lives in the historical archive."""
+    _count()
     res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000})
     mk = (res or {}).get("markets") or []
     if mk:
         return mk, False
+    _count()
     res = http.get(f"{BASE}/historical/markets", {"event_ticker": ev, "limit": 1000})
     return (res or {}).get("markets") or [], True
 
@@ -92,6 +135,7 @@ def candles(http: Http, tickers: list[str], t0: int, t1: int) -> list[dict]:
     rows = []
     for i in range(0, len(tickers), 50):
         chunk = tickers[i:i + 50]
+        _count()
         res = http.get(f"{BASE}/markets/candlesticks",
                        {"market_tickers": ",".join(chunk), "start_ts": t0, "end_ts": t1, "period_interval": 1})
         for m in (res or {}).get("markets", []):
@@ -104,6 +148,7 @@ def candles_hist(http: Http, tickers: list[str], t0: int, t1: int) -> list[dict]
     from concurrent.futures import ThreadPoolExecutor
 
     def one(tk):
+        _count()
         res = http.get(f"{BASE}/historical/markets/{tk}/candlesticks",
                        {"start_ts": t0, "end_ts": t1, "period_interval": 1})
         return [_candle_row(tk, c) for c in (res or {}).get("candlesticks", [])]
@@ -154,6 +199,8 @@ def _one_day(http: Http, day, *, minutes: int, series: str, hour_step: int, out_
         if len(prev) and prev["expiration_value"].notna().any():
             with lock:
                 center["v"] = float(prev["expiration_value"].dropna().iloc[-1])
+        with _STATS_LOCK:
+            STATS["days_done"] += 1
         return
     rows = []
     for hour in range(0, 24, hour_step):
@@ -203,13 +250,16 @@ def _one_day(http: Http, day, *, minutes: int, series: str, hour_step: int, out_
         pd.concat(rows, ignore_index=True).to_csv(f, index=False)
         if refetched:
             f.with_suffix(".dense").write_text("re-downloaded with the spacing-aware strike filter", encoding="utf-8")
+    with _STATS_LOCK:
+        STATS["days_done"] += 1
     log(f"kalshi: {day} ({sum(len(r) for r in rows)} candle rows){workers_note}")
 
 
 def download_history(since: str = config.KALSHI_START, until: str | None = None,
                      hour_step: int = config.KALSHI_HOUR_STEP, http: Http | None = None,
                      series: str = "KXBTCD", minutes: int = CANDLE_MINUTES,
-                     workers: int = WORKERS, min_interval: float = MIN_INTERVAL):
+                     workers: int = WORKERS, min_interval: float = MIN_INTERVAL,
+                     report_every: float = REPORT_EVERY):
     """One CSV per day: data/raw/kalshi/YYYY-MM-DD.csv.gz with strike metadata and the candles of the first
     `minutes` minutes of each hourly event (the last hour for the daily and weekly 17:00 ET events).
 
@@ -219,6 +269,7 @@ def download_history(since: str = config.KALSHI_START, until: str | None = None,
     1/min_interval requests per second.
     """
     http = http or Http(min_interval=min_interval)
+    t0 = time.time()
     day = pd.Timestamp(since).date()
     # only complete days: today's file would be saved half-empty and then skipped on the next run
     last_day = pd.Timestamp(until).date() if until else pd.Timestamp(utcnow()).tz_convert(ET).date() - timedelta(days=1)
@@ -226,16 +277,30 @@ def download_history(since: str = config.KALSHI_START, until: str | None = None,
     days = [day + timedelta(days=i) for i in range((last_day - day).days + 1)]
     log(f"kalshi: downloading {series} hourly ladders {day} .. {last_day}, {minutes} min of candles, "
         f"{len(days)} day(s), {max(1, workers)} worker(s), into {out_dir}")
-    log("kalshi: one line per day; the first one appears in about 20-60 seconds (8-15 s with --workers 4)")
+    log(f"kalshi: about {1 / max(min_interval, 1e-3):.0f} requests/s shared by all workers; a live day is "
+        f"~48 requests, an archived one ~400 (candles of archived markets come one ticker per request)")
+    log("kalshi: one line per finished day; progress with the ETA comes every "
+        f"{report_every:.0f} s — a day can take a minute or two, nothing is stuck")
     center, lock = {"v": None}, threading.Lock()
     kw = dict(minutes=minutes, series=series, hour_step=hour_step, out_dir=out_dir, center=center, lock=lock)
-    if workers <= 1:
-        for d in days:
-            _one_day(http, d, **kw)
-        return
-    from concurrent.futures import ThreadPoolExecutor
-    with ThreadPoolExecutor(max_workers=workers) as ex:
-        list(ex.map(lambda d: _one_day(http, d, **kw), days))
+    with _STATS_LOCK:
+        STATS.update(requests=0, days_done=0, days_total=len(days))
+    stop = threading.Event()
+    watchdog = threading.Thread(target=_reporter, args=(t0, len(days), stop, report_every), daemon=True)
+    watchdog.start()
+    try:
+        if workers <= 1:
+            for d in days:
+                _one_day(http, d, **kw)
+        else:
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=workers) as ex:
+                list(ex.map(lambda d: _one_day(http, d, **kw), days))
+    finally:
+        stop.set()
+        watchdog.join(timeout=1)
+    done, req = _snapshot()
+    log(f"kalshi: finished {done}/{len(days)} days in {_human(time.time() - t0)}, {req} requests")
 
 
 def build_interim() -> pd.DataFrame:
@@ -257,6 +322,7 @@ def snapshot(http: Http, snap_ts, series: str = "KXBTCD") -> pd.DataFrame:
     now_et = pd.Timestamp(snap_ts).tz_convert(ET)
     close_et = (now_et.floor("h") + pd.Timedelta(hours=1)).to_pydatetime()
     ev = event_ticker(close_et, series)
+    _count()
     res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}
     rows = []
     for m in res.get("markets", []):

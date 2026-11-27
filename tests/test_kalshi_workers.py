@@ -99,6 +99,25 @@ class WorkersTest(unittest.TestCase):
                 pd.testing.assert_frame_equal(left, right, check_like=True)
             self.assertGreater(seq / max(par, 1e-6), 1.8, f"sequential {seq:.1f}s vs parallel {par:.1f}s")
 
+    def test_progress_line_reports_days_requests_and_eta(self):
+        import contextlib
+        import io
+        out = io.StringIO()
+        with TemporaryDirectory() as d:
+            old_base, old_raw = kalshi.BASE, kalshi.RAW_DIR
+            kalshi.BASE, kalshi.RAW_DIR = self.base, Path(d)
+            try:
+                with contextlib.redirect_stdout(out):
+                    kalshi.download_history("2026-10-02", "2026-10-03", hour_step=6,
+                                            http=Http(min_interval=0.0), workers=2, report_every=0.2)
+            finally:
+                kalshi.BASE, kalshi.RAW_DIR = old_base, old_raw
+        text = out.getvalue()
+        self.assertRegex(text, r"kalshi: \d+/2 days done")
+        self.assertIn("requests", text)
+        self.assertIn("ETA", text)
+        self.assertRegex(text, r"kalshi: finished 2/2 days in .* \d+ requests")
+
     def test_existing_days_are_skipped(self):
         with TemporaryDirectory() as d:
             first, _ = self.run_days(2, ["2026-10-02", "2026-10-03"], d)
