@@ -112,10 +112,18 @@ def _write_manifest(root: Path, manifest: dict, tree: dict[str, str], commit: st
         json.dumps({"commit": commit, "when": time.time(), "files": files}, indent=1), encoding="utf-8")
 
 
+# Outputs: studies rewrite them on every run, so a local copy is never "work worth protecting" and must never
+# block a code update. This is what silently stopped one user's whole update: a regenerated
+# results/studies/carry_portfolio.md differed from the synced copy → the script printed a list, wrote nothing,
+# and the launcher still said "готово".
+GENERATED_PREFIXES = ("results/", "reports/", "logs/")
+
+
 def locally_edited(root: Path, manifest: dict, paths: list[str]) -> list[str]:
     """Files we synced before and that the user has changed since (hash differs from what we wrote)."""
     known = manifest.get("files", {})
-    return [p for p in paths if p in known and local_sha(root / p) != known[p]]
+    return [p for p in paths
+            if p in known and not p.startswith(GENERATED_PREFIXES) and local_sha(root / p) != known[p]]
 
 
 def _blob(root: Path, sha: str) -> bytes:
@@ -174,6 +182,7 @@ def git_backend(root: Path, remote: str, branch: str, dry_run: bool, force: bool
             for p in edited[:10]:
                 print(f"    {p}")
             print("  run with --force to replace them anyway")
+            print("  !!! NOTHING WAS UPDATED — the code on disk is still the old one")
             return 2
 
     t1 = time.time()

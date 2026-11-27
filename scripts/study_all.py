@@ -7,6 +7,15 @@
     python scripts/study_all.py --skip wings_ml,test_100_ideas    всё, кроме этих
     python scripts/study_all.py --list           список исследований с оценками
     python scripts/study_all.py --status         итог последнего запуска
+    python scripts/study_all.py --group крылья   только одна группа
+    python scripts/study_all.py --rerun          пересчитать всё, даже если данные и код не менялись
+    python scripts/study_all.py --no-check       без проверки импорта в начале (экономит ~30 с)
+
+Повторный запуск не повторяет работу: если ни данные (`data/raw`, `data/lab`, `data/lit`), ни код
+(`studies/`, `src/`, `scripts/`) не менялись с прошлого успешного прогона, исследование пропускается с
+пометкой «пропущено (нет изменений)». Оценки времени берутся из фактических прогонов
+(`data/interim/study_times.json`), а не из констант в реестре. Перед стартом все исследования
+проверяются на импорт — сломанный пакет видно за 15 секунд, а не через 80 минут.
 
 Как это устроено:
 
@@ -46,6 +55,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 PANEL_CACHE = ROOT / "data" / "interim" / "wing_panel.parquet"
+TIMES_FILE = ROOT / "data" / "interim" / "study_times.json"      # фактические длительности прогонов
+STATE_FILE = ROOT / "data" / "interim" / "study_state.json"      # что уже посчитано на этих данных и коде
+INPUT_DIRS = ("data/raw", "data/lab", "data/lit")                # входы: меняются — пересчитываем
+CODE_DIRS = ("studies", "src", "scripts")
 LADDER_DIR = ROOT / "data" / "raw" / "kalshi_kxbtcd_60m"
 PER_STUDY_TIMEOUT = 45 * 60
 
@@ -133,6 +146,150 @@ def _mmss(sec: float) -> str:
     if sec < 90:
         return f"{sec:.0f} с"
     return f"{sec / 60:.1f} мин"
+
+
+def code_stamp() -> str:
+    """Короткая метка версии кода: commit, если есть .git, иначе хеш файлов.
+
+    Нужна ровно для одного вопроса — «та ли это версия, что я обновил»: она печатается в первой строке
+    прогона и в итоговом файле, поэтому «запустил старый код» видно сразу, а не через час.
+    """
+    try:
+        r = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=str(ROOT), capture_output=True,
+                           text=True, timeout=10)
+        if r.returncode == 0 and r.stdout.strip():
+            return r.stdout.strip()
+    except Exception:                                     # noqa: BLE001 — git не обязателен
+        pass
+    import hashlib
+
+    h = hashlib.sha256()
+    for d in CODE_DIRS:
+        for f in sorted((ROOT / d).rglob("*.py")):
+            h.update(f"{f.relative_to(ROOT)}:{f.stat().st_mtime_ns}".encode())
+    return "b" + h.hexdigest()[:8]
+
+
+def input_stamp() -> str:
+    """Отпечаток входных данных: путь+размер+mtime всех файлов в data/raw, data/lab, data/lit.
+
+    Дороже хеширования содержимого (данные — 375 МБ), но честно отвечает на вопрос «данные с прошлого раза
+    изменились?», не читая их целиком.
+    """
+    import hashlib
+
+    h = hashlib.sha256()
+    for d in INPUT_DIRS:
+        base = ROOT / d
+        if not base.exists():
+            continue
+        for f in sorted(base.rglob("*")):
+            if f.is_file() and not f.name.startswith("."):
+                st = f.stat()
+                h.update(f"{f.relative_to(ROOT)}:{st.st_size}:{st.st_mtime_ns}".encode())
+    return h.hexdigest()[:16]
+
+
+def watermark() -> str:
+    """Код + данные. Пока отпечаток тот же, успешные исследования повторять незачем."""
+    return f"{code_stamp()}/{input_stamp()}"
+
+
+def load_json(path: Path) -> dict:
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8"))
+    except Exception:                                     # noqa: BLE001 — файла нет или он битый
+        return {}
+
+
+def _history(entry) -> list[dict]:
+    """История прогонов в одном формате: [{"s": секунды, "ok": был ли прогон успешным}]."""
+    out = []
+    for h in entry or []:
+        if isinstance(h, dict):
+            out.append({"s": float(h.get("s", 0)), "ok": bool(h.get("ok", True))})
+        elif isinstance(h, (int, float)):
+            out.append({"s": float(h), "ok": True})         # старый формат — просто число
+    return out
+
+
+def record_time(name: str, seconds: float, ok: bool = True) -> None:
+    """Запомнить фактическую длительность: оценки в реестре стареют, факт — нет."""
+    times = load_json(TIMES_FILE)
+    times[name] = [{"s": round(seconds, 1), "ok": bool(ok)}, *_history(times.get(name))[:4]]
+    TIMES_FILE.parent.mkdir(parents=True, exist_ok=True)
+    TIMES_FILE.write_text(json.dumps(times, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def learned_estimate(row: dict, times: dict) -> tuple[float, bool]:
+    """(секунды, из_факта). Медиана последних успешных прогонов, иначе константа из реестра.
+
+    Именно успешных: упавшее за секунду исследование не должно обещать, что в следующий раз оно быстрое.
+    """
+    hist = _history(times.get(row["name"])) if times else []
+    ok = sorted(h["s"] for h in hist if h["ok"])[:3] or sorted(h["s"] for h in hist)[:3]
+    if not ok:
+        return float(row["est"]), False
+    return float(ok[len(ok) // 2]), True
+
+
+def apply_estimates(rows: list[dict]) -> list[dict]:
+    times = load_json(TIMES_FILE)
+    for r in rows:
+        r["est"], r["est_fact"] = learned_estimate(r, times)
+    return rows
+
+
+def pending(rows: list[dict], stamp: str, rerun: bool) -> tuple[list[dict], list[dict]]:
+    """Разделить на (надо считать, можно пропустить) по отпечатку прошлого успешного прогона."""
+    if rerun:
+        return rows, []
+    state = load_json(STATE_FILE)
+    todo, skip = [], []
+    for r in rows:
+        done = state.get(r["name"], {})
+        if done.get("status") == "ok" and done.get("stamp") == stamp:
+            skip.append(r)
+        else:
+            todo.append(r)
+    return todo, skip
+
+
+def remember(row: dict) -> None:
+    """Отметить прогон под текущим отпечатком (атомарно: переживёт сбой посреди записи)."""
+    state = load_json(STATE_FILE)
+    entry = state.get(row["name"], {})
+    entry.update({"status": row["status"], "stamp": row.get("stamp", ""),
+                  "when": datetime.now().isoformat(timespec="seconds"),
+                  "seconds": row.get("seconds", 0)})
+    state[row["name"]] = entry
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = STATE_FILE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
+    tmp.replace(STATE_FILE)
+
+
+def import_check(names: list[str], workers: int = 8) -> dict[str, str]:
+    """Импортируется ли каждое исследование — параллельно, за секунды вместо 80-минутного прогона.
+
+    Ловит «нет пакета», синтаксис и несовместимость с этой версией pandas до старта: такие исследования не
+    запускаются вовсе, а сразу попадают в итог с причиной.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+
+    def one(name: str) -> tuple[str, str]:
+        try:
+            r = subprocess.run([sys.executable, "-c", f"import studies.{name}"], cwd=str(ROOT),
+                               capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
+        except Exception as exc:                          # noqa: BLE001
+            return name, f"{type(exc).__name__}: {exc}"
+        if r.returncode == 0:
+            return name, ""
+        tail = [ln for ln in (r.stderr or "").strip().splitlines() if ln.strip()]
+        return name, (tail[-1].strip()[:160] if tail else "не импортируется")
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return {n: why for n, why in pool.map(one, names) if why}
 
 
 def plan(only=None, skip=None, heavy=True) -> list[dict]:
@@ -249,9 +406,16 @@ def run_study(row: dict, work: Path, index: int, total: int) -> dict:
 def write_summary(state: dict, work: Path) -> Path:
     rows = state["studies"]
     ok = [r for r in rows if r["status"] == "ok"]
-    bad = [r for r in rows if r["status"] != "ok"]
+    done = [r for r in rows if r["status"] != "skipped"]
+    bad = [r for r in done if r["status"] != "ok"]
     L = [f"# Исследования {state['started']}", ""]
-    L.append(f"Прошло **{len(ok)}** из **{len(rows)}**, общее время {_mmss(state['seconds'])}.")
+    L.append(f"Версия кода: `{state.get('version', '?')}` · Python {sys.version.split()[0]} · "
+             f"отпечаток данных `{state.get('stamp', '?')}`")
+    L.append("")
+    L.append(f"Прошло **{len(ok)}** из **{len(rows) - len([r for r in rows if r['status'] == 'skipped'])}** "
+             f"запущенных, общее время {_mmss(state['seconds'])}."
+             + (f" Пропущено без изменений: **{len([r for r in rows if r['status'] == 'skipped'])}**."
+                if any(r["status"] == "skipped" for r in rows) else ""))
     if bad:
         L.append("")
         L.append("## Что не прошло и почему")
@@ -280,11 +444,17 @@ def write_summary(state: dict, work: Path) -> Path:
     return path
 
 
-def run(rows: list[dict], work: Path | None = None) -> dict:
+def run(rows: list[dict], work: Path | None = None, *, rerun: bool = False, check: bool = True) -> dict:
     work = Path(work or ROOT / "logs" / f"studies-{datetime.now():%Y%m%d-%H%M%S}")
     work.mkdir(parents=True, exist_ok=True)
+    stamp = watermark()
+    rows, skipped = pending(rows, stamp, rerun)
+    for r in skipped:
+        r.update({"status": "skipped", "why": "пропущено (нет изменений в данных и коде)", "seconds": 0.0,
+                  "log": "", "tail": [], "stamp": stamp})
     total_est = sum(r["est"] for r in rows)
-    state = {"started": datetime.now().isoformat(timespec="seconds"), "studies": [], "artifacts": {}}
+    state = {"started": datetime.now().isoformat(timespec="seconds"), "studies": [], "artifacts": {},
+             "version": code_stamp(), "stamp": stamp, "skipped": len(skipped)}
     t0 = time.time()
 
     renamed = migrate_dense_markers()
@@ -294,17 +464,38 @@ def run(rows: list[dict], work: Path | None = None) -> dict:
         _p(f"кэш панели старше свежих свечей — пересобираю ({PANEL_CACHE.name})")
         PANEL_CACHE.unlink(missing_ok=True)
     n_raw = len(list(LADDER_DIR.glob("*.csv.gz")))
-    _p(f"исследований: {len(rows)}, сырых часовых лесенок на диске: {n_raw}, оценка {_mmss(total_est)}")
+    n_fact = sum(1 for r in rows if r.get("est_fact"))
+    _p(f"версия кода: {state['version']}, Python {sys.version.split()[0]}")
+    _p(f"к запуску: {len(rows)} исследований, пропущено (нет изменений): {len(skipped)}, "
+       f"сырых часовых лесенок: {n_raw}, оценка {_mmss(total_est)}"
+       + (f" (по {n_fact} фактическим прогонам)" if n_fact else ""))
     if n_raw == 0:
         _p("!!! нет ни одного файла в data/raw/kalshi_kxbtcd_60m — сначала scripts\\download_all.bat")
     _p(f"журналы: {work}")
+
+    broken: dict[str, str] = {}
+    if check and rows:
+        _p(f"проверяю импорт {len(rows)} исследований…")
+        broken = import_check([r["name"] for r in rows])
+        for name, why in broken.items():
+            _p(f"!!! не импортируется и не будет запущено: {name} — {why}")
     _p()
 
     before = _snapshot()
-    for i, row in enumerate(rows, 1):
-        state["studies"].append(run_study(row, work, i, len(rows)))
-        log_file = Path(state["studies"][-1]["log"])
-        state["studies"][-1]["log"] = str(log_file.relative_to(ROOT) if log_file.is_relative_to(ROOT) else log_file)
+    done_rows = [r for r in rows if r["name"] not in broken]
+    for i, row in enumerate(done_rows, 1):
+        row["stamp"] = stamp
+        result = run_study(row, work, i, len(done_rows))
+        log_file = Path(result["log"])
+        result["log"] = str(log_file.relative_to(ROOT) if log_file.is_relative_to(ROOT) else log_file)
+        state["studies"].append(result)
+        record_time(row["name"], result["seconds"], result["status"] == "ok")
+        remember({**result, "stamp": stamp})
+    for name, why in broken.items():
+        row = next(r for r in rows if r["name"] == name)
+        state["studies"].append({**row, "status": "nopkg", "why": f"не импортируется: {why}",
+                                 "seconds": 0.0, "log": "", "tail": [], "stamp": stamp})
+    state["studies"].extend(skipped)
     after = _snapshot()
     state["artifacts"] = {p: "" for p in after
                           if p.startswith(("results/", "reports/")) and after.get(p) != before.get(p)}
@@ -314,11 +505,17 @@ def run(rows: list[dict], work: Path | None = None) -> dict:
     path = write_summary(state, work)
 
     ok = sum(1 for r in state["studies"] if r["status"] == "ok")
+    n_skip = sum(1 for r in state["studies"] if r["status"] == "skipped")
+    failed = [r for r in state["studies"] if r["status"] not in ("ok", "skipped")]
     _p()
-    _p(f"готово: {ok}/{len(state['studies'])} прошло, {_mmss(state['seconds'])}, обновлено файлов: "
-       f"{len(state['artifacts'])}")
-    if ok < len(state["studies"]):
-        _p("что не прошло и почему — в итоговом файле; там же причина каждого сбоя")
+    if ok or failed:
+        _p(f"готово: {ok} из {len(state['studies']) - n_skip} запущенных прошло, {_mmss(state['seconds'])}, "
+           f"обновлено файлов: {len(state['artifacts'])}")
+    if failed:
+        _p(f"не прошло: {len(failed)} — причины в итоговом файле")
+    if n_skip:
+        _p(f"пропущено без изменений: {n_skip}" + ("" if ok or failed else " — всё уже посчитано на этих "
+                                                   "данных и коде; пересчитать заново: --rerun"))
     _p(f"итог: {path}")
     return state
 
@@ -365,7 +562,7 @@ def selftest() -> int:
 
         globals()["run_study"] = fake_run
         try:
-            state = run(fake, work=work)
+            state = run(fake, work=work, check=False)
         finally:
             globals()["run_study"] = old
         assert (work / "summary.md").exists() and (work / "state.json").exists()
@@ -378,12 +575,15 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="один запуск — все исследования, какие позволяют данные")
     ap.add_argument("--only", default=None, help="только эти исследования, через запятую")
     ap.add_argument("--skip", default=None, help="всё, кроме этих")
+    ap.add_argument("--group", default=None, help="только эта группа: крылья, волатильность, опционы, Kalshi 15m, отчёты")
+    ap.add_argument("--rerun", action="store_true", help="пересчитать всё, даже если данные и код не менялись")
+    ap.add_argument("--no-check", dest="check", action="store_false", help="не проверять импорт перед стартом")
     ap.add_argument("--no-heavy", dest="heavy", action="store_false", help="без тяжёлых (ML, ёмкость, опционы)")
     ap.add_argument("--dry-run", action="store_true", help="что будет запущено и сколько это минут")
     ap.add_argument("--list", action="store_true", help="список исследований")
     ap.add_argument("--status", action="store_true", help="итог последнего запуска")
     ap.add_argument("--selftest", action="store_true", help=argparse.SUPPRESS)
-    ap.set_defaults(heavy=True)
+    ap.set_defaults(heavy=True, check=True)
     a = ap.parse_args(argv)
     split = lambda s: [x.strip() for x in s.split(",") if x.strip()] if s else None  # noqa: E731
 
@@ -391,18 +591,30 @@ def main(argv=None) -> int:
         return selftest()
     if a.status:
         return status()
-    rows = plan(split(a.only), split(a.skip), a.heavy)
+    rows = apply_estimates(plan(split(a.only), split(a.skip), a.heavy))
+    if a.group:
+        known = sorted({r["group"] for r in rows})
+        rows = [r for r in rows if r["group"].lower() == a.group.lower()]
+        if not rows:
+            _p(f"такой группы нет: {a.group}. Есть: {', '.join(known)}")
+            return 1
     if a.list or a.dry_run:
+        todo, skipped = pending(rows, watermark(), a.rerun)
+        _p(f"версия кода: {code_stamp()}, Python {sys.version.split()[0]}")
         _p(f"{'исследование':26s}{'группа':16s}{'оценка':>10s}  что показывает")
         for r in rows:
-            _p(f"{r['name']:26s}{r['group']:16s}{_mmss(r['est']):>10s}  {r['what']}")
-        _p(f"\nвсего {len(rows)} исследований, оценка {_mmss(sum(r['est'] for r in rows))}")
+            mark = "" if r in todo else "  ← пропустится (нет изменений)"
+            _p(f"{r['name']:26s}{r['group']:16s}{_mmss(r['est']):>10s}  {r['what']}{mark}")
+        _p(f"\nвсего {len(rows)} исследований, к запуску {len(todo)}, "
+           f"оценка {_mmss(sum(r['est'] for r in todo))} (по факту прошлых прогонов, где он есть)")
+        if skipped:
+            _p(f"пропустится без изменений: {len(skipped)} — пересчитать всё: --rerun")
         _p(f"не входят (это загрузчики, им место в download_all): {', '.join(sorted(NOT_STUDIES))}")
         return 0
     if not rows:
-        _p("нечего запускать: проверьте --only/--skip")
+        _p("нечего запускать: проверьте --only/--skip/--group")
         return 1
-    return 0 if run(rows) else 0
+    return 0 if run(rows, rerun=a.rerun, check=a.check) else 0
 
 
 if __name__ == "__main__":
