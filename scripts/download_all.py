@@ -459,6 +459,18 @@ def summary_markdown(state: dict) -> str:
     else:
         lines.append("Все источники скачались без ошибок.")
     lines += ["", "```bash\npython scripts/download_all.py --status\n```"]
+    lines += ["", "## Дальше — пересчитать исследования на новых данных", "",
+              "Панель крыльев кэшируется: удалите кэш, иначе студии прочитают старые свечи.", "```powershell",
+              "del data\\interim\\wing_panel.parquet",
+              "python -m studies.wings_sleep        # ~8 с   сон, пропуски, залипание",
+              "python -m studies.wings_alpha        # ~14 с  относительная стоимость, DSR/PBO",
+              "python -m studies.wings_ten          # ~24 с  десять проверок (VRP, калибровка, бутстрэп, макро)",
+              "python -m studies.wings_scale        # ~25 с",
+              "python -m studies.wings_accuracy     # ~40 с",
+              "python -m studies.wings_ml           # ~2.5 мин",
+              "python -m studies.wings_capacity     # ~3 мин  лестница ёмкости",
+              "python -m src.report                 # reports/",
+              "```"]
     return "\n".join(lines)
 
 

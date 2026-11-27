@@ -95,6 +95,7 @@ class RunTest(unittest.TestCase):
             self.assertIn("Все источники скачались", summary)
             self.assertIn("всё свежее", summary)
             self.assertIn("## Проверка", summary)
+            self.assertIn("wing_panel.parquet", summary)      # the next steps point at the panel cache
 
     def test_a_failed_source_does_not_stop_the_rest(self):
         with TemporaryDirectory() as d:
