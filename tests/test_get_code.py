@@ -17,7 +17,8 @@ class FilterTest(unittest.TestCase):
     def test_code_files_pass(self):
         for p in ("src/download/update.py", "studies/wings_ten.py", "tests/test_lit.py", "scripts/get_code.py",
                   "docs/ENCYCLOPEDIA.md", "data/lit/bibliography.csv", "results/studies/wings_capacity.md",
-                  "README.md", "config.py", "requirements.txt"):
+                  "README.md", "config.py", "requirements.txt",
+                  "update_code.bat", "update_code.sh"):
             self.assertTrue(get_code.is_code_path(p), p)
 
     def test_data_and_binaries_do_not(self):

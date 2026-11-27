@@ -38,7 +38,8 @@ DEFAULT_BRANCH = "main"
 CODE_DIRS = ("src", "studies", "tests", "scripts", "docs", "data/lit", "results/studies")
 CODE_EXT = {".py", ".md", ".txt", ".toml", ".cfg", ".ini", ".json", ".yml", ".yaml", ".sh", ".bat", ".ps1", ".csv"}
 ROOT_FILES = ("README.md", "AGENTS.md", "CLAUDE.md", "PLAN.md", "ROADMAP.md", "STRATEGIES.md", "RUN_ME.md",
-              "config.py", "requirements.txt", "requirements-dev.txt", ".gitignore")
+              "config.py", "requirements.txt", "requirements-dev.txt", ".gitignore",
+              "update_code.bat", "update_code.sh")
 MAX_BYTES = 2_000_000          # the 16 MB report CSV and the parquet files stay out
 
 
@@ -82,35 +83,73 @@ def changed_paths(root: Path, remote: dict[str, str], only: set[str] | None = No
     return write, stale
 
 
+class GitMissing(RuntimeError):
+    """git is not on PATH: the caller falls back to the GitHub API."""
+
+
 def _git(args, cwd, check=True, quiet=True) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", *args], cwd=cwd, check=check, text=True,
+    """Run git, and never lose its stderr: the message is what tells the user what happened."""
+    done = subprocess.run(["git", *args], cwd=cwd, check=False, text=True, errors="replace",
                           stdout=subprocess.PIPE if quiet else None,
                           stderr=subprocess.PIPE if quiet else None)
+    if check and done.returncode != 0:
+        raise RuntimeError(f"git {args[0]} failed ({done.returncode}): {(done.stderr or '').strip()[:600]}")
+    return done
+
+
+def _read_manifest(root: Path) -> dict:
+    try:
+        return json.loads((root / ".code_sync.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def _write_manifest(root: Path, manifest: dict, tree: dict[str, str], commit: str) -> None:
+    """Remember what we wrote: next run needs it to tell a local edit from a fresh upstream change."""
+    files = {p: sha for p, sha in manifest.get("files", {}).items() if p in tree}
+    files.update({p: tree[p] for p in tree})
+    (root / ".code_sync.json").write_text(
+        json.dumps({"commit": commit, "when": time.time(), "files": files}, indent=1), encoding="utf-8")
+
+
+def locally_edited(root: Path, manifest: dict, paths: list[str]) -> list[str]:
+    """Files we synced before and that the user has changed since (hash differs from what we wrote)."""
+    known = manifest.get("files", {})
+    return [p for p in paths if p in known and local_sha(root / p) != known[p]]
+
+
+def _blob(root: Path, sha: str) -> bytes:
+    """Contents of one object, by id. With a partial clone git fetches just this blob on demand."""
+    done = subprocess.run(["git", "cat-file", "blob", sha], cwd=root, check=False,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if done.returncode != 0:
+        raise RuntimeError(f"git cat-file {sha[:8]} failed: {done.stderr.decode(errors='replace').strip()[:300]}")
+    return done.stdout
 
 
 def git_backend(root: Path, remote: str, branch: str, dry_run: bool, force: bool) -> int:
     if not shutil.which("git"):
-        raise RuntimeError("git is not installed")
+        raise GitMissing("git is not installed")
     if not (root / ".git").exists():
         print(f"  initialising a repository in {root} (one time)")
         _git(["init", "-q"], root)
-        _git(["remote", "add", "origin", remote], root)
-    remotes = _git(["remote"], root).stdout.split()
+    remotes = _git(["remote"], root, check=False).stdout.split()
     if "origin" not in remotes:
         _git(["remote", "add", "origin", remote], root)
 
     t0 = time.time()
     print(f"  fetching the tree of {branch} (no file contents yet)")
-    try:
-        _git(["fetch", "-q", "--depth", "1", "--filter=blob:none", "origin", branch], root)
-    except subprocess.CalledProcessError:
-        print("  (server does not support partial fetch, falling back to a plain shallow fetch)")
+    fetched = _git(["fetch", "-q", "--depth", "1", "--filter=blob:none", "origin", branch], root, check=False)
+    if fetched.returncode != 0:
+        print("  (partial fetch refused, falling back to a plain shallow fetch)")
         _git(["fetch", "-q", "--depth", "1", "origin", branch], root)
     head = _git(["rev-parse", "FETCH_HEAD"], root).stdout.strip()
 
-    listing = _git(["ls-tree", "-r", "FETCH_HEAD"], root).stdout.splitlines()
+    listing = _git(["ls-tree", "-r", "-z", "FETCH_HEAD"], root).stdout.split("\x00")
     tree: dict[str, str] = {}
     for line in listing:
+        if not line.strip():
+            continue
         meta, path = line.split("\t", 1)
         mode, kind, sha = meta.split()
         if kind == "blob" and is_code_path(path):
@@ -118,6 +157,7 @@ def git_backend(root: Path, remote: str, branch: str, dry_run: bool, force: bool
     write, _ = changed_paths(root, tree)
     print(f"  tree fetched in {time.time() - t0:.1f} s: {len(tree)} code files upstream, {len(write)} differ")
     if not write:
+        _write_manifest(root, _read_manifest(root), tree, head)
         print("  already up to date")
         return 0
     for p in write[:25]:
@@ -128,21 +168,25 @@ def git_backend(root: Path, remote: str, branch: str, dry_run: bool, force: bool
         return 0
 
     if not force:
-        dirty = _git(["status", "--porcelain", "--", *write], root, check=False).stdout.splitlines()
-        # only edits in the working tree matter: "M ", "AM" etc. Untracked ("??") means never tracked here,
-        # and a staged copy ("A ") is just what the previous sync checked out.
-        dirty = [d for d in dirty if len(d) > 1 and d[1] not in (" ", "?")]
-        if dirty:
-            print("\n  local changes in these files, refusing to overwrite:")
-            for d in dirty[:10]:
-                print(f"    {d}")
+        edited = locally_edited(root, _read_manifest(root), write)
+        if edited:
+            print("\n  these files were changed locally since the last update, refusing to overwrite:")
+            for p in edited[:10]:
+                print(f"    {p}")
             print("  run with --force to replace them anyway")
             return 2
 
     t1 = time.time()
-    print(f"  checking out {len(write)} file(s): git downloads only their contents")
-    _git(["checkout", "FETCH_HEAD", "--", *write], root)
-    print(f"  done in {time.time() - t1:.1f} total; commit {head[:8]}")
+    print(f"  writing {len(write)} file(s): git downloads only their contents")
+    for path in write:
+        data = _blob(root, tree[path])
+        if blob_sha(data) != tree[path]:
+            raise RuntimeError(f"object {tree[path][:8]} does not hash to its id ({path})")
+        dest = root / path
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(data)          # bytes, exactly as stored: no CRLF games on Windows
+    _write_manifest(root, _read_manifest(root), tree, head)
+    print(f"  done in {time.time() - t1:.1f} s; commit {head[:8]}")
     return 0
 
 
@@ -220,7 +264,7 @@ def http_backend(root: Path, remote: str, branch: str, dry_run: bool, limit: int
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(data)
             written += 1
-    (root / ".code_sync.json").write_text(json.dumps({"commit": commit, "when": time.time()}, indent=2), encoding="utf-8")
+    _write_manifest(root, _read_manifest(root), tree, commit)
     print(f"  wrote {written} file(s) in {time.time() - t0:.1f} s (hashes verified)")
     return 0
 
@@ -238,14 +282,17 @@ def main(argv=None) -> int:
     root = Path(a.root).expanduser().resolve()
     root.mkdir(parents=True, exist_ok=True)
     print(f"code update: {root} <- {a.remote} [{a.branch}]")
-    backend = http_backend if a.http else git_backend
-    try:
-        if a.http:
-            return backend(root, a.remote, a.branch, a.dry_run, a.limit)
-        return backend(root, a.remote, a.branch, a.dry_run, a.force)
-    except RuntimeError as e:
-        print(f"  git backend unavailable: {e}; trying the GitHub API")
+    if a.http:
         return http_backend(root, a.remote, a.branch, a.dry_run, a.limit)
+    try:
+        return git_backend(root, a.remote, a.branch, a.dry_run, a.force)
+    except GitMissing as e:
+        print(f"  {e}; falling back to the GitHub API")
+        return http_backend(root, a.remote, a.branch, a.dry_run, a.limit)
+    except RuntimeError as e:
+        print(f"\n  update failed: {e}")
+        print("  nothing was written before the failure; try --http if git keeps refusing")
+        return 1
 
 
 if __name__ == "__main__":
