@@ -33,7 +33,22 @@ OUT = config.RESULTS / "studies"
 SPLIT = pd.Timestamp("2026-09-01", tz="UTC")
 
 
-def orders(c, raw, lo, hi, l0, l1, m, cancel, at_ask=False):
+def ticker_blocks(raw):
+    """One pass over the raw ladder: {ticker: (ts_ns, yes_bid, yes_ask, last, volume)} as numpy arrays.
+
+    The per-offer path replay used to slice a pandas frame for every offer — 48 grid points × ~13k offers made this
+    study the slowest in the suite (18 minutes on 119 ladder files, and the 45-minute runner timeout on a full set).
+    """
+    out = {}
+    for ticker, g in raw.groupby(level=0, sort=False):
+        ts = g.reset_index(level=0, drop=True).index
+        out[ticker] = (pd.DatetimeIndex(ts).as_unit("ns").asi8,   # pandas 3 keeps microseconds: force ns to match .value
+                       g["yes_bid"].to_numpy(), g["yes_ask"].to_numpy(),
+                       g["last"].to_numpy(), g["volume"].to_numpy())
+    return out
+
+
+def orders(c, raw, lo, hi, l0, l1, m, cancel, at_ask=False, blocks=None):
     """at_ask=False: offer at max(ask, fair + m + fee) — wait for the price to come to us;
     at_ask=True: only where the ask itself is ≥ fair + m + fee (the wing is rich now), offer at the ask."""
     g = c[c["c_bid"].between(lo, hi) & c["left"].between(l0, l1)].copy()
@@ -43,31 +58,33 @@ def orders(c, raw, lo, hi, l0, l1, m, cancel, at_ask=False):
     g = g[(g["edge"] >= m - 1e-9) & (g["q"] <= 0.99)]
     g = g.sort_values("ts").drop_duplicates(["ticker", "cheap"])          # first chance per strike and side
     rows = []
+    blocks = blocks if blocks is not None else ticker_blocks(raw)
     cidx = c.set_index(["ticker", "cheap"]).sort_index() if cancel else None
     for s in g.itertuples(index=False):
-        try:
-            path = raw.loc[s.ticker]
-        except KeyError:
+        blk = blocks.get(s.ticker)
+        if blk is None:
             continue
+        ts_ns, yb, ya, lt, vol = blk
         end = s.T - pd.Timedelta(minutes=2)
-        path = path[(path.index > s.ts) & (path.index <= end)]
-        if path.empty:
+        i0 = np.searchsorted(ts_ns, pd.Timestamp(s.ts).as_unit("ns").value, "right")
+        i1 = np.searchsorted(ts_ns, pd.Timestamp(end).as_unit("ns").value, "right")
+        if i1 <= i0:
             continue
-        cb = path["yes_bid"] if s.cheap == "yes" else 1 - path["yes_ask"]
-        last = path["last"] if s.cheap == "yes" else 1 - path["last"]
-        live = pd.Series(True, index=path.index)
+        path_ts = ts_ns[i0:i1]
+        cb = yb[i0:i1] if s.cheap == "yes" else 1 - ya[i0:i1]
+        last = lt[i0:i1] if s.cheap == "yes" else 1 - lt[i0:i1]
+        live = np.ones(len(path_ts), dtype=bool)
         if cancel:
             try:
                 fr = cidx.loc[(s.ticker, s.cheap)]
                 fr = fr[(fr["ts"] > s.ts) & (fr["ts"] <= end)].set_index("ts")["c_fair_n"]
                 gone = fr[s.q - fr - mfee(1 - s.q) < m / 2]
                 if len(gone):
-                    live = path.index < gone.index[0]
-                    live = pd.Series(live, index=path.index)
+                    live = path_ts < gone.index[0].value
             except KeyError:
                 pass
         through = (cb >= s.q - 1e-9) & live
-        touch = through | (((last.round(2) >= s.q - 1e-9) & (path["volume"] > 0)) & live)
+        touch = through | ((np.round(last, 2) >= s.q - 1e-9) & (vol[i0:i1] > 0) & live)
         rec = {"T": s.T, "ts": s.ts, "ticker": s.ticker, "cheap": s.cheap, "q": s.q, "bid": s.c_bid, "fair": s.c_fair_n,
                "left": s.left, "won": s.c_won}
         for k, f in (("lo", through), ("hi", touch)):
@@ -87,13 +104,14 @@ def stat(x, col):
 def main():
     arg = sys.argv[1] if len(sys.argv) > 1 else None            # load() rewrites sys.argv
     W, c, raw = load()
+    blocks = ticker_blocks(raw)
     rows = []
     bands = {"1-5": (0.01, 0.05), "6-10": (0.06, 0.10), "10-20": (0.10, 0.20)}
     pick = [bands[b] for b in (arg.split(",") if arg else bands)]
     for (lo, hi), (l0, l1), (m, at_ask), cancel in product(pick, [(10, 30), (30, 58)],
                                                            [(0.02, False), (0.06, False), (0.01, True), (0.03, True)],
                                                            [False, True]):
-        x = orders(c, raw, lo, hi, l0, l1, m, cancel, at_ask)
+        x = orders(c, raw, lo, hi, l0, l1, m, cancel, at_ask, blocks)
         if x.empty:
             continue
         for half, h in (("all", x), ("Sep–Oct", x[x["T"] >= SPLIT])):

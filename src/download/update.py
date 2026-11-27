@@ -1,15 +1,23 @@
 """One entry point for the downloads, with the audit before and after.
 
     python -m src.download.update --audit                 what is stale, how stale, and the command for each source
-    python -m src.download.update                         everything that is behind, newest data first
+    python -m src.download.update --all                   everything that is behind, newest data first
     python -m src.download.update --only kalshi,binance   just these sources
     python -m src.download.update --only kalshi --since 2026-10-27 --until 2026-11-27
-    python -m src.download.update --build                 rebuild the interim tables afterwards
+    python -m src.download.update --all --workers 4        Kalshi: 4 days at a time (~10 s per day instead of 60)
+    python -m src.download.update --only kalshi --build   then rebuild the interim tables of those sources
+
+Run with no arguments at all (an IDE "Run" button) it only prints the audit and the hint, it never starts a
+download: pulling every source by accident is exactly the kind of surprise a "Run" click must not produce.
+
+Both invocation styles work: `python -m src.download.update` from the repository root and
+`python src/download/update.py` (or the green triangle in an IDE), which is why the file bootstraps sys.path
+below. Without that, Python puts src/download/ on the path instead of the root and `import config` fails with
+`ModuleNotFoundError: No module named 'config'`.
 
 Every downloader skips what is already on disk, so an interrupted run is resumed by running the same command
-again. `--from-scratch` re-downloads the history of the chosen sources (it does not delete anything first; the
-downloaders overwrite the same files). Kalshi is the slow one (~80 s per day of hourly ladders, ~50 requests per
-day) — always run it first for the recent weeks, then let the long backfill run in the background.
+again. Kalshi is the slow one (~80 s per day of hourly ladders, ~50 requests per day) — always run it first for
+the recent weeks, then let the long backfill run in the background.
 """
 from __future__ import annotations
 
@@ -19,6 +27,16 @@ import time
 import traceback
 
 import pandas as pd
+
+# --- runnable both ways -------------------------------------------------------
+# `python -m src.download.NAME` and `python src/download/NAME.py` (an IDE "Run" button) must both work:
+# when this file is executed as a script, Python puts src/download/ on sys.path instead of the repository
+# root, and `import config` fails. Put the root back before importing anything from the project.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+# -----------------------------------------------------------------------------
 
 import config
 from src import runner
@@ -49,7 +67,7 @@ def _polymarket(since, until, http):
 
 def _kalshi(since, until, http):
     from src.download import kalshi
-    return kalshi.download_history(since, until, http=http)
+    return kalshi.download_history(since, until, http=http, workers=WORKERS, min_interval=MIN_INTERVAL)
 
 
 def _macro(since, until, http):
@@ -67,13 +85,16 @@ SOURCES = {
     "funding": ("Binance / Bybit funding rates", lambda s, u, h: _funding(s or config.BINANCE_START, u, h)),
     "deribit": ("Deribit DVOL and option trades", lambda s, u, h: _deribit(s or config.DERIBIT_START, u, h)),
     "polymarket": ("Polymarket daily ladders", lambda s, u, h: _polymarket(s or config.POLYMARKET_START, u, h)),
-    "kalshi": ("Kalshi hourly ladders (slow: ~80 s per day)", lambda s, u, h: _kalshi(s or config.KALSHI_START, u, h)),
+    "kalshi": ("Kalshi hourly ladders (the slow one: see --workers)", lambda s, u, h: _kalshi(s or config.KALSHI_START, u, h)),
     "macro": ("US macro release calendar", lambda s, u, h: _macro(s, u, h)),
     "perp": ("Binance perp candles + basis", lambda s, u, h: _perp(s, u, h)),
 }
 
 # newest data first: the out-of-sample weeks matter more than the deep history
 ORDER = ["binance", "funding", "deribit", "kalshi", "polymarket", "perp", "macro"]
+
+WORKERS = 4            # Kalshi: days fetched at the same time (--workers)
+MIN_INTERVAL = 0.15    # Kalshi: seconds between requests, aggregate (--min-interval)
 
 BUILDERS = {
     "binance": lambda: __import__("src.download.binance", fromlist=["x"]).build_interim(),
@@ -101,30 +122,41 @@ def audit_table() -> pd.DataFrame:
 
 
 def main(argv=None) -> int:
+    global WORKERS, MIN_INTERVAL
     ap = argparse.ArgumentParser(description="download every source that is behind, one source at a time")
+    ap.add_argument("--all", action="store_true", help="download every stale source (required to start a download)")
     ap.add_argument("--only", default=None, help="comma-separated subset of " + ", ".join(SOURCES))
     ap.add_argument("--since", default=None, help="first date to download (default: config.*_START)")
     ap.add_argument("--until", default=None, help="last date to download (default: now)")
     ap.add_argument("--audit", action="store_true", help="only print what is stale, do not download")
     ap.add_argument("--build", action="store_true", help="rebuild the interim tables of the chosen sources")
     ap.add_argument("--no-keep-awake", action="store_true", help="do not stop the machine from sleeping")
+    ap.add_argument("--workers", type=int, default=WORKERS,
+                    help=f"Kalshi: days fetched at the same time (default {WORKERS}); 1 = old sequential behaviour")
+    ap.add_argument("--min-interval", type=float, default=MIN_INTERVAL,
+                    help=f"Kalshi: seconds between requests, aggregate (default {MIN_INTERVAL}; raise on 429s)")
     a = ap.parse_args(argv)
+    WORKERS, MIN_INTERVAL = a.workers, a.min_interval
 
     table = audit_table()
-    if a.audit:
+    if a.audit or not (a.all or a.only):
         print(table.to_string(index=False))
         behind = table[(table["gap days"] > 0.5) & table["command"].str.startswith("python")]
-        print(f"\n{len(behind)} source(s) behind; "
-              f"{'run without --audit to fill them' if len(behind) else 'nothing to do'}")
+        print(f"\n{len(behind)} source(s) behind.")
+        if not (a.all or a.only):
+            print("Ничего не скачано: это только диагностика.")
+            print("Чтобы качать — добавьте источник:")
+            print("  python -m src.download.update --all                     # всё, что отстало")
+            print("  python -m src.download.update --only binance,funding    # только эти")
         return 0
 
-    names = plan(a.only)
+    names = ORDER if a.all and not a.only else plan(a.only)
     if not a.no_keep_awake:
         kept = runner.keep_awake()
         log(f"sleep inhibitor: {'installed' if kept else 'not available on this machine'}")
 
     from src.utils import Http
-    http = Http(min_interval=0.25)          # polite: the venues rate-limit, and this is not a race
+    http = Http(min_interval=a.min_interval)   # polite: the venues rate-limit, and this is not a race
     failed = []
     for name in names:
         what, fn = SOURCES[name]
@@ -149,6 +181,10 @@ def main(argv=None) -> int:
                 failed.append(f"{name}:build")
                 log(f"!!! rebuilding {name} failed: {e!r}")
 
+    if http.stats["429"]:
+        log(f"rate limits: {http.stats['429']} × HTTP 429; the pause between requests widened to "
+            f"{http.min_interval:.2f} s (asked for {http.base_interval:.2f}). It relaxes by itself once the "
+            f"venue stops complaining; for a long backfill start lower: --min-interval 0.05")
     print()
     print(audit_table().to_string(index=False))
     if failed:

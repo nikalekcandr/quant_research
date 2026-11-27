@@ -32,6 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "studies"))
 import config  # noqa: E402
+from studies.ladders import ladder_files, no_data, read_ladder_file
 
 OUT = config.RESULTS / "studies"
 RULES = {"W03": dict(lo=0.10, hi=0.20, l0=5, l1=15, filt="normal", margin=0.01),
@@ -51,8 +52,12 @@ def load():
     sys.argv = ["x", str(config.RAW / "kalshi_kxbtcd_60m"), str(config.INTERIM / "minutes.parquet"), str(OUT)]
     import wings_ladder as W
     c = W.load()                                  # cheap-side rows with fair values (no look-ahead)
-    raw = pd.concat([pd.read_csv(f, usecols=["ticker", "end_ts", "yes_bid", "yes_ask", "last", "volume"])
-                     for f in sorted((config.RAW / "kalshi_kxbtcd_60m").glob("*.csv*"))], ignore_index=True)
+    parts = [read_ladder_file(f, ["ticker", "end_ts", "yes_bid", "yes_ask", "last", "volume"])
+             for f in ladder_files(config.RAW / "kalshi_kxbtcd_60m")]
+    parts = [p for p in parts if p is not None and not p.empty]
+    if not parts:
+        no_data(f"ни одной часовой лесенки в {config.RAW / 'kalshi_kxbtcd_60m'}")
+    raw = pd.concat(parts, ignore_index=True)
     raw["ts"] = pd.to_datetime(raw["end_ts"], unit="s", utc=True)
     return W, c, raw.set_index(["ticker", "ts"]).sort_index()
 

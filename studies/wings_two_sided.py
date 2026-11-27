@@ -7,7 +7,8 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from lab.core import RESULTS, atomic_write, kalshi_fee, utcnow
+from lab.core import RESULTS, atomic_write, kalshi_fee, utc_index, utcnow
+from studies.ladders import no_data
 from studies.wings_calibration import books
 from studies.wings_edge_timing import SPLIT, START, STOP, day_interval
 
@@ -31,6 +32,7 @@ def picks(q):
 
 
 def compare(q, hours, period, momentum=False):
+    hours = utc_index(hours)
     sell, buy = offers(q, False), offers(q, True)
     strict_sell, strict_buy = sell[sell.second.ge(.01)], buy[buy.second.ge(.01)]
     # Exploratory reversal after inspecting the long-wing replay. Rank strikes by
@@ -72,12 +74,15 @@ def main():
     last = utcnow().floor("h")-pd.Timedelta(hours=1)
     until = min(last,pd.to_datetime(args.until,utc=True)) if args.until else last
     data,hours = books(until)
+    hours = utc_index(hours)
     rows = []
     for start,end in [(START,SPLIT),(SPLIT,STOP),(STOP,until+pd.Timedelta(seconds=1))]:
         sample = hours[(hours>=start)&(hours<end)]
         if len(sample):
             period = f"{sample.min():%d.%m %H:%M} – {sample.max():%d.%m %H:%M}"
             rows.extend(compare(data[data.end.isin(sample)],sample,period))
+    if not rows:
+        no_data(f"ни одного часа с котировками книги до {until:%d.%m %H:%M} — сравнивать нечего")
     frame = pd.DataFrame(rows)
     atomic_write(RESULTS/"wings_two_sided.csv",frame.to_csv(index=False))
     print(frame.to_string(index=False))

@@ -10,6 +10,7 @@ from statsmodels.stats.multitest import multipletests
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from lab.core import RESULTS,atomic_write
+from studies.ladders import no_data
 from lab.history import Minutes
 from lab.wing_regime import regimes
 from studies.wing_gap_download import CACHE
@@ -80,6 +81,8 @@ def evaluate(q,hours,gate,depth,policy=None):
         else:
             g=next_minute(picks(offers(q.assign(t4=q[name]),False)))
             entries.extend(dict(end=t.Index,model=name,net=t.pnl,n=int(t.filled)) for t in g.itertuples())
+    if not entries:
+        no_data("ни одного входа на этой выборке — нечего сравнивать между моделями")
     df=pd.DataFrame(entries)
     hours=hours.difference(df.loc[df.net.isna(),"end"])
     df=df[df.end.isin(hours)]
@@ -105,7 +108,7 @@ def main(policy=None,prefix="wing_shapes"):
     live,_=books(close.index.max().floor("h"),(lambda f:curves(f,True)) if policy is None else deepen,since=close.index.min())
     values=json.loads((CACHE.parent/"wing_quant_inputs/settlements.json").read_text())
     v=live.event.map({e:r["value"] for e,r in values.items()})
-    y=v.gt(live.strike).astype(float)
+    y=pd.to_numeric(v,errors="coerce").gt(live.strike).astype(float)
     live["y"]=live.y.fillna(y.where(live.cheap_yes,1-y).where(v.notna()))
     usable=live[live.left.ge(16)&live.ts.dt.floor("min").map(gate).eq(False)]
     b,be=evaluate(live,pd.DatetimeIndex(sorted(usable.end.unique())),gate,True,policy)

@@ -14,7 +14,8 @@ from scipy.optimize import brentq
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from lab.core import LAB, RESULTS, atomic_write, utcnow
+from lab.core import LAB, RESULTS, atomic_write, utc_index, utcnow
+from studies.ladders import ladder_files, no_data, read_ladder_file
 from lab.edge_timing import candidates
 from lab.wing_calibration import depth_hybrid, eligible, odds_adjust, predictions, sampled
 from studies.wings_edge_timing import COLUMNS, START, SPLIT, STOP, day_interval, resolve_ladder, settlement_cache
@@ -24,8 +25,10 @@ MODELS = ["t4","normal","mid","market_cal","t4_cal","hybrid","depth"]
 
 def history():
     parts = []
-    for path in sorted((ROOT/"data/raw/kalshi_kxbtcd_60m").glob("*.csv*")):
-        q = pd.read_csv(path,usecols=["ticker","end_ts","close_time","strike_type","result","yes_bid","yes_ask"])
+    for path in ladder_files(ROOT/"data/raw/kalshi_kxbtcd_60m"):
+        q = read_ladder_file(path,["ticker","end_ts","close_time","strike_type","result","yes_bid","yes_ask"])
+        if q is None or q.empty:
+            continue
         q = q[q.strike_type.eq("greater") & q.result.isin(["yes","no"])].rename(
             columns={"ticker":"market","yes_bid":"bid","yes_ask":"ask"})
         q["ts"] = pd.to_datetime(q.end_ts,unit="s",utc=True)
@@ -63,8 +66,12 @@ def books(until,enrich=None,*,since=START):
         q["t4"] = q.fair_t4.where(q.cheap_yes,1-q.fair_t4)
         q["normal"] = q.fair.where(q.cheap_yes,1-q.fair)
         parts.append(q)
+    if not parts:
+        no_data(f"нет снимков книги в {LAB/'markets'} — изучение нужно запускать там, где качался лабораторный журнал")
     d = pd.concat(parts,ignore_index=True)
-    outcome = d.market.map(resolve_ladder(d.market.unique(),settlement_cache()))
+    # numeric, not object: pandas 3 keeps a mapped column as strings when any key is missing, and then
+    # `1 - outcome` raises instead of subtracting (this alone broke a dozen wing studies on pandas 3)
+    outcome = pd.to_numeric(d.market.map(resolve_ladder(d.market.unique(),settlement_cache())),errors="coerce")
     # The downloader also archives each event's official BRTI settlement.
     # Adjacent resolved strikes alone do not always bracket an otherwise missing ticker.
     missing = d.loc[outcome.isna(),["event","market"]].drop_duplicates()
@@ -77,17 +84,17 @@ def books(until,enrich=None,*,since=START):
         official = missing.event.map(values.loc[values["min"].eq(values["max"]),"min"])
         strike = pd.to_numeric(missing.market.str.rsplit("-T",n=1).str[-1],errors="coerce")
         valid = official.notna() & strike.notna()
-        extra = dict(zip(missing.market[valid],official[valid].gt(strike[valid]).astype(int)))
+        extra = dict(zip(missing.market[valid],official[valid].gt(strike[valid]).astype(float)))
         outcome = outcome.fillna(d.market.map(extra))
     d["y"] = outcome.where(d.cheap_yes,1-outcome)
-    return d,pd.DatetimeIndex(sorted(hours),name="end")
+    return d,utc_index(sorted(hours)).rename("end")
 
 
 def fit_offset(s, column):
     # Thirty equivalent expiry hours centred on the original probabilities.
     p, w = s[column], s.weight
     if s.empty:
-        raise ValueError(f"No training observations for {column}")
+        no_data(f"нет ни одного часа для калибровки модели {column} — пустo в окне обучения")
     target = (np.dot(w,s.y)+30*np.average(p,weights=w))/(w.sum()+30)
     return brentq(lambda a: np.average(odds_adjust(p,a),weights=w)-target,-25,25)
 
@@ -166,8 +173,12 @@ def main():
     last = utcnow().floor("h")-pd.Timedelta(hours=1)
     until = min(pd.to_datetime(args.until,utc=True),last) if args.until else last
     hist = history()
+    if hist.empty:
+        no_data("архивные лесенки не дали ни одной решённой котировки")
     live,hours = books(until)
     train = sampled(live[live.end < SPLIT-pd.Timedelta(days=1)])
+    if train.empty:
+        no_data(f"в журнале книги нет часов до {SPLIT-pd.Timedelta(days=1):%d.%m} — калибровать не на чем")
     params = fit(hist,train)
     live["market_cal"],live["t4_cal"],live["hybrid"] = predictions(live.t4,live.mid,live.weekend,params)
     live["depth"] = depth_hybrid(live, params)

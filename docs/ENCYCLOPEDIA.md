@@ -28,7 +28,7 @@ _26.11.2026. Документ описывает проект целиком: ч
 6. **Спецификация моделей заморожена** 15.10.2026, хэши файлов проверяются (`config.FROZEN_CODE_SHA256`,
    `oos_report.py`); данные с 13.10.2026 — честный out-of-sample.
 7. **Лаборатория ведёт append-only леджер** с хэш-цепочкой; правила гипотез заморожены, изменение = новый ID.
-8. **Тесты:** 21 файл, 83 теста через `unittest` (один файл, `test_trader.py`, требует `pytest`, которого
+8. **Тесты:** 23 файла, 102 теста через `unittest` (один файл, `test_trader.py`, требует `pytest`, которого
    нет в `.venv`).
 9. **Горизонты:** `kx1h` (Kalshi, 55 мин), `pm24h`, `pm6d` (Polymarket, сутки и 6 суток).
 10. **Периоды оценки:** pseudo-OOS с 01.01.2026 (`config.EVAL_START`), live-OOS с 09.10.2026
@@ -117,7 +117,7 @@ src/              build.py (сборка выборок)  models.py (13 моде
 lab/              engine.py  feeds.py  markets.py  signals.py  intents.py  maker.py  tape.py  flow.py
                   edge_timing.py  history.py  volzoo.py  ml.py  core.py (леджер)  jobs.py  report.py
 studies/          61 исследовательский скрипт (каталог в §10)
-tests/            21 файл, 83 теста (unittest; test_trader.py требует pytest)
+tests/            23 файла, 102 теста (unittest; test_trader.py требует pytest)
 data/lit/         bibliography.csv — хранилище литературы (201 строка)
 src/lit/          build_encyclopedia.py (генератор), import_openalex.py (импорт метаданных)
 docs/             WINGS.md (досье крыла)  ARCHITECTURE.md  IDEAS.md  IDEAS_100.md  EXECUTION.md
@@ -495,6 +495,22 @@ MLP −0.11, классификатор −0.64 — то есть больше �
     окном 5–15 мин на ней почти не наблюдаемы (570 строк против 18 078 у архива).
 28. В архиве каждую среду нет 06:00–09:00 UTC (68 часов); в ноябре нет 07:00–10:00 UTC (8 часов). Обе
     дыры в одной полосе — часовые гейты там читать осторожно.
+27а. Kalshi: ~48 запросов на «живые» сутки и ~400 на архивные (свечи архива отдаются по одному тикеру).
+    `--workers` не отменяет общий лимит `--min-interval`: суммарно это 1/min_interval запросов в секунду,
+    поэтому архив в 715 суток — это ~11 ч при 6,7 запроса/с и ~4,5 ч при 16. `data/manual/starts.json`
+    перекрывает `KALSHI_START` (там 2024-12-12), а `--since` перекрывает всё.
+    Последовательный обход — 50–60 с на сутки; `--workers 4` даёт ×3,8 (замер: 8,2 → 2,2 с на стенде),
+    потому что время уходит на round-trip, а не на процессор.
+27в. Пайплайн читает ВСЕ лесенки Kalshi на диске (`kalshi.ladder_dirs()`): 10-минутные свечи из
+    `data/raw/kalshi` и часовые из `data/raw/kalshi_kxbtcd_60m`, дубликаты по (ticker, end_ts, event)
+    схлопываются в пользу часовых. Иначе 27 МБ более подробных данных лежат мёртвым грузом.
+27б. 429 не должен убивать источник: `Http` держит глобальный кулдаун (ждут все потоки), уважает
+    `Retry-After`, умножает паузу на 1,5 на каждый отказ (потолок 2 с) и возвращается к `--min-interval`
+    после 50 чистых ответов. Сбой одного дня Kalshi ловится внутри `_one_day` и не рвёт пул потоков.
+28б. `No module named 'config'` = файл запущен как скрипт, и в `sys.path` попал `src/download/`, а не корень.
+    В `src/download/*.py` теперь стоит bootstrap (`if __package__ in (None, "")`), поэтому работают оба
+    способа: `python -m src.download.update` и `python src/download/update.py`. Голый запуск `update.py`
+    ничего не качает — печатает аудит.
 29. `for period, (a, b) in periods.items():` затирает переменную `b` (наклон, коэффициент, что угодно).
     Такой цикл уже один раз сломал отчёт; называйте `(p0, p1)`.
 30. `groupby(...).shift()` в цикле по снимкам дорог; для «остатка против соседей» достаточно одной
@@ -538,6 +554,12 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt   # py3.11
 .venv/bin/python -m src.lit.build_encyclopedia # мега-энциклопедия из data/lit/bibliography.csv
 .venv/bin/python -m src.lit.import_openalex data/lit/*.json   # расширить до тысяч строк
 .venv/bin/python -m src.download.update --audit  # что из данных отстало и чем это докачать
+.venv/bin/python -m src.download.update --all    # докачать всё отставшее (без --all — только диагностика)
+.venv/bin/python scripts/get_code.py             # обновить только код (2 МБ вместо 350 МБ архива)
+.venv/bin/python scripts/download_all.py --dry-run  # план докачки: чего не хватает, оценка часов
+.venv/bin/python scripts/download_all.py            # докачать всё в фон, отчёт в logs/download-*/summary.md
+.venv/bin/python scripts/download_all.py --status   # что скачалось и что упало
+.venv/bin/python -m src.download.binance_1s 2026-11-01 2026-11-26   # секундные свечи (опционально, тяжёлые)
 
 # research-слой и отчёты
 .venv/bin/python -m src.pipeline               # download → build → models → evaluate

@@ -25,7 +25,8 @@ def main():
     mk = pd.read_csv(RAW / "kx15" / "markets.csv")
     mk["close_time"] = pd.to_datetime(mk["close_time"], utc=True)
     mk = mk[mk.close_time.dt.minute == 0]
-    lad = pd.concat([pd.read_csv(f) for f in sorted(LADDER.glob("*.csv*"))])
+    lad = pd.concat([pd.read_csv(f) for f in sorted(p for p in LADDER.glob("*.csv*") if p.name.endswith((".csv", ".csv.gz")))
+                         if f.name.endswith((".csv", ".csv.gz"))])
     lad["close_time"] = pd.to_datetime(lad["close_time"], utc=True)
     ev = lad.groupby("close_time")["expiration_value"].first()
     j = mk.set_index("close_time").join(ev.rename("ev_ladder"), how="inner")
@@ -95,7 +96,8 @@ def relative_value(raw=RAW, ladder_dir=LADDER):
     mk = pd.read_csv(raw / "kx15" / "markets.csv")
     mk["close_time"] = pd.to_datetime(mk["close_time"], utc=True)
     mk = mk[mk.close_time.dt.minute == 0]
-    lad = pd.concat([pd.read_csv(f) for f in sorted(ladder_dir.glob("*.csv*"))])
+    lad = pd.concat([pd.read_csv(f) for f in sorted(p for p in ladder_dir.glob("*.csv*") if p.name.endswith((".csv", ".csv.gz")))
+                         if f.name.endswith((".csv", ".csv.gz"))])
     lad["close_time"] = pd.to_datetime(lad["close_time"], utc=True)
     lad = lad[(lad.strike_type == "greater") & (lad.yes_bid > 0) & (lad.yes_ask < 1) & (lad.yes_ask - lad.yes_bid <= 0.05)]
     lad["mid"] = (lad.yes_bid + lad.yes_ask) / 2

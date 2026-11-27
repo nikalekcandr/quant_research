@@ -53,7 +53,7 @@ def pick(u):
 
 def history():
     parts = []
-    for file in sorted(LAD.glob("*.csv*")):
+    for file in sorted(p for p in LAD.glob("*.csv*") if p.name.endswith((".csv", ".csv.gz"))):
         d = pd.read_csv(file)
         d["T"] = pd.to_datetime(d.close_time, utc=True)
         d["ts"] = pd.to_datetime(d.end_ts, unit="s", utc=True)

@@ -8,6 +8,7 @@ from statsmodels.stats.multitest import multipletests
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from lab.core import RESULTS,atomic_write
+from studies.ladders import no_data
 from lab.history import Minutes
 from lab.wing_regime import regimes
 from studies.wing_ten import CACHE,START,END,books,deepen,replay
@@ -62,7 +63,7 @@ def main():
     q=q[q.end.between(START,END)&q.left.ge(16)&q.ts.dt.floor("min").map(gate).eq(False)].copy()
     cache=json.loads((CACHE.parent/"wing_quant_inputs/settlements.json").read_text())
     val=q.event.map({e:r["value"] for e,r in cache.items()})
-    yes=val.gt(q.strike).astype(float)
+    yes=pd.to_numeric(val,errors="coerce").gt(q.strike).astype(float)
     q["y"]=q.y.fillna(yes.where(q.cheap_yes,1-yes).where(val.notna()))
     q["base"]=(q.t4+q.curve.where(q.cheap_yes,1-q.curve).fillna(q.t4))/2
     signals=replay(q,"base","books",include_sizing=True)
@@ -70,6 +71,8 @@ def main():
     if any(a["end"]>=b["ts"] for a,b in zip(signals,signals[1:])) or any(pd.isna(t["pay"]) for t in signals):
         raise ValueError("Sizing requires distinct settled hours with verified payouts")
     ledger=pd.DataFrame([row for rule in range(len(RULES)) for row in simulate(signals,rule)])
+    if ledger.empty or "rule" not in ledger.columns:
+        no_data("ни одной сделки в окне — размеру не на чем учиться")
     panel=ledger.pivot(index="end",columns="rule",values="net").reindex(columns=RULES)
     delta=panel.sub(panel.iloc[:,0],axis=0).iloc[:,1:].groupby(panel.index.floor("D")).sum()
     signs=np.random.default_rng(62).choice([-1,1],(50000,len(delta)))

@@ -61,9 +61,10 @@ def read_zip(content: bytes) -> pd.DataFrame:
     return df[["open_time", "close", "volume"]].astype({"close": float, "volume": float})
 
 
-def download(since: str = config.BINANCE_START, http: Http | None = None):
+def download(since: str = config.BINANCE_START, http: Http | None = None) -> dict:
     http = http or Http(min_interval=0.05)
     ensure(RAW_DIR)
+    months_new, days_new = 0, 0
     start = pd.Timestamp(since)
     now = pd.Timestamp(utcnow())
     month = pd.Timestamp(year=start.year, month=start.month, day=1)
@@ -76,13 +77,19 @@ def download(since: str = config.BINANCE_START, http: Http | None = None):
                 _daily(http, month, month + pd.offsets.MonthBegin(1))
             else:
                 f.write_bytes(content)
+                months_new += 1
                 log(f"binance: {month:%Y-%m}")
         month += pd.offsets.MonthBegin(1)
-    _daily(http, this_month, now.tz_localize(None).normalize())
-    _recent(http)
+    days_new = _daily(http, this_month, now.tz_localize(None).normalize())
+    rest = _recent(http)
+    log(f"binance: {months_new} новых месяцев, {days_new} суточных файлов, {rest['rows']} минут из REST"
+        + (f" ({rest['start']:%Y-%m-%d %H:%M} .. {rest['end']:%Y-%m-%d %H:%M})" if rest["rows"] else ""))
+    return {"months": months_new, "days": days_new, **rest}
 
 
-def _daily(http: Http, d0, d1):
+def _daily(http: Http, d0, d1) -> int:
+    """Daily archives for a month the monthly file does not cover yet; returns how many were new."""
+    written = 0
     d = pd.Timestamp(d0)
     while d < pd.Timestamp(d1):
         f = RAW_DIR / f"BTCUSDT-1m-{d:%Y-%m-%d}.zip"
@@ -90,7 +97,9 @@ def _daily(http: Http, d0, d1):
             content = http.get(f"{VISION}/daily/klines/BTCUSDT/1m/BTCUSDT-1m-{d:%Y-%m-%d}.zip", raw=True)
             if content:
                 f.write_bytes(content)
+                written += 1
         d += timedelta(days=1)
+    return written
 
 
 def _last_archived_day(now: pd.Timestamp) -> pd.Timestamp | None:
@@ -106,27 +115,53 @@ def _last_archived_day(now: pd.Timestamp) -> pd.Timestamp | None:
     return last
 
 
-def _recent(http: Http):
-    """Minutes not yet in the archives (today, and yesterday when its daily file is not published yet)
-    from the REST API. Starts the day after the last archived day, at most 14 days back."""
+def _recent(http: Http) -> dict:
+    """Minutes the archives do not cover yet, appended to `recent.csv.gz` — never replacing what is there.
+
+    Starts after the last archived day and after the last minute we already hold, so it works both after a long
+    pause (a month of missing minutes, fetched in 1000-minute chunks) and on a normal day (a few hundred rows).
+    The old version always overwrote the file with the last 14 days and said nothing when the REST call failed,
+    which is how `binance: ok за 0.0 мин` could hide a month-long hole.
+    """
     now = pd.Timestamp(utcnow())
+    rec = RAW_DIR / "recent.csv.gz"
+    have = pd.DataFrame()
+    if rec.exists():
+        try:
+            have = pd.read_csv(rec)
+            have["open_time"] = _to_ts(have["open_time"].astype("int64"))
+        except Exception:
+            have = pd.DataFrame()
+    start_ts = now.normalize() - pd.Timedelta(days=90)
     last = _last_archived_day(now)
-    start_ts = now.normalize()
     if last is not None:
-        start_ts = max(pd.Timestamp(last).tz_localize("UTC") + pd.Timedelta(days=1), now.normalize() - pd.Timedelta(days=14))
+        start_ts = max(start_ts, pd.Timestamp(last).tz_localize("UTC") + pd.Timedelta(days=1))
+    if len(have):
+        start_ts = max(start_ts, have["open_time"].max() + pd.Timedelta(minutes=1))
     start = ms(start_ts)
     rows = []
     while True:
-        res = api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m", "startTime": start, "limit": 1000})
+        res = api_get(http, "/api/v3/klines", {"symbol": "BTCUSDT", "interval": "1m", "startTime": start,
+                                              "limit": 1000})
         if not res:
             break
         rows.extend(res)
         if len(res) < 1000:
             break
-        start = res[-1][0] + 60_000
+        start = int(res[-1][0]) // 1000 * 1000 + 60_000     # archives may store microseconds
+    out = {"rows": 0, "start": None, "end": None}
     if rows:
-        df = pd.DataFrame(rows, columns=COLS)
-        df.to_csv(RAW_DIR / "recent.csv.gz", index=False)
+        new = pd.DataFrame(rows, columns=COLS)
+        new["open_time"] = _to_ts(new["open_time"].astype("int64"))
+        cols = ["open_time", "close", "volume"]
+        merged = (pd.concat([have[cols] if len(have) else new[cols], new[cols]], ignore_index=True)
+                  .drop_duplicates("open_time", keep="last").sort_values("open_time"))
+        merged.to_csv(rec, index=False)
+        out = {"rows": len(new), "start": new["open_time"].min(), "end": new["open_time"].max()}
+    elif len(have):
+        log(f"binance: REST не дал новых минут; recent.csv.gz не тронут "
+            f"(последняя минута {have['open_time'].max():%Y-%m-%d %H:%M})")
+    return out
 
 
 def build_interim() -> pd.DataFrame:
@@ -145,6 +180,10 @@ def build_interim() -> pd.DataFrame:
     full = pd.date_range(df.index[0], df.index[-1], freq="1min", tz="UTC")
     df = df.reindex(full)
     df["filled"] = df["close"].isna()
+    if df["filled"].any():
+        hole = int(df["filled"].sum())
+        log(f"binance: внимание — {hole} минут без данных, они заполнены предыдущей ценой "
+            f"(ищите дыру в архивах: это делает реализованную волатильность ниже настоящей)")
     df["close"] = df["close"].ffill()
     df.index.name = "open_time"
     return df.reset_index()

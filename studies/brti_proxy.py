@@ -185,7 +185,8 @@ def main():
 
 def wings_frame(S, E, k_var=1.0, lvl_from=None):
     """wings_ladder.load() with spot S (close-time minutes), basis = lagged median vs E, variance × k."""
-    d = pd.concat([pd.read_csv(f) for f in sorted(wl.LAD.glob("*.csv*"))], ignore_index=True)
+    d = pd.concat([pd.read_csv(f) for f in sorted(p for p in wl.LAD.glob("*.csv*") if p.name.endswith((".csv", ".csv.gz")))
+                   if f.name.endswith((".csv", ".csv.gz"))], ignore_index=True)
     d = d[(d.strike_type == "greater") & (d.yes_bid > 0) & (d.yes_ask < 1) & (d.yes_ask - d.yes_bid <= 0.03)]
     d["ts"] = pd.to_datetime(d.end_ts, unit="s", utc=True)
     d["T"] = pd.to_datetime(d.close_time, utc=True)
@@ -285,7 +286,7 @@ def reliability(venues, E):
 def live_check(E):
     """The live lab prices wings with usd_mid = (Coinbase mid + Kraken mid)/2 and NO basis (lab/feeds.py); the
     backtest used Binance × the 48-hour basis. How far is the live proxy from the settlement?"""
-    fs = sorted(TICKS.glob("*.csv*")) if TICKS.exists() else []
+    fs = sorted(p for p in TICKS.glob("*.csv*") if p.name.endswith((".csv", ".csv.gz"))) if TICKS.exists() else []
     if not fs:
         return ["## E. Live lab proxy: no lab ticks found", ""]
     t = pd.concat([pd.read_csv(f, usecols=lambda c: c in ("ts", "usd_mid", "cb_mid", "kr_mid", "bn_mid"))
