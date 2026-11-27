@@ -4,6 +4,7 @@
     python -m src.download.update --all                   everything that is behind, newest data first
     python -m src.download.update --only kalshi,binance   just these sources
     python -m src.download.update --only kalshi --since 2026-10-27 --until 2026-11-27
+    python -m src.download.update --all --workers 4        Kalshi: 4 days at a time (~10 s per day instead of 60)
     python -m src.download.update --only kalshi --build   then rebuild the interim tables of those sources
 
 Run with no arguments at all (an IDE "Run" button) it only prints the audit and the hint, it never starts a
@@ -66,7 +67,7 @@ def _polymarket(since, until, http):
 
 def _kalshi(since, until, http):
     from src.download import kalshi
-    return kalshi.download_history(since, until, http=http)
+    return kalshi.download_history(since, until, http=http, workers=WORKERS, min_interval=MIN_INTERVAL)
 
 
 def _macro(since, until, http):
@@ -84,13 +85,16 @@ SOURCES = {
     "funding": ("Binance / Bybit funding rates", lambda s, u, h: _funding(s or config.BINANCE_START, u, h)),
     "deribit": ("Deribit DVOL and option trades", lambda s, u, h: _deribit(s or config.DERIBIT_START, u, h)),
     "polymarket": ("Polymarket daily ladders", lambda s, u, h: _polymarket(s or config.POLYMARKET_START, u, h)),
-    "kalshi": ("Kalshi hourly ladders (slow: ~80 s per day)", lambda s, u, h: _kalshi(s or config.KALSHI_START, u, h)),
+    "kalshi": ("Kalshi hourly ladders (the slow one: see --workers)", lambda s, u, h: _kalshi(s or config.KALSHI_START, u, h)),
     "macro": ("US macro release calendar", lambda s, u, h: _macro(s, u, h)),
     "perp": ("Binance perp candles + basis", lambda s, u, h: _perp(s, u, h)),
 }
 
 # newest data first: the out-of-sample weeks matter more than the deep history
 ORDER = ["binance", "funding", "deribit", "kalshi", "polymarket", "perp", "macro"]
+
+WORKERS = 4            # Kalshi: days fetched at the same time (--workers)
+MIN_INTERVAL = 0.15    # Kalshi: seconds between requests, aggregate (--min-interval)
 
 BUILDERS = {
     "binance": lambda: __import__("src.download.binance", fromlist=["x"]).build_interim(),
@@ -118,6 +122,7 @@ def audit_table() -> pd.DataFrame:
 
 
 def main(argv=None) -> int:
+    global WORKERS, MIN_INTERVAL
     ap = argparse.ArgumentParser(description="download every source that is behind, one source at a time")
     ap.add_argument("--all", action="store_true", help="download every stale source (required to start a download)")
     ap.add_argument("--only", default=None, help="comma-separated subset of " + ", ".join(SOURCES))
@@ -126,7 +131,12 @@ def main(argv=None) -> int:
     ap.add_argument("--audit", action="store_true", help="only print what is stale, do not download")
     ap.add_argument("--build", action="store_true", help="rebuild the interim tables of the chosen sources")
     ap.add_argument("--no-keep-awake", action="store_true", help="do not stop the machine from sleeping")
+    ap.add_argument("--workers", type=int, default=WORKERS,
+                    help=f"Kalshi: days fetched at the same time (default {WORKERS}); 1 = old sequential behaviour")
+    ap.add_argument("--min-interval", type=float, default=MIN_INTERVAL,
+                    help=f"Kalshi: seconds between requests, aggregate (default {MIN_INTERVAL}; raise on 429s)")
     a = ap.parse_args(argv)
+    WORKERS, MIN_INTERVAL = a.workers, a.min_interval
 
     table = audit_table()
     if a.audit or not (a.all or a.only):
@@ -146,7 +156,7 @@ def main(argv=None) -> int:
         log(f"sleep inhibitor: {'installed' if kept else 'not available on this machine'}")
 
     from src.utils import Http
-    http = Http(min_interval=0.25)          # polite: the venues rate-limit, and this is not a race
+    http = Http(min_interval=a.min_interval)   # polite: the venues rate-limit, and this is not a race
     failed = []
     for name in names:
         what, fn = SOURCES[name]

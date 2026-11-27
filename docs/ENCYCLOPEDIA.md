@@ -28,7 +28,7 @@ _26.11.2026. Документ описывает проект целиком: ч
 6. **Спецификация моделей заморожена** 15.10.2026, хэши файлов проверяются (`config.FROZEN_CODE_SHA256`,
    `oos_report.py`); данные с 13.10.2026 — честный out-of-sample.
 7. **Лаборатория ведёт append-only леджер** с хэш-цепочкой; правила гипотез заморожены, изменение = новый ID.
-8. **Тесты:** 21 файл, 83 теста через `unittest` (один файл, `test_trader.py`, требует `pytest`, которого
+8. **Тесты:** 23 файла, 102 теста через `unittest` (один файл, `test_trader.py`, требует `pytest`, которого
    нет в `.venv`).
 9. **Горизонты:** `kx1h` (Kalshi, 55 мин), `pm24h`, `pm6d` (Polymarket, сутки и 6 суток).
 10. **Периоды оценки:** pseudo-OOS с 01.01.2026 (`config.EVAL_START`), live-OOS с 09.10.2026
@@ -117,7 +117,7 @@ src/              build.py (сборка выборок)  models.py (13 моде
 lab/              engine.py  feeds.py  markets.py  signals.py  intents.py  maker.py  tape.py  flow.py
                   edge_timing.py  history.py  volzoo.py  ml.py  core.py (леджер)  jobs.py  report.py
 studies/          61 исследовательский скрипт (каталог в §10)
-tests/            21 файл, 83 теста (unittest; test_trader.py требует pytest)
+tests/            23 файла, 102 теста (unittest; test_trader.py требует pytest)
 data/lit/         bibliography.csv — хранилище литературы (201 строка)
 src/lit/          build_encyclopedia.py (генератор), import_openalex.py (импорт метаданных)
 docs/             WINGS.md (досье крыла)  ARCHITECTURE.md  IDEAS.md  IDEAS_100.md  EXECUTION.md
@@ -495,6 +495,9 @@ MLP −0.11, классификатор −0.64 — то есть больше �
     окном 5–15 мин на ней почти не наблюдаемы (570 строк против 18 078 у архива).
 28. В архиве каждую среду нет 06:00–09:00 UTC (68 часов); в ноябре нет 07:00–10:00 UTC (8 часов). Обе
     дыры в одной полосе — часовые гейты там читать осторожно.
+27а. Kalshi: ~48 запросов на «живые» сутки и ~400 на архивные (свечи архива отдаются по одному тикеру).
+    Последовательный обход — 50–60 с на сутки; `--workers 4` даёт ×3,8 (замер: 8,2 → 2,2 с на стенде),
+    потому что время уходит на round-trip, а не на процессор.
 28б. `No module named 'config'` = файл запущен как скрипт, и в `sys.path` попал `src/download/`, а не корень.
     В `src/download/*.py` теперь стоит bootstrap (`if __package__ in (None, "")`), поэтому работают оба
     способа: `python -m src.download.update` и `python src/download/update.py`. Голый запуск `update.py`
@@ -543,6 +546,7 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt   # py3.11
 .venv/bin/python -m src.lit.import_openalex data/lit/*.json   # расширить до тысяч строк
 .venv/bin/python -m src.download.update --audit  # что из данных отстало и чем это докачать
 .venv/bin/python -m src.download.update --all    # докачать всё отставшее (без --all — только диагностика)
+.venv/bin/python scripts/get_code.py             # обновить только код (2 МБ вместо 350 МБ архива)
 
 # research-слой и отчёты
 .venv/bin/python -m src.pipeline               # download → build → models → evaluate

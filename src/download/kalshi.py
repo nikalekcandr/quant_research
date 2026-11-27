@@ -25,6 +25,7 @@ whole-hour download takes about as long as the default one.
 """
 from __future__ import annotations
 
+import threading
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -50,6 +51,8 @@ BAND = 0.025               # strikes within +-2.5% of the price at the open (liv
 BAND_HIST = 0.015          # archived events cost one request per strike: +-1.5% (~4 hourly st. dev.)
 HIST_STRIKE_STEP = 200     # ... and every second strike ($200 apart)
 THREADS = 8                # parallel requests for archived events (the shared rate limit still applies)
+WORKERS = 4                # days fetched at the same time (--workers); the rate limit is shared anyway
+MIN_INTERVAL = 0.15        # seconds between requests, aggregate across threads (--min-interval)
 
 
 def event_ticker(close_et: datetime, series: str = "KXBTCD") -> str:
@@ -137,81 +140,102 @@ def raw_dir(series: str = "KXBTCD", minutes: int = CANDLE_MINUTES):
     return config.RAW / f"kalshi_{series.lower()}_{minutes}m"
 
 
+def _one_day(http: Http, day, *, minutes: int, series: str, hour_step: int, out_dir, center: dict,
+             lock, workers_note: str = "") -> None:
+    """Download one calendar day into its own CSV (idempotent: an existing file is kept and skipped)."""
+    f = out_dir / f"{day.isoformat()}.csv.gz"
+    refetched = False
+    if f.exists() and series == "KXBTCD" and _sparse(f):
+        log(f"kalshi: {day} was downloaded with too few strikes; downloading it again")
+        f.unlink()
+        refetched = True
+    if f.exists():
+        prev = pd.read_csv(f)
+        if len(prev) and prev["expiration_value"].notna().any():
+            with lock:
+                center["v"] = float(prev["expiration_value"].dropna().iloc[-1])
+        return
+    rows = []
+    for hour in range(0, 24, hour_step):
+        close_et = datetime(day.year, day.month, day.day, hour, tzinfo=ET)
+        close_utc = pd.Timestamp(close_et).tz_convert("UTC")
+        if close_utc > pd.Timestamp(utcnow()):
+            break
+        ev = event_ticker(close_et, series)
+        mk, archived = markets(http, ev)
+        if not mk:
+            continue
+        strikes = pd.DataFrame([{
+            "ticker": m["ticker"], "strike": m.get("floor_strike"), "cap_strike": m.get("cap_strike"),
+            "strike_type": m.get("strike_type"), "result": m.get("result"),
+            "expiration_value": m.get("expiration_value"), "open_time": m.get("open_time"),
+            "close_time": m.get("close_time"), "volume_total": _num(m, "volume")} for m in mk])
+        strikes = strikes.dropna(subset=["strike"])
+        with lock:
+            ref = center["v"] if center["v"] else strikes["strike"].median()
+        # the 17:00 ET event is a daily (weekly on Fridays) market that opens 25 h (169 h) before
+        # settlement: take its candles in the last hour, like every other event
+        t_open = max(sec(to_utc(strikes["open_time"].iloc[0])), sec(to_utc(strikes["close_time"].iloc[0])) - 3600)
+        t_end = t_open + 60 * minutes
+        ranges = series != "KXBTCD"
+        if archived:
+            k = (strikes["strike"] + 0.01).round()
+            # range buckets: every bucket near the money; "above" strikes: see _step_ok
+            sel = strikes[((k / ref - 1).abs() <= BAND_HIST) & _step_ok(strikes, ranges)]
+            cs = pd.DataFrame(candles_hist(http, list(sel["ticker"]), t_open, t_end))
+        else:
+            sel = strikes[(strikes["strike"] / ref - 1).abs() <= BAND]
+            cs = pd.DataFrame(candles(http, list(sel["ticker"]), t_open, t_end))
+            if cs.empty:  # the event moved to the archive in the meantime
+                k = (strikes["strike"] + 0.01).round()
+                sel = strikes[((k / ref - 1).abs() <= BAND_HIST) & _step_ok(strikes, ranges)]
+                cs = pd.DataFrame(candles_hist(http, list(sel["ticker"]), t_open, t_end))
+        if cs.empty:
+            continue
+        cs = cs.merge(sel, on="ticker", how="left")
+        cs["event"] = ev
+        rows.append(cs)
+        ev_val = pd.to_numeric(strikes["expiration_value"], errors="coerce").dropna()
+        if len(ev_val):
+            with lock:
+                center["v"] = float(ev_val.iloc[0])
+    if rows:
+        pd.concat(rows, ignore_index=True).to_csv(f, index=False)
+        if refetched:
+            f.with_suffix(".dense").write_text("re-downloaded with the spacing-aware strike filter", encoding="utf-8")
+    log(f"kalshi: {day} ({sum(len(r) for r in rows)} candle rows){workers_note}")
+
+
 def download_history(since: str = config.KALSHI_START, until: str | None = None,
                      hour_step: int = config.KALSHI_HOUR_STEP, http: Http | None = None,
-                     series: str = "KXBTCD", minutes: int = CANDLE_MINUTES):
+                     series: str = "KXBTCD", minutes: int = CANDLE_MINUTES,
+                     workers: int = WORKERS, min_interval: float = MIN_INTERVAL):
     """One CSV per day: data/raw/kalshi/YYYY-MM-DD.csv.gz with strike metadata and the candles of the first
-    `minutes` minutes of each hourly event (the last hour for the daily and weekly 17:00 ET events)."""
-    http = http or Http(min_interval=0.06)
+    `minutes` minutes of each hourly event (the last hour for the daily and weekly 17:00 ET events).
+
+    `workers` days are fetched at the same time, sharing one polite rate limit. Every request is a round-trip
+    of roughly 0.6-1.0 s to Kalshi, so one day (48 requests on a live event, ~400 on an archived one) costs
+    50-60 s sequentially and ~8-15 s with 4 workers; the shared limiter keeps the aggregate rate at
+    1/min_interval requests per second.
+    """
+    http = http or Http(min_interval=min_interval)
     day = pd.Timestamp(since).date()
     # only complete days: today's file would be saved half-empty and then skipped on the next run
     last_day = pd.Timestamp(until).date() if until else pd.Timestamp(utcnow()).tz_convert(ET).date() - timedelta(days=1)
     out_dir = ensure(raw_dir(series, minutes))
-    center = None
-    ranges = series != "KXBTCD"
-    log(f"kalshi: downloading {series} hourly ladders {day} .. {last_day}, {minutes} min of candles, into {out_dir}")
-    log("kalshi: one line per day; the first one appears in about 20-60 seconds")
-    while day <= last_day:
-        f = out_dir / f"{day.isoformat()}.csv.gz"
-        if f.exists() and series == "KXBTCD" and _sparse(f):
-            log(f"kalshi: {day} was downloaded with too few strikes; downloading it again")
-            f.unlink()
-            refetched = True
-        else:
-            refetched = False
-        if f.exists():
-            prev = pd.read_csv(f)
-            if len(prev):
-                center = float(prev["expiration_value"].dropna().iloc[-1]) if prev["expiration_value"].notna().any() else center
-            day += timedelta(days=1)
-            continue
-        rows = []
-        for hour in range(0, 24, hour_step):
-            close_et = datetime(day.year, day.month, day.day, hour, tzinfo=ET)
-            close_utc = pd.Timestamp(close_et).tz_convert("UTC")
-            if close_utc > pd.Timestamp(utcnow()):
-                break
-            ev = event_ticker(close_et, series)
-            mk, archived = markets(http, ev)
-            if not mk:
-                continue
-            strikes = pd.DataFrame([{
-                "ticker": m["ticker"], "strike": m.get("floor_strike"), "cap_strike": m.get("cap_strike"),
-                "strike_type": m.get("strike_type"), "result": m.get("result"),
-                "expiration_value": m.get("expiration_value"), "open_time": m.get("open_time"),
-                "close_time": m.get("close_time"), "volume_total": _num(m, "volume")} for m in mk])
-            strikes = strikes.dropna(subset=["strike"])
-            ref = center if center else strikes["strike"].median()
-            # the 17:00 ET event is a daily (weekly on Fridays) market that opens 25 h (169 h) before
-            # settlement: take its candles in the last hour, like every other event
-            t_open = max(sec(to_utc(strikes["open_time"].iloc[0])), sec(to_utc(strikes["close_time"].iloc[0])) - 3600)
-            t_end = t_open + 60 * minutes
-            if archived:
-                k = (strikes["strike"] + 0.01).round()
-                # range buckets: every bucket near the money; "above" strikes: see _step_ok
-                sel = strikes[((k / ref - 1).abs() <= BAND_HIST) & _step_ok(strikes, ranges)]
-                cs = pd.DataFrame(candles_hist(http, list(sel["ticker"]), t_open, t_end))
-            else:
-                sel = strikes[(strikes["strike"] / ref - 1).abs() <= BAND]
-                cs = pd.DataFrame(candles(http, list(sel["ticker"]), t_open, t_end))
-                if cs.empty:  # the event moved to the archive in the meantime
-                    k = (strikes["strike"] + 0.01).round()
-                    sel = strikes[((k / ref - 1).abs() <= BAND_HIST) & _step_ok(strikes, ranges)]
-                    cs = pd.DataFrame(candles_hist(http, list(sel["ticker"]), t_open, t_end))
-            if cs.empty:
-                continue
-            cs = cs.merge(sel, on="ticker", how="left")
-            cs["event"] = ev
-            rows.append(cs)
-            ev_val = pd.to_numeric(strikes["expiration_value"], errors="coerce").dropna()
-            if len(ev_val):
-                center = float(ev_val.iloc[0])
-        if rows:
-            pd.concat(rows, ignore_index=True).to_csv(f, index=False)
-            if refetched:
-                f.with_suffix(".dense").write_text("re-downloaded with the spacing-aware strike filter", encoding="utf-8")
-        log(f"kalshi: {day} ({sum(len(r) for r in rows)} candle rows)")
-        day += timedelta(days=1)
+    days = [day + timedelta(days=i) for i in range((last_day - day).days + 1)]
+    log(f"kalshi: downloading {series} hourly ladders {day} .. {last_day}, {minutes} min of candles, "
+        f"{len(days)} day(s), {max(1, workers)} worker(s), into {out_dir}")
+    log("kalshi: one line per day; the first one appears in about 20-60 seconds (8-15 s with --workers 4)")
+    center, lock = {"v": None}, threading.Lock()
+    kw = dict(minutes=minutes, series=series, hour_step=hour_step, out_dir=out_dir, center=center, lock=lock)
+    if workers <= 1:
+        for d in days:
+            _one_day(http, d, **kw)
+        return
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        list(ex.map(lambda d: _one_day(http, d, **kw), days))
 
 
 def build_interim() -> pd.DataFrame:
@@ -297,10 +321,14 @@ if __name__ == "__main__":
     ap.add_argument("--series", default="KXBTCD", choices=["KXBTCD", "KXBTC"])
     ap.add_argument("--minutes", type=int, default=CANDLE_MINUTES)
     ap.add_argument("--probe", action="store_true", help="only find the earliest day with hourly events")
+    ap.add_argument("--workers", type=int, default=WORKERS, help="days fetched at the same time (default 4)")
+    ap.add_argument("--min-interval", type=float, default=MIN_INTERVAL,
+                    help="seconds between requests, aggregate (default 0.15; raise it if Kalshi answers 429)")
     a = ap.parse_args()
     from src.runner import keep_awake
     keep_awake()
     if a.probe:
         print(probe_start(series=a.series))
     else:
-        download_history(a.since, a.until, series=a.series, minutes=a.minutes)
+        download_history(a.since, a.until, series=a.series, minutes=a.minutes,
+                         workers=a.workers, min_interval=a.min_interval)
