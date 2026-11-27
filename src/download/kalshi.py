@@ -328,11 +328,30 @@ def download_history(since: str = config.KALSHI_START, until: str | None = None,
         log("kalshi: nothing is lost — run the same command again, it skips the days already on disk")
 
 
+def ladder_dirs() -> list:
+    """Every ladder dataset on disk, coarsest first: 10-minute candles, then the whole hour.
+
+    The archived `kalshi_kxbtcd_60m` files contain the first 10 minutes too, so reading both and keeping the
+    last copy per (ticker, candle_end) gives the finest series available for every day, without losing the
+    months that were only ever downloaded at 10 minutes.
+    """
+    out = []
+    for minutes in sorted({CANDLE_MINUTES, 60}):
+        d = raw_dir("KXBTCD", minutes)
+        if d.exists():
+            out.append(d)
+    return out or [RAW_DIR]
+
+
 def build_interim() -> pd.DataFrame:
-    files = sorted(RAW_DIR.glob("*.csv.gz"))
+    files = sorted(f for d in ladder_dirs() for f in d.glob("*.csv.gz"))
     if not files:
         return pd.DataFrame()
     df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
+    if len(files) > 1:                       # 60-minute rows win over the 10-minute ones
+        df = (df.assign(_f=df["ticker"].astype(str))
+                .drop_duplicates(subset=["_f", "end_ts", "event"], keep="last")
+                .drop(columns="_f"))
     df["open_ts"] = pd.to_datetime(df["open_time"], utc=True)
     df["settle_ts"] = pd.to_datetime(df["close_time"], utc=True)
     df["candle_end"] = pd.to_datetime(df["end_ts"], unit="s", utc=True)

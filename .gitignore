@@ -7,6 +7,10 @@ __pycache__/
 .ipynb_checkpoints/
 logs/
 _export/
+# 1-second candles: ~60x the size of 1-minute data and fully regenerable from the exchange (see
+# `python -m src.download.binance_1s`). Treat them as a cache, not as a versioned dataset.
+data/raw/binance_1s/
+data/interim/binance_1s/
 data/lab/heartbeat.json
 
 # executor: private keys, live state and journals stay on the trading machine

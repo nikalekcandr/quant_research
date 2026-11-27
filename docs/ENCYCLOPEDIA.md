@@ -501,6 +501,9 @@ MLP −0.11, классификатор −0.64 — то есть больше �
     перекрывает `KALSHI_START` (там 2024-12-12), а `--since` перекрывает всё.
     Последовательный обход — 50–60 с на сутки; `--workers 4` даёт ×3,8 (замер: 8,2 → 2,2 с на стенде),
     потому что время уходит на round-trip, а не на процессор.
+27в. Пайплайн читает ВСЕ лесенки Kalshi на диске (`kalshi.ladder_dirs()`): 10-минутные свечи из
+    `data/raw/kalshi` и часовые из `data/raw/kalshi_kxbtcd_60m`, дубликаты по (ticker, end_ts, event)
+    схлопываются в пользу часовых. Иначе 27 МБ более подробных данных лежат мёртвым грузом.
 27б. 429 не должен убивать источник: `Http` держит глобальный кулдаун (ждут все потоки), уважает
     `Retry-After`, умножает паузу на 1,5 на каждый отказ (потолок 2 с) и возвращается к `--min-interval`
     после 50 чистых ответов. Сбой одного дня Kalshi ловится внутри `_one_day` и не рвёт пул потоков.
@@ -553,9 +556,10 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt   # py3.11
 .venv/bin/python -m src.download.update --audit  # что из данных отстало и чем это докачать
 .venv/bin/python -m src.download.update --all    # докачать всё отставшее (без --all — только диагностика)
 .venv/bin/python scripts/get_code.py             # обновить только код (2 МБ вместо 350 МБ архива)
-.venv/bin/python scripts/night.py --dry-run      # план ночной докачки: окно, недостающие сутки, оценка часов
-.venv/bin/python scripts/night.py                # докачать всё в фон, отчёт в logs/night-*/summary.md
-.venv/bin/python scripts/night.py --status       # утром: что скачалось и что упало
+.venv/bin/python scripts/download_all.py --dry-run  # план докачки: чего не хватает, оценка часов
+.venv/bin/python scripts/download_all.py            # докачать всё в фон, отчёт в logs/download-*/summary.md
+.venv/bin/python scripts/download_all.py --status   # что скачалось и что упало
+.venv/bin/python -m src.download.binance_1s 2026-11-01 2026-11-26   # секундные свечи (опционально, тяжёлые)
 
 # research-слой и отчёты
 .venv/bin/python -m src.pipeline               # download → build → models → evaluate

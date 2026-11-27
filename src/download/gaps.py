@@ -125,7 +125,7 @@ def audit(as_of: str | None = None) -> pd.DataFrame:
         last_f = pd.to_datetime(f.ts.max(), unit="ms", utc=True) if len(f) else None
     add("funding 8h", funding, last_f, "python -m src.download.update --only funding")
 
-    ladder = config.RAW / "kalshi_kxbtcd_60m"
+    ladder = config.RAW / "kalshi_kxbtcd_60m"      # the finest ladder dataset; 10-minute candles in data/raw/kalshi
     add("Kalshi ladder", ladder, _last_file_date("*.csv.gz", ladder),
         "python -m src.download.update --only kalshi", "one request per hour of history (~50 per day)")
 

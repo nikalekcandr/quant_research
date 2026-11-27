@@ -1,12 +1,12 @@
 @echo off
-rem One click for the night: check the code, download what is missing, write a report in the morning.
+rem One click: download every dataset that is behind, then rebuild the tables.
 setlocal
 cd /d "%~dp0.."
 set "PY=python"
 if exist ".venv\Scripts\python.exe" set "PY=.venv\Scripts\python.exe"
 echo.
-"%PY%" scripts\night.py %*
+"%PY%" scripts\download_all.py %*
 echo.
-echo Утром: python scripts\night.py --status
+echo Итог: python scripts\download_all.py --status
 echo Нажмите любую клавишу, чтобы закрыть окно.
 pause >nul
