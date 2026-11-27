@@ -35,7 +35,11 @@ DEFAULT_REMOTE = "https://github.com/nikalekcandr/quant_research.git"
 DEFAULT_BRANCH = "main"
 
 # what "code" means: small text files that make the pipeline run; everything else is data
-CODE_DIRS = ("src", "studies", "tests", "scripts", "docs", "data/lit", "results/studies")
+# Every top-level directory that holds code. `lab/` was missing here, so `lab/core.py` was never updated while
+# `studies/*.py` were: studies then died with `cannot import name 'utc_index' from 'lab.core'`, and no amount
+# of updating fixed it. tests/test_get_code.py fails if a code directory is ever left out again.
+CODE_DIRS = ("src", "studies", "lab", "tests", "scripts", "jobs", "trader", "docs", "data/lit",
+              "results/studies")
 CODE_EXT = {".py", ".md", ".txt", ".toml", ".cfg", ".ini", ".json", ".yml", ".yaml", ".sh", ".bat", ".ps1", ".csv"}
 ROOT_FILES = ("README.md", "AGENTS.md", "CLAUDE.md", "PLAN.md", "ROADMAP.md", "STRATEGIES.md", "RUN_ME.md",
               "config.py", "requirements.txt", "requirements-dev.txt", ".gitignore",

@@ -108,7 +108,7 @@ class Minutes:
             return self.season
         r = self.returns(90)
         r2 = (r ** 2).clip(upper=(r ** 2).quantile(0.999))
-        how = r2.index.dayofweek * 24 + r2.index.hour
+        how = r2.index.day_of_week * 24 + r2.index.hour
         s = r2.groupby(how).mean()
         s = (s / s.mean()).reindex(range(168)).fillna(1.0)
         self.season = s.rolling(3, center=True, min_periods=1).mean()   # light smoothing across hours
@@ -124,7 +124,7 @@ class Minutes:
         if len(r) < 600:
             return np.nan
         s = self.seasonal()
-        how = r.index.dayofweek * 24 + r.index.hour
+        how = r.index.day_of_week * 24 + r.index.hour
         z = (r ** 2) / s.reindex(how).values
         z = z.clip(upper=z.quantile(0.9995))
         ew = z.ewm(halflife=30).mean().iloc[-1]
@@ -142,7 +142,7 @@ class Minutes:
         grid = pd.date_range(now.floor("min"), end, freq="1min", inclusive="left")
         if len(grid) == 0:
             return lv * (end - now).total_seconds() / 60
-        how = grid.dayofweek * 24 + grid.hour
+        how = grid.day_of_week * 24 + grid.hour
         total = float(s.reindex(how).values.sum()) * lv
         # the first, partial minute
         frac = 1 - (now - now.floor("min")).total_seconds() / 60

@@ -50,12 +50,12 @@ def design(b, per_day, freq):
     d["l_week"] = lr.rolling(7 * per_day).mean()
     nxt = b.index + pd.tseries.frequencies.to_offset(freq)
     if per_day == 1:
-        d["how_next"] = nxt.dayofweek
+        d["how_next"] = nxt.day_of_week
     elif per_day == 24:
-        d["how_next"] = nxt.dayofweek * 24 + nxt.hour
+        d["how_next"] = nxt.day_of_week * 24 + nxt.hour
     else:
-        d["how_next"] = nxt.dayofweek * 96 + nxt.hour * 4 + nxt.minute // 15
-    d["hour_next"], d["dow_next"] = nxt.hour, nxt.dayofweek
+        d["how_next"] = nxt.day_of_week * 96 + nxt.hour * 4 + nxt.minute // 15
+    d["hour_next"], d["dow_next"] = nxt.hour, nxt.day_of_week
     d["how_cur"] = d["how_next"].shift(1).fillna(d["how_next"])
     d["ln"] = np.log(b["n"])
     d["ln_day"] = d["ln"].rolling(per_day).mean()

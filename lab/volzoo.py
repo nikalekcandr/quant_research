@@ -37,7 +37,7 @@ class VolZoo:
     def refit(self, minutes, now):
         rv, ret = self.hourly(minutes, 120)
         s = minutes.seasonal()
-        how = rv.index.dayofweek * 24 + rv.index.hour
+        how = rv.index.day_of_week * 24 + rv.index.hour
         sea = s.reindex(how).values
         out = {}
         # log-HAR with seasonality: log(rv/s) on its lags (1 h, 24 h mean, 168 h mean)
@@ -66,7 +66,7 @@ class VolZoo:
             from sklearn.ensemble import HistGradientBoostingRegressor
             F = pd.DataFrame({"l1": np.log(rv).shift(1), "l3": np.log(rv.rolling(3).mean()).shift(1),
                               "l24": np.log(rv.rolling(24).mean()).shift(1), "l168": np.log(rv.rolling(168).mean()).shift(1),
-                              "sea": np.log(sea), "hour": rv.index.hour, "dow": rv.index.dayofweek})
+                              "sea": np.log(sea), "hour": rv.index.hour, "dow": rv.index.day_of_week})
             dd = pd.concat([np.log(rv).rename("y"), F], axis=1).dropna()
             if len(dd) > 500:
                 g = HistGradientBoostingRegressor(max_iter=200, learning_rate=0.05, max_leaf_nodes=15,
@@ -91,7 +91,7 @@ class VolZoo:
                 h = np.log(h)
                 nxt = h.index + pd.Timedelta(hours=1)
                 F = pd.DataFrame({"l1": h, "l_day": h.rolling(24).mean(), "l_week": h.rolling(168).mean(),
-                                  "hour": nxt.hour, "dow": nxt.dayofweek, "y": h.shift(-1)}, index=h.index).dropna()
+                                  "hour": nxt.hour, "dow": nxt.day_of_week, "y": h.shift(-1)}, index=h.index).dropna()
                 g = HistGradientBoostingRegressor(max_iter=300, learning_rate=0.05, max_leaf_nodes=31,
                                                   min_samples_leaf=200, l2_regularization=1.0, random_state=0)
                 X = F[["l1", "l_day", "l_week", "hour", "dow"]].values
@@ -119,13 +119,13 @@ class VolZoo:
         rv, ret = self.hourly(minutes, 10)
         for hz, t, end in windows:
             grid = pd.date_range(t, end, freq="1min", inclusive="left")
-            how = grid.dayofweek * 24 + grid.hour
+            how = grid.day_of_week * 24 + grid.hour
             shape_min = s.reindex(how).values          # per-minute seasonal factors over the window
             n = len(grid)
             fc = {}
             fc["lab_blend"] = minutes.forecast_var(t, end)
             # RiskMetrics on the last 10 days of hourly RV (deseasonalised), lambda = 0.94 per hour
-            z = rv / s.reindex(rv.index.dayofweek * 24 + rv.index.hour).values
+            z = rv / s.reindex(rv.index.day_of_week * 24 + rv.index.hour).values
             lvl = z.ewm(alpha=0.06).mean().iloc[-1] / 60          # per-minute deseasonalised variance
             fc["ewma_rm"] = float(lvl * shape_min.sum())
             if "har" in self.fits:
@@ -155,8 +155,8 @@ class VolZoo:
                     tot = 0.0
                     for hh in hrs:
                         x = np.array([[math.log(rv.iloc[-1]), math.log(rv.iloc[-3:].mean()), math.log(rv.iloc[-24:].mean()),
-                                       math.log(rv.iloc[-168:].mean()), math.log(s.iloc[hh.dayofweek * 24 + hh.hour]),
-                                       hh.hour, hh.dayofweek]])
+                                       math.log(rv.iloc[-168:].mean()), math.log(s.iloc[hh.day_of_week * 24 + hh.hour]),
+                                       hh.hour, hh.day_of_week]])
                         tot += math.exp(g.predict(x)[0]) * smear
                     frac = n / (len(hrs) * 60)
                     fc["gbm_vol"] = float(tot * frac)
@@ -167,7 +167,7 @@ class VolZoo:
                     hrs = pd.date_range(t.floor("h"), end, freq="h", inclusive="left")
                     tot = 0.0
                     for h_ in hrs:
-                        x = np.array([[hlog.iloc[-1], hlog.iloc[-24:].mean(), hlog.iloc[-168:].mean(), h_.hour, h_.dayofweek]])
+                        x = np.array([[hlog.iloc[-1], hlog.iloc[-24:].mean(), hlog.iloc[-168:].mean(), h_.hour, h_.day_of_week]])
                         tot += math.exp(g.predict(x)[0]) * smear
                     fc["gbm_long"] = float(tot * n / (len(hrs) * 60))
             vals = [v for v in fc.values() if v is not None and np.isfinite(v) and v > 0]

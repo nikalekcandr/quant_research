@@ -20,7 +20,7 @@ c = d[(d.event == "CLOSE") & d.hyp.astype(str).str.match(r"W\d")].copy()
 c["ts"] = pd.to_datetime(c.ts, utc=True, format="mixed")
 c["hour"] = pd.to_datetime(c.exit_ts, utc=True, format="mixed").dt.floor("h")
 c["c"] = 100 * c.pnl / c.qty
-c["days"] = np.where(c.hour.dt.dayofweek >= 5, "weekend", "weekday")
+c["days"] = np.where(c.hour.dt.day_of_week >= 5, "weekend", "weekday")
 
 
 def st(g):

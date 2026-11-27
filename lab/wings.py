@@ -44,7 +44,7 @@ def _gbm_var(ctx, end):
             return None
         h = np.log(rv)
         hh = end - pd.Timedelta(hours=1)
-        x = np.array([[h.iloc[-1], h.iloc[-24:].mean(), h.iloc[-168:].mean(), hh.hour, hh.dayofweek]])
+        x = np.array([[h.iloc[-1], h.iloc[-24:].mean(), h.iloc[-168:].mean(), hh.hour, hh.day_of_week]])
         ctx.cache[key] = math.exp(g.predict(x)[0]) * smear / 60          # per minute
     left = max((end - ctx.now).total_seconds() / 60 - 2 / 3, 1 / 3)
     return ctx.cache[key] * left

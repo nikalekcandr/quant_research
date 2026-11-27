@@ -111,7 +111,7 @@ def buckets(led):
     c["left"] = info.map(lambda i: i.get("left_min"))
     c["edge_c"] = 100 * pd.to_numeric(c["edge"], errors="coerce")
     et = c["ts"].dt.tz_convert("America/New_York")
-    c["us_session"] = np.where((et.dt.dayofweek < 5) & (et.dt.hour * 60 + et.dt.minute >= 570) & (et.dt.hour < 16), "US hours", "other")
+    c["us_session"] = np.where((et.dt.day_of_week < 5) & (et.dt.hour * 60 + et.dt.minute >= 570) & (et.dt.hour < 16), "US hours", "other")
     rows = []
     for name, key in (("time left, min", pd.cut(c["left"], [0, 3, 7, 15, 60, 1e4])),
                       ("edge, ¢", pd.cut(c["edge_c"], [0, 5, 10, 20, 100])),

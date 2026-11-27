@@ -36,7 +36,7 @@ def fee(p):
 def variance_level(close):
     r2 = np.log(close).diff() ** 2
     idx = close.index
-    how = idx.dayofweek * 24 + idx.hour
+    how = idx.day_of_week * 24 + idx.hour
     df = pd.DataFrame({"r2": r2.values, "how": how, "day": idx.floor("D")}, index=pd.DatetimeIndex(idx, name="ts"))
     daily = df.groupby(["day", "how"])["r2"].mean().unstack()
     sea = daily.rolling(28, min_periods=7).mean().shift(1)

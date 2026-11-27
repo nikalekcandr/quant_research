@@ -128,7 +128,7 @@ class Forecaster:
         if day not in self.cache:
             r = self.r[(self.r.index < day) & (self.r.index >= day - pd.Timedelta(days=90))]
             r2 = (r ** 2).clip(upper=(r ** 2).quantile(0.999))
-            s = r2.groupby(r2.index.dayofweek * 24 + r2.index.hour).mean()
+            s = r2.groupby(r2.index.day_of_week * 24 + r2.index.hour).mean()
             s = (s / s.mean()).reindex(range(168)).fillna(1.0)
             self.cache[day] = s.rolling(3, center=True, min_periods=1).mean()
         return self.cache[day]
@@ -138,11 +138,11 @@ class Forecaster:
         r = self.r[(self.r.index <= t - pd.Timedelta(minutes=1)) & (self.r.index >= t - pd.Timedelta(days=8))]
         if len(r) < 600:
             return np.nan
-        z = (r ** 2) / s.reindex(r.index.dayofweek * 24 + r.index.hour).values
+        z = (r ** 2) / s.reindex(r.index.day_of_week * 24 + r.index.hour).values
         z = z.clip(upper=z.quantile(0.9995))
         lv = 0.5 * z.ewm(halflife=30).mean().iloc[-1] + 0.3 * z[z.index > z.index[-1] - pd.Timedelta(hours=24)].mean() + 0.2 * z.mean()
         grid = pd.date_range(t, end, freq="1min", inclusive="left")
-        return float(s.reindex(grid.dayofweek * 24 + grid.hour).values.sum()) * lv
+        return float(s.reindex(grid.day_of_week * 24 + grid.hour).values.sum()) * lv
 
 
 # ------------------------------------------------------------------ build one row per entry

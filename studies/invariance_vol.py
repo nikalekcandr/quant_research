@@ -43,7 +43,7 @@ def design(b, per_day):
     d["l1"] = lr
     d["l_day"] = lr.rolling(per_day).mean()
     d["l_week"] = lr.rolling(7 * per_day).mean()
-    d["how"] = (b.index.dayofweek * 24 + b.index.hour) if per_day == 24 else (b.index.dayofweek * 96 + b.index.hour * 4 + b.index.minute // 15)
+    d["how"] = (b.index.day_of_week * 24 + b.index.hour) if per_day == 24 else (b.index.day_of_week * 96 + b.index.hour * 4 + b.index.minute // 15)
     d["how_next"] = d["how"].shift(-1)
     d["ln"] = np.log(b["n"])
     d["ln_day"] = d["ln"].rolling(per_day).mean()

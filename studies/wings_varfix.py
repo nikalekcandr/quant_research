@@ -43,7 +43,7 @@ def r2_frame(close: pd.Series) -> pd.DataFrame:
     close = close[~close.index.duplicated()].sort_index()
     r2 = (np.log(close).diff() ** 2).rename("r2")
     df = r2.to_frame()
-    df["how"] = df.index.dayofweek * 24 + df.index.hour
+    df["how"] = df.index.day_of_week * 24 + df.index.hour
     df["day"] = df.index.floor("D")
     return df.dropna()
 
@@ -150,9 +150,9 @@ def rule_stats(c):
             hh = gg.groupby("T").pnl.sum()
             out[f"{h} {half}"] = (f"{100 * gg.pnl.mean():+.2f}¢ (t {hh.mean() / (hh.std(ddof=1) / math.sqrt(len(hh))):.1f}, "
                                   f"n {len(gg)})") if len(hh) > 2 else "—"
-        we = g[g["T"].dt.dayofweek >= 5]
+        we = g[g["T"].dt.day_of_week >= 5]
         out[f"{h} weekends ¢"] = round(100 * we.pnl.mean(), 2)
-        out[f"{h} weekdays ¢"] = round(100 * g[g["T"].dt.dayofweek < 5].pnl.mean(), 2)
+        out[f"{h} weekdays ¢"] = round(100 * g[g["T"].dt.day_of_week < 5].pnl.mean(), 2)
     return out
 
 
@@ -192,8 +192,8 @@ def main():
     prof = []
     for (spot, m), s in seas.items():
         s = s[s.index >= pd.Timestamp("2026-07-01", tz="UTC")]
-        prof.append({"spot": spot, "variance": m, "sea weekday": s[s.index.dayofweek < 5].mean(),
-                     "sea weekend": s[s.index.dayofweek >= 5].mean(), "sea 13–16 UTC": s[s.index.hour.isin([13, 14, 15])].mean(),
+        prof.append({"spot": spot, "variance": m, "sea weekday": s[s.index.day_of_week < 5].mean(),
+                     "sea weekend": s[s.index.day_of_week >= 5].mean(), "sea 13–16 UTC": s[s.index.hour.isin([13, 14, 15])].mean(),
                      "sea 00–06 UTC": s[s.index.hour < 6].mean(), "share sea == 1": float((s == 1).mean())})
     P = pd.DataFrame(prof)
     lines = ["# The wings model in the backtest vs the live lab (studies/wings_varfix.py)", "",
