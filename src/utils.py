@@ -29,20 +29,58 @@ class Http:
     min_interval protects us from the public rate limits (Kalshi ~20 req/s, Deribit ~20 req/s).
     """
 
-    def __init__(self, min_interval: float = 0.06, retries: int = 6):
+    def __init__(self, min_interval: float = 0.06, retries: int = 6, adaptive: bool = True,
+                 max_interval: float = 2.0, recover_after: int = 50):
         self.s = requests.Session()
         self.s.headers.update({"User-Agent": config.USER_AGENT, "Accept": "application/json"})
         self.min_interval = min_interval
+        self.base_interval = min_interval        # the pace we slow down from and recover to
+        self.max_interval = max(max_interval, min_interval)
+        self.adaptive = adaptive
+        self.recover_after = max(1, recover_after)
         self.retries = retries
         self._last = 0.0
         self._lock = threading.Lock()   # several download threads share one rate limit
+        self._cooldown_until = 0.0      # set by a 429: every thread waits, not just the unlucky one
+        self._ok_streak = 0
+        self.stats = {"requests": 0, "429": 0, "errors": 0}
 
     def _wait(self):
+        """Reserve the next slot: the shared gap plus any cooldown a 429 has just installed."""
         with self._lock:
-            gap = time.monotonic() - self._last
-            if gap < self.min_interval:
-                time.sleep(self.min_interval - gap)
-            self._last = time.monotonic()
+            start = max(time.monotonic(), self._cooldown_until, self._last + self.min_interval)
+            self._last = start
+            self.stats["requests"] += 1
+        delay = start - time.monotonic()
+        if delay > 0:
+            time.sleep(delay)
+
+    def _penalise(self, retry_after: float | None) -> None:
+        """A 429 means we are too fast for this venue: pause everyone and widen the gap."""
+        with self._lock:
+            self.stats["429"] += 1
+            pause = min(max(retry_after or 0.0, 2.0), 60.0)
+            self._cooldown_until = max(self._cooldown_until, time.monotonic() + pause)
+            if self.adaptive:
+                self.min_interval = min(self.max_interval, max(self.min_interval * 1.5, 0.05))
+                self._ok_streak = 0
+
+    def _relax(self) -> None:
+        """After a long clean streak, creep back towards the requested pace."""
+        if not self.adaptive:
+            return
+        with self._lock:
+            self._ok_streak += 1
+            if self._ok_streak >= self.recover_after and self.min_interval > self.base_interval:
+                self.min_interval = max(self.base_interval, self.min_interval * 0.9)
+                self._ok_streak = 0
+
+    @staticmethod
+    def _retry_after(r) -> float | None:
+        try:
+            return float(r.headers.get("Retry-After"))
+        except (TypeError, ValueError):
+            return None
 
     def get(self, url: str, params: dict | None = None, raw: bool = False):
         err = None
@@ -54,14 +92,20 @@ class Http:
                     return None
                 if r.status_code in (401, 403):
                     raise Blocked(f"HTTP {r.status_code} from {url.split('/')[2]}: the server refuses requests from this network")
-                if r.status_code in (429, 500, 502, 503, 504):
+                if r.status_code == 429:
+                    self._penalise(self._retry_after(r))     # the cooldown sleeps for every thread
+                    err = "HTTP 429"
+                    continue
+                if r.status_code in (500, 502, 503, 504):
                     err = f"HTTP {r.status_code}"
                     time.sleep(min(60, 2 ** attempt))
                     continue
                 r.raise_for_status()
+                self._relax()
                 return r.content if raw else r.json()
             except (requests.ConnectionError, requests.Timeout, ValueError) as e:
                 err = repr(e)
+                self.stats["errors"] += 1
                 time.sleep(min(60, 2 ** attempt))
         raise RuntimeError(f"GET failed after {self.retries} attempts: {url} {params} ({err})")
 

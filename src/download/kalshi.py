@@ -57,7 +57,7 @@ MIN_INTERVAL = 0.15        # seconds between requests, aggregate across threads 
 REPORT_EVERY = 30.0        # seconds between progress lines (a day can take a minute or two)
 
 # live counters, reset by every download_history() call: used for the progress line and the ETA
-STATS = {"requests": 0, "days_done": 0, "days_total": 0}
+STATS = {"requests": 0, "days_done": 0, "days_total": 0, "days_failed": 0, "failed": []}
 _STATS_LOCK = threading.Lock()
 
 
@@ -89,11 +89,13 @@ def _reporter(t0: float, total: int, stop: threading.Event, every: float) -> Non
     """
     while not stop.wait(every):
         done, req = _snapshot()
+        with _STATS_LOCK:
+            failed = STATS["days_failed"]
         el = max(time.time() - t0, 1e-9)
         per_min = done / el * 60
         eta = (total - done) / per_min * 60 if done else float("inf")
         log(f"kalshi: {done}/{total} days done, {el / 60:.1f} min elapsed, {req} requests "
-            f"({req / el:.1f}/s), {per_min:.1f} days/min, ETA {_human(eta)}")
+            f"({req / el:.1f}/s), {per_min:.1f} days/min, ETA {_human(eta)}, {failed} failed")
 
 
 def event_ticker(close_et: datetime, series: str = "KXBTCD") -> str:
@@ -185,8 +187,27 @@ def raw_dir(series: str = "KXBTCD", minutes: int = CANDLE_MINUTES):
     return config.RAW / f"kalshi_{series.lower()}_{minutes}m"
 
 
-def _one_day(http: Http, day, *, minutes: int, series: str, hour_step: int, out_dir, center: dict,
-             lock, workers_note: str = "") -> None:
+def _one_day(http: Http, day, **kw) -> None:
+    """Download one day; a failure is logged and counted, and never aborts the other days.
+
+    A run of a few hundred days will hit a 429 or a timeout at some point. Those days are simply retried
+    by the next run of the same command — the file is either complete or absent, never half written.
+    """
+    try:
+        _one_day_impl(http, day, **kw)
+    except Exception as e:
+        with _STATS_LOCK:
+            STATS["days_failed"] += 1
+            if len(STATS["failed"]) < 200:
+                STATS["failed"].append(str(day))
+        log(f"kalshi: {day} failed ({type(e).__name__}: {str(e)[:180]}) — the next run will retry it")
+    finally:
+        with _STATS_LOCK:
+            STATS["days_done"] += 1
+
+
+def _one_day_impl(http: Http, day, *, minutes: int, series: str, hour_step: int, out_dir, center: dict,
+                  lock, workers_note: str = "") -> None:
     """Download one calendar day into its own CSV (idempotent: an existing file is kept and skipped)."""
     f = out_dir / f"{day.isoformat()}.csv.gz"
     refetched = False
@@ -199,8 +220,6 @@ def _one_day(http: Http, day, *, minutes: int, series: str, hour_step: int, out_
         if len(prev) and prev["expiration_value"].notna().any():
             with lock:
                 center["v"] = float(prev["expiration_value"].dropna().iloc[-1])
-        with _STATS_LOCK:
-            STATS["days_done"] += 1
         return
     rows = []
     for hour in range(0, 24, hour_step):
@@ -250,8 +269,6 @@ def _one_day(http: Http, day, *, minutes: int, series: str, hour_step: int, out_
         pd.concat(rows, ignore_index=True).to_csv(f, index=False)
         if refetched:
             f.with_suffix(".dense").write_text("re-downloaded with the spacing-aware strike filter", encoding="utf-8")
-    with _STATS_LOCK:
-        STATS["days_done"] += 1
     log(f"kalshi: {day} ({sum(len(r) for r in rows)} candle rows){workers_note}")
 
 
@@ -284,7 +301,7 @@ def download_history(since: str = config.KALSHI_START, until: str | None = None,
     center, lock = {"v": None}, threading.Lock()
     kw = dict(minutes=minutes, series=series, hour_step=hour_step, out_dir=out_dir, center=center, lock=lock)
     with _STATS_LOCK:
-        STATS.update(requests=0, days_done=0, days_total=len(days))
+        STATS.update(requests=0, days_done=0, days_total=len(days), days_failed=0, failed=[])
     stop = threading.Event()
     watchdog = threading.Thread(target=_reporter, args=(t0, len(days), stop, report_every), daemon=True)
     watchdog.start()
@@ -300,7 +317,15 @@ def download_history(since: str = config.KALSHI_START, until: str | None = None,
         stop.set()
         watchdog.join(timeout=1)
     done, req = _snapshot()
-    log(f"kalshi: finished {done}/{len(days)} days in {_human(time.time() - t0)}, {req} requests")
+    with _STATS_LOCK:
+        failed = STATS["days_failed"]
+        failed_days = list(STATS["failed"])
+    log(f"kalshi: finished {done}/{len(days)} days in {_human(time.time() - t0)}, {req} requests, "
+        f"{failed} failed")
+    if failed:
+        log(f"kalshi: failed days ({failed}): {', '.join(failed_days[:10])}"
+            + (" ..." if failed > 10 else ""))
+        log("kalshi: nothing is lost — run the same command again, it skips the days already on disk")
 
 
 def build_interim() -> pd.DataFrame:

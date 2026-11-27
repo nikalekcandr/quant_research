@@ -181,6 +181,10 @@ def main(argv=None) -> int:
                 failed.append(f"{name}:build")
                 log(f"!!! rebuilding {name} failed: {e!r}")
 
+    if http.stats["429"]:
+        log(f"rate limits: {http.stats['429']} × HTTP 429; the pause between requests widened to "
+            f"{http.min_interval:.2f} s (asked for {http.base_interval:.2f}). It relaxes by itself once the "
+            f"venue stops complaining; for a long backfill start lower: --min-interval 0.05")
     print()
     print(audit_table().to_string(index=False))
     if failed:

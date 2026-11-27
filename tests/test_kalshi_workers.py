@@ -20,6 +20,7 @@ from src.download import kalshi
 from src.utils import Http
 
 LATENCY = 0.25          # seconds per request: roughly one Kalshi round-trip
+POISON: set[str] = set()  # event tickers the fake venue answers with 429 (to test failure isolation)
 # 7 strikes: below 6 per event the pipeline treats a day as "sparse" and re-downloads it
 STRIKES = [109700, 109800, 109900, 110000, 110100, 110200, 110300]
 
@@ -45,6 +46,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         time.sleep(LATENCY)
+        if any(p in self.path for p in POISON):
+            self.send_response(429)
+            self.end_headers()
+            return
         u = urlparse(self.path)
         q = parse_qs(u.query)
         if u.path.endswith("/markets"):
@@ -117,6 +122,31 @@ class WorkersTest(unittest.TestCase):
         self.assertIn("requests", text)
         self.assertIn("ETA", text)
         self.assertRegex(text, r"kalshi: finished 2/2 days in .* \d+ requests")
+
+    def test_one_bad_day_does_not_kill_the_others(self):
+        import contextlib
+        import io
+        POISON.add("KXBTCD-26OCT0312")          # the 12:00 event of 3 October
+        out = io.StringIO()
+        try:
+            with TemporaryDirectory() as d:
+                old_base, old_raw = kalshi.BASE, kalshi.RAW_DIR
+                kalshi.BASE, kalshi.RAW_DIR = self.base, Path(d)
+                try:
+                    with contextlib.redirect_stdout(out):
+                        kalshi.download_history("2026-10-02", "2026-10-03", hour_step=12,
+                                                http=Http(min_interval=0.0, retries=1), workers=2)
+                finally:
+                    kalshi.BASE, kalshi.RAW_DIR = old_base, old_raw
+                self.assertTrue((Path(d) / "2026-10-02.csv.gz").exists())      # the healthy day is kept
+                self.assertFalse((Path(d) / "2026-10-03.csv.gz").exists())     # the broken one is absent
+        finally:
+            POISON.clear()
+        text = out.getvalue()
+        self.assertIn("2026-10-03 failed", text)
+        self.assertIn("will retry it", text)
+        self.assertEqual(kalshi.STATS["days_failed"], 1)
+        self.assertEqual(kalshi.STATS["days_done"], 2)
 
     def test_existing_days_are_skipped(self):
         with TemporaryDirectory() as d:
