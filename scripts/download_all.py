@@ -1,29 +1,34 @@
-"""One command: bring every useful dataset up to date, then write a report you can read later.
+"""Один скрипт: остановить забытые закачки, докачать всё нужное, показать прогресс и проверить результат.
 
-    python scripts/download_all.py --dry-run     # план: что качаем, чего не хватает, сколько это часов
-    python scripts/download_all.py               # в фон и заниматься своими делами
-    python scripts/download_all.py --foreground  # то же, но в этом окне (видно каждую строку)
-    python scripts/download_all.py --status      # что получилось
+    scripts\\download_all.bat          (двойной клик)  =  python scripts/download_all.py
+    python scripts/download_all.py             живая закачка в этом окне, прогресс построчно
+    python scripts/download_all.py --dry-run   только план: чего не хватает и сколько это часов
+    python scripts/download_all.py --background  уйти в фон (окно можно закрыть)
+    python scripts/download_all.py --status      итог последнего прогона, без закачки
+    python scripts/download_all.py --watch       то же, обновляясь каждые 15 секунд
+    python scripts/download_all.py --verify      только проверить, что уже лежит на диске
 
-Что качаем и почему именно это:
+Порядок работы (и почему именно такой):
 
-| источник | гранулярность | что даёт |
+1. **Найти забытые закачки и остановить их.** Два процесса, пишущих одни и те же файлы, — это и мусор в
+   данных, и лишний нагрев. Скрипт показывает, что нашёл, и убивает; `--no-kill` это отключает.
+2. **Проверить, чего не хватает** — таблица по всем датасетам, прежде чем что-то качать.
+3. **Докачать** дешёвое сначала, Kalshi последним. Всё пишется в окно и в `logs/download-<дата>/run.log`.
+4. **Пересобрать таблицы** (это единственный шаг, который реально греет процессор, — он объявляется заранее).
+5. **Проверить результат** — снова таблица: дата последних данных по каждому источнику и вердикт.
+
+Что качаем:
+
+| источник | гранулярность | зачем |
 |---|---|---|
-| binance | 1 минута, 2023 → сейчас | цена, на которой сеттлятся лесенки; источник реализованной волатильности |
+| binance | 1 минута, 2023 → | цена, на которой сеттлятся лесенки; реализованная волатильность |
 | funding | 8 часов | стоимость удержания, режимы рынка |
-| perp | 1 минута + базис | то, чего до сих пор не было: перп, базис, связь со спотом |
-| deribit | DVOL 1 час + сделки в окне снимка | подразумеваемая волатильность, то, с чем сравниваем лесенку |
-| polymarket | дневные лесенки | второй рынок того же вопроса, для сверки |
+| perp | 1 минута + базис | перп и базис — раньше не качались ни разу |
+| deribit | DVOL 1 час + сделки у снимка | подразумеваемая волатильность для сравнения |
+| polymarket | дневные лесенки | второй рынок того же вопроса |
 | macro | календарь | часы релизов — гейт для W03/W04 |
-| kalshi | свечи за ВЕСЬ час (было 10 минут) | 6x больше строк на то же число запросов: видно, что происходит до экспирации |
-| binance_1s | 1 секунда (по флагу) | сеттлмент (среднее 60 печатей BRTI в последнюю минуту) и исполнение |
-
-Почему у Kalshi окно с 2026-01-01: до 18.03.2026 у биржи была другая сетка страйков ($250 вместо $100) — это
-другой контракт. Всё, что раньше, качается отдельной командой `--kalshi-since 2024-12-12` (≈10 часов).
-
-Что скрипт делает сам: общий адаптивный лимитер на 429, порядок «дешёвое сначала», изоляцию сбоев (падает
-источник — остальные качаются; падает день — остальные дни качаются), пересборку таблиц в конце и отчёт
-`logs/download-<дата>/summary.md` со статусами и ошибками.
+| kalshi | свечи за ВЕСЬ час события | 6x строк на те же запросы: путь цены до экспирации |
+| binance_1s | 1 секунда (по флагу) | сеттлмент и исполнение (тяжёлый: ~2 МБ на сутки) |
 """
 from __future__ import annotations
 
@@ -31,6 +36,8 @@ import argparse
 import json
 import os
 import re
+import shlex
+import signal
 import subprocess
 import sys
 import threading
@@ -44,16 +51,26 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 ORDER = ["binance", "funding", "perp", "deribit", "polymarket", "macro", "kalshi", "binance_1s"]
-KALSHI_SINCE = "2026-01-01"      # strikes are $100 apart from 18.03.2026; earlier is a different contract
-KALSHI_SEC_PER_DAY = 60          # rough: ~15 s for a live day, ~90 s for an archived one
+KALSHI_SINCE = "2026-01-01"      # до 18.03.2026 сетка страйков $250 вместо $100 — другой контракт
+KALSHI_SEC_PER_DAY = 60
+MARKERS = ("download_all.py", "night.py", "src.download.update", "src.download.kalshi", "src.download.binance",
+           "src.download.binance_1s", "src.download.deribit", "src.download.polymarket", "src.download.perp",
+           "src.download.funding", "src.download.macro", "src.download.gaps --run", "backfill.py")
 
 
 def today_utc() -> str:
     return datetime.utcnow().strftime("%Y-%m-%d")
 
 
+def _p(msg: str = "") -> None:
+    try:
+        print(f"[{datetime.now():%H:%M:%S}] {msg}" if msg else "", flush=True)
+    except BrokenPipeError:
+        pass
+
+
+# ------------------------------------------------------------------ plan
 def missing_days(root: Path, since: str, until: str, subdir: str = "kalshi_kxbtcd_60m") -> list[str]:
-    """Calendar days in [since, until) with no file yet in data/raw/<subdir>."""
     d = datetime.strptime(since, "%Y-%m-%d").date()
     stop = datetime.strptime(until, "%Y-%m-%d").date()
     have = {p.name[:10] for p in (Path(root) / "data" / "raw" / subdir).glob("*.csv.gz")}
@@ -75,9 +92,8 @@ def plan(root: Path, until: str, since: str | None = None, only: list[str] | Non
             continue
         row = {"source": name, "since": since or "default", "until": until}
         if name == "kalshi":
-            start = since or kalshi_since
-            row["since"] = start
-            row["missing"] = len(missing_days(root, start, until))
+            row["since"] = since or kalshi_since
+            row["missing"] = len(missing_days(root, row["since"], until))
         if name == "binance_1s":
             row["since"] = one_second.partition(":")[0] or one_second
         rows.append(row)
@@ -89,13 +105,13 @@ def estimate_hours(rows: list[dict]) -> float:
 
 
 def steps(args):
-    """(name, what, runner) for every source this run should touch, cheap ones first."""
+    """(name, what, runner) в порядке выполнения: дешёвое сначала, Kalshi последним."""
     from src.download import binance_1s, kalshi
     from src.download import update as upd
 
     out = [(n, upd.SOURCES[n][0], upd.SOURCES[n][1])
            for n in ("binance", "funding", "perp", "deribit", "polymarket", "macro") if n in upd.SOURCES]
-    out.append(("kalshi", f"Kalshi часовые лесенки, свечи за весь час (было 10 минут)",
+    out.append(("kalshi", "Kalshi часовые лесенки, свечи за весь час",
                 lambda s, u, h: kalshi.download_history(s or args.kalshi_since, u, series="KXBTCD",
                                                         minutes=args.kalshi_minutes, workers=args.workers,
                                                         min_interval=args.min_interval, http=h)))
@@ -108,15 +124,157 @@ def steps(args):
     return out
 
 
-def _p(msg: str = "") -> None:
+# ------------------------------------------------------------------ stale processes
+def _cmdline_posix(pid: str) -> str:
     try:
-        print(f"[{datetime.now():%H:%M:%S}] {msg}" if msg else "", flush=True)
-    except BrokenPipeError:            # piping into `head`/`Select-Object -First` must not print a traceback
-        pass
+        raw = Path(f"/proc/{pid}/cmdline").read_bytes()
+    except OSError:
+        return ""
+    return raw.replace(b"\x00", b" ").decode("utf-8", "replace").strip()
 
 
+def _cmdline_windows() -> dict[int, str]:
+    """{pid: command line} через CIM; пусто, если PowerShell недоступен."""
+    ps = ("Get-CimInstance Win32_Process | Select-Object ProcessId,CommandLine | "
+          "ForEach-Object { \"$($_.ProcessId)`t$($_.CommandLine)\" }")
+    try:
+        done = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True,
+                              text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return {}
+    out = {}
+    for line in done.stdout.splitlines():
+        pid, _, cmd = line.partition("\t")
+        if pid.strip().isdigit() and cmd.strip():
+            out[int(pid)] = cmd.strip()
+    return out
+
+
+def _is_ours(cmd: str) -> bool:
+    """Это python, который запускает наш загрузчик? Смотрим только на саму команду.
+
+    Проверять подстроку во всей строке нельзя: `bash -c "... download_all.py ..."` (или cmd.exe,
+    который запустил .bat) тоже содержит имя скрипта — так можно убить самого себя или свою оболочку.
+    """
+    try:
+        tokens = shlex.split(cmd, posix=os.name != "nt")
+    except ValueError:
+        tokens = cmd.split()
+    tokens = [t.strip('"\'') for t in tokens]
+    if not tokens or "python" not in Path(tokens[0]).name.lower() and Path(tokens[0]).name.lower() not in ("py", "py.exe"):
+        return False
+    for token in tokens[1:]:
+        if token.startswith("-"):
+            continue
+        return any(m in token for m in MARKERS)      # первый не-ключ = скрипт или модуль
+    return False
+
+
+def list_download_processes() -> list[dict]:
+    """Забытые закачки, запущенные раньше: (pid, command line). Себя, родителя и live.py не трогаем."""
+    skip = {os.getpid(), os.getppid()}
+    found = []
+    if os.name == "nt":
+        for pid, cmd in _cmdline_windows().items():
+            if pid not in skip and _is_ours(cmd):
+                found.append({"pid": pid, "cmd": cmd})
+    else:
+        for entry in Path("/proc").iterdir():
+            if not entry.name.isdigit():
+                continue
+            pid = int(entry.name)
+            cmd = _cmdline_posix(entry.name)
+            if pid not in skip and cmd and _is_ours(cmd):
+                found.append({"pid": pid, "cmd": cmd})
+    return sorted(found, key=lambda r: r["pid"])
+
+
+def kill_processes(procs: list[dict], grace: float = 3.0) -> list[int]:
+    """SIGTERM, потом SIGKILL; на Windows — taskkill /F /T."""
+    killed = []
+    for proc in procs:
+        pid = proc["pid"]
+        try:
+            if os.name == "nt":
+                subprocess.run(["taskkill", "/PID", str(pid), "/F", "/T"], capture_output=True, timeout=30)
+            else:
+                os.kill(pid, signal.SIGTERM)
+            killed.append(pid)
+        except (OSError, subprocess.SubprocessError) as e:
+            _p(f"  не смог остановить pid {pid}: {e}")
+    if os.name != "nt" and killed:
+        time.sleep(grace)
+        for pid in killed:
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except OSError:
+                pass
+    return killed
+
+
+def preflight(kill: bool = True) -> int:
+    """Найти и остановить забытые закачки: два писателя в одни файлы — это мусор и лишний нагрев."""
+    procs = list_download_processes()
+    if not procs:
+        _p("зависших закачек нет — чисто")
+        return 0
+    _p(f"нашёл {len(procs)} процесс(ов) от прошлых запусков:")
+    for proc in procs:
+        _p(f"  pid {proc['pid']}: {proc['cmd'][:150]}")
+    if not kill:
+        _p("  (оставляю, --no-kill)")
+        return len(procs)
+    killed = kill_processes(procs)
+    _p(f"остановил: {', '.join(map(str, killed))}")
+    return len(killed)
+
+
+# ------------------------------------------------------------------ verify
+def audit_frame(root: Path | None = None):
+    from src.download import gaps
+    return gaps.audit()
+
+
+def _fmt_last(value) -> str:
+    if value is None:
+        return "нет данных"
+    if isinstance(value, str):
+        return value[:16]
+    try:
+        if value != value:                      # NaT
+            return "нет данных"
+        return f"{value:%Y-%m-%d %H:%M}"
+    except (TypeError, ValueError):
+        return str(value)[:16]
+
+
+def verify(root: Path | None = None, out=None) -> dict:
+    """Что лежит на диске: последняя дата по каждому источнику, отставание, вердикт."""
+    sink = out or _p
+    try:
+        df = audit_frame(root)
+    except Exception as e:
+        sink(f"проверка не удалась: {e!r}")
+        return {"ok": False, "stale": [], "error": str(e)}
+    sink("")
+    sink(f"{'источник':<22}{'последние данные':<20}{'отставание, дн':>15}")
+    for rec in df.to_dict("records"):
+        gap = rec.get("gap days")
+        gap_s = "" if gap is None or gap != gap else f"{float(gap):.0f}"
+        sink(f"{str(rec.get('source', '?')):<22}{_fmt_last(rec.get('last')):<20}{gap_s:>15}")
+    downloadable = df[df["command"].astype(str).str.startswith("python")]
+    stale = downloadable[downloadable["gap days"].fillna(0) > 2]
+    names = [str(r.source) for r in stale.itertuples()]
+    if names:
+        sink(f"\nотстаёт: {', '.join(names)} — запустите скрипт ещё раз, он докачает только это")
+    else:
+        sink("\nвердикт: всё скачиваемое — свежее")
+    return {"ok": not names, "stale": names}
+
+
+# ------------------------------------------------------------------ run
 class _Tee:
-    """Write to the screen and to logs/…/run.log at once, so --status works in both modes."""
+    """Пишет и на экран, и в logs/…/run.log, поэтому --status работает в обоих режимах."""
 
     def __init__(self, *streams):
         self.streams = streams
@@ -137,7 +295,7 @@ class _Tee:
 
 
 def run(args, registry=None, http=None, root: Path | None = None, work: Path | None = None) -> dict:
-    """Run the download and mirror everything it prints into the run folder."""
+    """Закачка + зеркало всего вывода в папку прогона."""
     root = Path(root or ROOT)
     if work is None:
         work = root / "logs" / f"download-{datetime.now():%Y%m%d-%H%M%S}"
@@ -153,11 +311,11 @@ def run(args, registry=None, http=None, root: Path | None = None, work: Path | N
 
 
 def _run_body(args, registry=None, http=None, root: Path | None = None, work: Path | None = None) -> dict:
-    """Do the work. Everything is injectable so the tests never touch the network."""
     from src.download import update as upd
     from src.utils import Http
 
     root = Path(root or ROOT)
+    work = Path(work)
     upd.WORKERS = args.workers
     upd.MIN_INTERVAL = args.min_interval
     http = http or Http(min_interval=args.min_interval)
@@ -165,12 +323,10 @@ def _run_body(args, registry=None, http=None, root: Path | None = None, work: Pa
     if args.only:
         registry = [t for t in registry if t[0] in args.only]
 
-    work = Path(work)
     until = args.until or today_utc()
     state = {"started": datetime.now().isoformat(timespec="seconds"), "pid": os.getpid(),
              "window": {"until": until}, "sources": [], "build": args.build}
     state_path, summary_path = work / "state.json", work / "summary.md"
-
     save_lock = threading.Lock()
 
     def save():
@@ -196,42 +352,45 @@ def _run_body(args, registry=None, http=None, root: Path | None = None, work: Pa
         if "missing" in r:
             _p(f"  Kalshi: не хватает {r['missing']} суток за {r['since']}..{r['until']} "
                f"≈ {estimate_hours([r]):.1f} ч")
-    _p(f"  журнал и отчёт: {work}")
+    _p(f"  журнал: {work / 'run.log'}")
     _p()
 
     try:
-        state["audit_before"] = upd.audit_table().to_csv(index=False)
+        state["audit_before"] = audit_frame(root).to_csv(index=False)
         (work / "audit_before.csv").write_text(state["audit_before"], encoding="utf-8")
     except Exception as e:
-        _p(f"  (аудит до закачки не получился: {e!r})")
+        _p(f"  (проверка до закачки не получилась: {e!r})")
     save()
 
     for name, what, fn in registry:
         row = next((r for r in rows if r["source"] == name), {"since": None})
         t0 = time.time()
-        _p(f"=== {name}: {what} ({row.get('since') and str(row['since']) or 'default'} .. {until})")
+        since = None if row.get("since") in (None, "default") else row["since"]
+        _p(f"=== {name}: {what} ({since or 'по умолчанию'} .. {until})")
         try:
-            fn(None if row.get("since") in (None, "default") else row["since"], until, http)
-            status, err = "ok", ""
+            fn(since, until, http)
+            status_, err = "ok", ""
         except Exception as e:
-            status, err = "failed", f"{type(e).__name__}: {e}"
+            status_, err = "failed", f"{type(e).__name__}: {e}"
             _p(f"!!! {name} упал: {err}")
             traceback.print_exc()
         dt = time.time() - t0
-        state["sources"].append({"source": name, "what": what, "status": status,
+        state["sources"].append({"source": name, "what": what, "status": status_,
                                  "seconds": round(dt, 1), "error": err[:800]})
-        _p(f"=== {name}: {status} за {dt / 60:.1f} мин")
+        _p(f"=== {name}: {status_} за {dt / 60:.1f} мин")
         save()
 
     built = []
-    if args.build:
+    if args.build and registry:
         from src.download import binance_1s
         builders = dict(upd.BUILDERS)
         if args.one_second:
             builders["binance_1s"] = binance_1s.build_interim
-        for name, _what, _fn in registry:
-            if name not in builders:
-                continue
+        todo = [n for n, _w, _f in registry if n in builders]
+        if todo:
+            _p()
+            _p(f"=== пересборка таблиц ({', '.join(todo)}) — это единственный шаг, который греет процессор")
+        for name in todo:
             t0 = time.time()
             try:
                 builders[name]()
@@ -241,11 +400,15 @@ def _run_body(args, registry=None, http=None, root: Path | None = None, work: Pa
                 _p(f"!!! пересборка {name} не удалась: {e!r}")
     state["builds"] = built
 
+    _p()
+    _p("=== проверка: что теперь лежит на диске")
+    state["verify"] = verify(root)
     try:
-        state["audit_after"] = upd.audit_table().to_csv(index=False)
+        state["audit_after"] = audit_frame(root).to_csv(index=False)
         (work / "audit_after.csv").write_text(state["audit_after"], encoding="utf-8")
     except Exception:
         pass
+
     stop_beat.set()
     state["finished"] = datetime.now().isoformat(timespec="seconds")
     state["requests"] = dict(http.stats)
@@ -254,7 +417,7 @@ def _run_body(args, registry=None, http=None, root: Path | None = None, work: Pa
     summary_path.write_text(summary_markdown(state), encoding="utf-8")
     _p()
     _p(f"готово. Отчёт: {summary_path}")
-    _p("итог: python scripts/download_all.py --status")
+    _p("итог без повторной закачки: python scripts/download_all.py --status")
     return state
 
 
@@ -276,18 +439,22 @@ def summary_markdown(state: dict) -> str:
         for b in state["builds"]:
             extra = f" — {b.get('error', '')}" if b.get("status") == "failed" else ""
             lines.append(f"- {b['source']}: {b['status']}{extra}")
+    ver = state.get("verify") or {}
+    lines += ["", "## Проверка", ""]
+    lines.append("всё свежее" if ver.get("ok") else f"отстаёт: {', '.join(ver.get('stale', []))}")
     bad = [s for s in state.get("sources", []) if s["status"] != "ok"]
     lines += ["", "## Что дальше", ""]
     if bad:
-        lines.append("Не всё скачалось. Повторите ту же команду — докачает только недостающее.")
+        lines.append("Не всё скачалось — повторите ту же команду, она докачает только недостающее.")
         for s in bad:
             lines.append(f"- **{s['source']}**: {s.get('error', '')[:300]}")
     else:
-        lines.append("Всё скачалось. Проверьте: `python -m src.download.update --audit`.")
+        lines.append("Все источники скачались без ошибок.")
     lines += ["", "```bash\npython scripts/download_all.py --status\n```"]
     return "\n".join(lines)
 
 
+# ------------------------------------------------------------------ status
 PROGRESS_RE = re.compile(
     r"kalshi: (\d+)/(\d+) days done, ([\d.]+) min elapsed, (\d+) requests "
     r"\(([\d.]+)/s\), ([\d.]+) days/min, ETA ([^,]+), (\d+) failed")
@@ -295,7 +462,6 @@ STEP_RE = re.compile(r"\[(\d\d:\d\d:\d\d)\] === ([^\s:]+): ([^\n]*)")
 
 
 def parse_progress(log_text: str) -> dict | None:
-    """The last Kalshi progress line turned into numbers (it prints one every 30 s)."""
     hits = PROGRESS_RE.findall(log_text)
     if not hits:
         return None
@@ -305,11 +471,10 @@ def parse_progress(log_text: str) -> dict | None:
 
 
 def current_step(log_text: str) -> tuple[str, str] | None:
-    """The source that started and has not reported back yet, plus the time it started."""
     running = None
     for stamp, name, rest in STEP_RE.findall(log_text):
         if " за " in rest or rest.startswith(("ok ", "failed ")):
-            running = None                       # "=== name: ok за ..." closes the step
+            running = None
         else:
             running = (name, stamp)
     return running
@@ -326,7 +491,6 @@ def _age(state: dict) -> str:
 
 
 def render_status(root: Path) -> int:
-    """One screen: is it running, which source is being downloaded, how far, how long is left."""
     runs = sorted((root / "logs").glob("download-*")) if (root / "logs").exists() else []
     if not runs:
         _p("прогонов ещё не было: python scripts/download_all.py")
@@ -338,14 +502,14 @@ def render_status(root: Path) -> int:
 
     alive = False
     if state and not state.get("finished"):
-        try:                                     # a heartbeat every 20 s: older means the process is gone
+        try:
             beat = datetime.fromisoformat(state.get("heartbeat") or state.get("started"))
             alive = (datetime.now() - beat).total_seconds() < 90
         except (TypeError, ValueError):
             alive = False
 
     head = f"{work.name} — "
-    head += ("идёт" if alive else ("завершён" if state.get("finished") else "остановлен/прерван"))
+    head += "идёт" if alive else ("завершён" if state.get("finished") else "остановлен/прерван")
     head += f", {_age(state)}"
     _p(head)
     step = current_step(log_text)
@@ -366,6 +530,9 @@ def render_status(root: Path) -> int:
             _p(f"  !!! {s['source']}: {s.get('error', '')[:140]}")
     if state.get("requests"):
         _p(f"  запросов всего: {state['requests'].get('requests', 0)}, 429: {state['requests'].get('429', 0)}")
+    ver = state.get("verify")
+    if ver:
+        _p("  проверка: " + ("всё свежее" if ver.get("ok") else "отстаёт: " + ", ".join(ver.get("stale", []))))
     _p(f"  журнал: {log_file}")
     tail = log_text.splitlines()[-6:]
     if tail:
@@ -373,33 +540,33 @@ def render_status(root: Path) -> int:
         for line in tail:
             _p(f"    {line}")
     report = work / "summary.md"
-    _p(f"  отчёт: {report}" if report.exists() else "")
+    if report.exists():
+        _p(f"  отчёт: {report}")
     return 0 if (alive or state.get("finished")) else 2
 
 
 def status(root: Path | None = None, watch: float | None = None) -> int:
-    """`--status` once, or `--watch N` — the same screen refreshed every N seconds until the run ends."""
     root = Path(root or ROOT)
     if not watch:
         return render_status(root)
     try:
         while True:
             if sys.stdout.isatty():
-                print("\033[2J\033[H", end="")       # clear screen; plain repeated blocks if not a terminal
+                print("\033[2J\033[H", end="")
             print(f"обновление каждые {watch:.0f} с, Ctrl+C — выход\n")
-            code = render_status(root)
-            if code != 0:
-                return code
+            if render_status(root) != 0:
+                return 0
             time.sleep(watch)
     except KeyboardInterrupt:
-        _p("\nвыход из --watch, закачка продолжается в фоне")
+        _p("\nвыход из --watch")
         return 0
 
 
+# ------------------------------------------------------------------ background
 def spawn(args) -> int:
     work = ROOT / "logs" / f"download-{datetime.now():%Y%m%d-%H%M%S}"
     work.mkdir(parents=True, exist_ok=True)
-    log = open(work / "spawn.log", "w", encoding="utf-8")        # noqa: SIM115 (the child keeps it open)
+    log = open(work / "spawn.log", "w", encoding="utf-8")      # noqa: SIM115 (the child keeps it open)
     cmd = [sys.executable, str(Path(__file__)), "--foreground", "--work-dir", str(work)]
     for flag, value in (("--since", args.since), ("--until", args.until),
                         ("--only", ",".join(args.only) if args.only else None),
@@ -412,45 +579,86 @@ def spawn(args) -> int:
     cmd.append("--build" if args.build else "--no-build")
     kwargs = {"cwd": str(ROOT), "stdout": log, "stderr": subprocess.STDOUT, "stdin": subprocess.DEVNULL}
     if os.name == "nt":
-        kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP | 0x00000008    # DETACHED_PROCESS
+        kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP | 0x00000008
     else:
         kwargs["start_new_session"] = True
     proc = subprocess.Popen(cmd, **kwargs)
     _p(f"запущено в фоне (pid {proc.pid}).")
     _p(f"  журнал: {work / 'run.log'}")
-    _p("  итог:   python scripts/download_all.py --status")
-    _p("  окно можно закрывать; экран гасить можно; машина не уснёт сама (инхибитор сна).")
+    _p("  смотреть: python scripts/download_all.py --watch")
+    _p("  окно можно закрывать; экран гасить можно.")
+    return 0
+
+
+def selftest() -> int:
+    """Прогон всей машинерии без сети: два фейковых источника, один падает."""
+    from types import SimpleNamespace
+
+    a = SimpleNamespace(since=None, until="2026-11-27", only=None, kalshi_since=KALSHI_SINCE,
+                        kalshi_minutes=60, one_second=None, workers=2, min_interval=0.0, build=False)
+    calls = []
+
+    def ok(name):
+        def fn(since, until, http):
+            calls.append(name)
+        return fn
+
+    def boom(since, until, http):
+        raise RuntimeError("faked failure")
+
+    class FakeHttp:
+        stats = {"requests": 0, "429": 0, "errors": 0}
+        min_interval = 0.0
+
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d)
+        state = run(a, registry=[("alpha", "ok source", ok("alpha")),
+                                 ("beta", "broken source", boom)], http=FakeHttp(), root=root,
+                    work=root / "logs" / "download-selftest")
+        assert state["sources"][0]["status"] == "ok" and state["sources"][1]["status"] == "failed", state
+        assert (root / "logs" / "download-selftest" / "summary.md").exists()
+    _p("selftest ok: машинерия закачки, отчёта и изоляции сбоев работает")
     return 0
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description="одна команда: докачать все нужные данные и отчитаться")
+    ap = argparse.ArgumentParser(description="одна команда: докачать все нужные данные, показать прогресс и проверить")
     ap.add_argument("--since", default=None, help="начало окна для всех источников, YYYY-MM-DD")
     ap.add_argument("--until", default=None, help="конец окна, YYYY-MM-DD (по умолчанию: сегодня)")
     ap.add_argument("--only", default=None, help="только эти источники, через запятую")
     ap.add_argument("--kalshi-since", default=KALSHI_SINCE, help=f"начало окна Kalshi (по умолчанию {KALSHI_SINCE})")
     ap.add_argument("--kalshi-minutes", type=int, default=60,
-                    help="минут свечей на событие: 60 = весь час (по умолчанию), 10 = как в старом пайплайне")
+                    help="минут свечей на событие: 60 = весь час (по умолчанию), 10 = как раньше")
     ap.add_argument("--one-second", default=None, metavar="SINCE[:UNTIL]",
-                    help="ещё и секундные свечи Binance (тяжёлые: ~2 МБ на сутки)")
+                    help="ещё и секундные свечи Binance (~2 МБ на сутки)")
     ap.add_argument("--workers", type=int, default=6, help="потоков для Kalshi (по умолчанию 6)")
     ap.add_argument("--min-interval", type=float, default=0.10,
                     help="секунд между запросами, общий лимит (по умолчанию 0.10; сам растёт при 429)")
-    ap.add_argument("--no-build", dest="build", action="store_false", help="не пересобирать таблицы в конце")
-    ap.add_argument("--dry-run", action="store_true", help="только показать план")
-    ap.add_argument("--foreground", action="store_true", help="работать в этом окне, не уходить в фон")
+    ap.add_argument("--build", dest="build", action="store_true", help="пересобрать таблицы в конце (так по умолчанию)")
+    ap.add_argument("--no-build", dest="build", action="store_false", help="не пересобирать таблицы")
+    ap.add_argument("--no-kill", dest="kill", action="store_false", help="не останавливать забытые закачки")
+    ap.add_argument("--dry-run", action="store_true", help="только план")
+    ap.add_argument("--foreground", action="store_true", help="работать в этом окне (так по умолчанию)")
+    ap.add_argument("--background", action="store_true", help="уйти в фон")
     ap.add_argument("--status", action="store_true", help="итог последнего прогона")
     ap.add_argument("--watch", type=float, nargs="?", const=15.0, default=None, metavar="SECONDS",
-                    help="обновлять экран статуса каждые N секунд (по умолчанию 15), пока закачка идёт")
+                    help="обновлять экран статуса каждые N секунд (по умолчанию 15)")
+    ap.add_argument("--verify", action="store_true", help="только проверить, что лежит на диске")
+    ap.add_argument("--selftest", action="store_true", help=argparse.SUPPRESS)
     ap.add_argument("--work-dir", default=None, help=argparse.SUPPRESS)
-    ap.set_defaults(build=True)
+    ap.set_defaults(build=True, kill=True)
     a = ap.parse_args(argv)
     a.only = [s.strip() for s in a.only.split(",") if s.strip()] if a.only else None
 
+    if a.selftest:
+        return selftest()
     if a.watch is not None:
         return status(watch=a.watch)
     if a.status:
         return status()
+    if a.verify:
+        return 0 if verify(ROOT)["ok"] else 2
     until = a.until or today_utc()
     if a.dry_run:
         rows = plan(ROOT, until, a.since, a.only, a.kalshi_since, a.one_second)
@@ -460,14 +668,16 @@ def main(argv=None) -> int:
             _p(f"  {r['source']:<12} с {r['since']}{extra}")
         _p(f"\nвсего по Kalshi ≈ {estimate_hours(rows):.1f} ч (остальные источники — минуты)")
         return 0
-    if not a.foreground:
+    if a.background:
+        preflight(a.kill)
         return spawn(a)
 
+    _p("=== шаг 1: остановить забытые закачки")
+    preflight(a.kill)
     from src.runner import keep_awake
     if keep_awake():
-        _p("сон машины заблокирован; экран можно гасить")
-    run(a, root=ROOT, work=Path(a.work_dir) if a.work_dir else None)
-    return 0
+        _p("сон машины заблокирован; экран гасить можно")
+    return 0 if run(a, root=ROOT, work=Path(a.work_dir) if a.work_dir else None) else 0
 
 
 if __name__ == "__main__":

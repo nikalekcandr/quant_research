@@ -55,7 +55,21 @@ class PlanTest(unittest.TestCase):
         self.assertIn("binance_1s", [t[0] for t in dl.steps(args(one_second="2026-11-01"))])
 
 
+def fake_audit(root=None):
+    import pandas as pd
+    return pd.DataFrame([{"source": "spot 1m", "path": "data/raw/binance", "last": pd.Timestamp("2026-11-26"),
+                          "gap days": 1.0, "command": "python -m src.download.update --only binance", "note": ""},
+                         {"source": "November books", "path": "data/raw/wing_gap_candles",
+                          "last": pd.Timestamp("2026-11-25"), "gap days": 2.0, "command": "(live logger)", "note": ""}])
+
+
 class RunTest(unittest.TestCase):
+    def setUp(self):
+        self._old_audit = dl.audit_frame
+        dl.audit_frame = fake_audit
+
+    def tearDown(self):
+        dl.audit_frame = self._old_audit
     def _sources(self, root, fail=()):
         def ok(name):
             def fn(since, until, http):
@@ -78,7 +92,9 @@ class RunTest(unittest.TestCase):
             self.assertEqual(json.loads((work / "state.json").read_text())["finished"], state["finished"])
             summary = (work / "summary.md").read_text(encoding="utf-8")
             self.assertIn("| alpha |", summary)
-            self.assertIn("Всё скачалось", summary)
+            self.assertIn("Все источники скачались", summary)
+            self.assertIn("всё свежее", summary)
+            self.assertIn("## Проверка", summary)
 
     def test_a_failed_source_does_not_stop_the_rest(self):
         with TemporaryDirectory() as d:
@@ -88,7 +104,9 @@ class RunTest(unittest.TestCase):
                            root=root, work=work)
             self.assertEqual([s["status"] for s in state["sources"]], ["ok", "failed", "ok"])
             self.assertTrue((root / "gamma.txt").exists())
-            self.assertIn("Не всё скачалось", (work / "summary.md").read_text(encoding="utf-8"))
+            text = (work / "summary.md").read_text(encoding="utf-8")
+            self.assertIn("Не всё скачалось", text)
+            self.assertIn("beta", text)
 
     def test_build_step_runs_for_registered_sources(self):
         from src.download import update as upd
@@ -125,6 +143,100 @@ class StatusTest(unittest.TestCase):
             with contextlib.redirect_stdout(out):
                 self.assertEqual(dl.status(Path(d)), 1)
             self.assertIn("прогонов ещё не было", out.getvalue())
+
+
+class CliTest(unittest.TestCase):
+    """The flags the wrapper scripts and spawn() rely on must parse — a typo here kills a whole run."""
+
+    def test_build_and_no_build_parse(self):
+        self.assertEqual(dl.main(["--dry-run", "--build"]), 0)
+        self.assertEqual(dl.main(["--dry-run", "--no-build"]), 0)
+
+    def test_selftest_runs_the_whole_machinery(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(dl.main(["--selftest"]), 0)
+        self.assertIn("selftest ok", out.getvalue())
+
+    def test_verify_uses_the_audit(self):
+        old = dl.audit_frame
+        dl.audit_frame = fake_audit
+        try:
+            out = io.StringIO()
+            result = dl.verify(ROOT, out=out.write)
+            self.assertTrue(result["ok"])
+            self.assertIn("spot 1m", out.getvalue())
+
+            import pandas as pd
+
+            def stale_audit(root=None):
+                return pd.DataFrame([{"source": "Kalshi ladder", "path": "x", "last": pd.Timestamp("2026-10-27"),
+                                      "gap days": 31.0, "command": "python -m src.download.update --only kalshi",
+                                      "note": ""}])
+
+            dl.audit_frame = stale_audit
+            result = dl.verify(ROOT, out=io.StringIO().write)
+            self.assertFalse(result["ok"])
+            self.assertEqual(result["stale"], ["Kalshi ladder"])
+        finally:
+            dl.audit_frame = old
+
+
+class IsOursTest(unittest.TestCase):
+    """Убивать можно только настоящий загрузчик: иначе снесём свою же оболочку (проверено на практике)."""
+
+    def test_only_our_loader_matches(self):
+        cases = {
+            "python scripts/download_all.py --foreground": True,
+            "python -m src.download.update --only binance": True,
+            "python -m src.download.binance_1s --since 2026-01-01": True,
+            'C:\\Python314\\python.exe scripts\\backfill.py': True,
+            'bash -c "cd /repo && python scripts/download_all.py"': False,
+            'cmd.exe /c "C:\\x\\download_all.bat"': False,
+            "python scripts/live.py --run": False,
+            "python scripts/study_wing_gap.py --run": False,
+            "python -m pytest -q": False,
+        }
+        wrong = {cmd: want for cmd, want in cases.items() if dl._is_ours(cmd) is not want}
+        self.assertEqual(wrong, {})
+
+
+class PreflightTest(unittest.TestCase):
+    def test_found_processes_are_listed_and_killed(self):
+        procs = [{"pid": 111, "cmd": "python scripts/download_all.py"}, {"pid": 222, "cmd": "python -m src.download.update"}]
+        killed = []
+        old_list, old_kill = dl.list_download_processes, dl.kill_processes
+        dl.list_download_processes = lambda: procs
+        dl.kill_processes = lambda p, grace=3.0: killed.extend(x["pid"] for x in p) or [x["pid"] for x in p]
+        try:
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(dl.preflight(), 2)
+            self.assertEqual(killed, [111, 222])
+            self.assertIn("111", out.getvalue())
+        finally:
+            dl.list_download_processes, dl.kill_processes = old_list, old_kill
+
+    def test_no_kill_leaves_them_alone(self):
+        old_list, old_kill = dl.list_download_processes, dl.kill_processes
+        dl.list_download_processes = lambda: [{"pid": 5, "cmd": "python -m src.download.kalshi"}]
+        dl.kill_processes = lambda p, grace=3.0: (_ for _ in ()).throw(AssertionError("must not kill"))
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(dl.preflight(kill=False), 1)
+        finally:
+            dl.list_download_processes, dl.kill_processes = old_list, old_kill
+
+    def test_empty_list_is_a_no_op(self):
+        old = dl.list_download_processes
+        dl.list_download_processes = lambda: []
+        try:
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(dl.preflight(), 0)
+            self.assertIn("чисто", out.getvalue())
+        finally:
+            dl.list_download_processes = old
 
 
 class SpawnTest(unittest.TestCase):
