@@ -97,7 +97,7 @@ def model_L(close):
 
 
 def ladder():
-    d = pd.concat([pd.read_csv(f) for f in sorted(wl.LAD.glob("*.csv*"))], ignore_index=True)
+    d = pd.concat([pd.read_csv(f) for f in sorted(p for p in wl.LAD.glob("*.csv*") if p.name.endswith((".csv", ".csv.gz")))], ignore_index=True)
     d = d[(d.strike_type == "greater") & (d.yes_bid > 0) & (d.yes_ask < 1) & (d.yes_ask - d.yes_bid <= 0.03)]
     d["ts"] = pd.to_datetime(d.end_ts, unit="s", utc=True)
     d["T"] = pd.to_datetime(d.close_time, utc=True)
@@ -159,7 +159,10 @@ def rule_stats(c):
 def main():
     E = bp.settlements()
     bn = bp.binance()
-    cb = bp.candles("cb")["c"]
+    raw = bp.candles("cb")
+    if raw is None or "c" not in getattr(raw, "columns", []):
+        raise ValueError("нет данных в окне: нет свечей Coinbase (data/raw/coinbase_*)")
+    cb = raw["c"]
     d = ladder()
     print(f"ladder rows {len(d)}, hours {d['T'].nunique()}", flush=True)
     models = {}

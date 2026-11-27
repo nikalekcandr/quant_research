@@ -12,7 +12,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from lab.core import LAB, RESULTS, atomic_write, kalshi_fee, read_ledger
+from lab.core import LAB, RESULTS, atomic_write, kalshi_fee, read_ledger, utc_index
 from lab.edge_timing import candidates
 
 START = pd.Timestamp("2026-10-30",tz="UTC")
@@ -46,7 +46,7 @@ def observations():
         raise ValueError("No Kalshi book snapshots in the study window")
     c = pd.concat(parts,ignore_index=True).sort_values(["end","ts"])
     c["minute"] = c.left.astype(int)
-    return c, pd.DatetimeIndex(sorted(monitored),name="end")
+    return c, utc_index(sorted(monitored)).rename("end")
 
 
 def fit_schedule(c, hours):

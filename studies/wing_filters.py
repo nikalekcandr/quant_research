@@ -10,6 +10,7 @@ from statsmodels.stats.multitest import multipletests
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from lab.core import RESULTS, atomic_write
+from studies.ladders import no_data
 from lab.history import Minutes
 from lab.wing_regime import regimes
 from studies.wing_ten import BASE,END,START,CACHE,enrich,archive,books,deepen,replay,offers,picks,next_minute
@@ -84,12 +85,14 @@ def main():
     candle,hours = archive(enrich,files=CACHE.glob("*.csv.gz"),minute_close=close)
     live,_ = books(END,deepen)
     values = json.loads((CACHE.parent/"wing_quant_inputs/settlements.json").read_text())
-    val = live.event.map({e:r["value"] for e,r in values.items()})
+    val = pd.to_numeric(live.event.map({e:r["value"] for e,r in values.items()}),errors="coerce")
     yes = val.gt(live.strike).astype(float)
     live["y"] = live.y.fillna(yes.where(live.cheap_yes,1-yes).where(val.notna()))
     results,entries = [],[]
     for label,data,depth in [("Архив",candle,False),("Объём",live,True)]:
         q = data[data.end.between(START,END)&data.left.ge(16)&data.ts.dt.floor("min").map(gate).eq(False)].copy()
+        if q.empty:
+            no_data(f"{label}: ни одного входа между {START:%d.%m} и {END:%d.%m} с книгой на 16-й минуте")
         cohort = pd.DatetimeIndex(sorted(q.end.unique())) if depth else hours[(hours>=START)&(hours<=END)]
         table,trades = evaluate(q,cohort,close,depth)
         results.append(table.assign(sample=label))

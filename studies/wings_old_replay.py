@@ -7,17 +7,21 @@ from scipy.special import ndtr, stdtr
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from lab.core import atomic_write, RESULTS
+from lab.core import RESULTS, atomic_write, utc_index
 from studies.wings_two_sided import compare
+from studies.ladders import ladder_files, read_ladder_file
 from studies.wings_calibration import books
 from studies.wings_edge_timing import START,SPLIT,STOP
 
 
 def archive(enrich=None, *, files=None, minute_close=None):
     parts, settlements = [], []
-    for f in sorted(files if files is not None else (ROOT/"data/raw/kalshi_kxbtcd_60m").glob("*.csv*")):
-        g = pd.read_csv(f,usecols=["ticker","yes_bid","yes_ask","end_ts","close_time","strike",
-                                   "strike_type","expiration_value","result"])
+    paths = files if files is not None else ladder_files(ROOT/"data/raw/kalshi_kxbtcd_60m")
+    cols = ["ticker","yes_bid","yes_ask","end_ts","close_time","strike","strike_type","expiration_value","result"]
+    for f in sorted(p for p in paths if str(p).endswith((".csv", ".csv.gz"))):
+        g = read_ladder_file(f, cols)
+        if g is None or g.empty:
+            continue
         g = g[g.strike_type.eq("greater")].rename(columns={"ticker":"market","yes_bid":"bid","yes_ask":"ask"})
         g["end"] = pd.to_datetime(g.close_time,utc=True)
         settlements.append(g[["end","expiration_value"]].drop_duplicates())
@@ -53,7 +57,7 @@ def archive(enrich=None, *, files=None, minute_close=None):
     q["move5"] = np.log(spot/m.reindex(prev-pd.Timedelta(minutes=5)).to_numpy())
     q["normal"],q["t4"] = ndtr(x),stdtr(4,x*np.sqrt(2))
     q = q.dropna(subset=["normal","t4","move5"]).copy()
-    hours = pd.DatetimeIndex(sorted(q.end.unique()),name="end")
+    hours = utc_index(sorted(q.end.unique())).rename("end")
     q["cheap_yes"] = q.bid.lt(.5)
     q = q[q.bid.where(q.cheap_yes,1-q.ask).round(6).between(.06,.10)].copy()
     for model in ["normal","t4"]:

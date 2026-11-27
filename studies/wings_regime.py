@@ -8,6 +8,7 @@ from lab.core import LAB, RESULTS, atomic_write, utcnow
 from lab.history import Minutes
 from lab.report import void_mask
 from lab.wing_regime import regimes
+from studies.ladders import no_data
 from studies.wings_old_replay import archive
 from studies.wings_calibration import books
 from studies.wings_two_sided import offers,picks
@@ -54,6 +55,8 @@ def main():
                          "Убытки до / после":f"{sum(paired.base<0)} / {sum(paired.guard<0)}",
                          "База, $":round(paired.base.sum(),2),"С паузой, $":round(paired.guard.sum(),2),
                          "95% Δ, ¢/час":f"{lo:.2f} … {hi:.2f}" if lo is not None else "—"})
+    if not rows:
+        no_data("ни одного часа с котировками на архиве и в журнале книги — сравнивать нечего")
     result = pd.DataFrame(rows)
     atomic_write(RESULTS/"wing_regime_replay.csv",result.to_csv(index=False))
     print(result.to_string(index=False))

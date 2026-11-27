@@ -48,7 +48,7 @@ def variance_level(close):
 
 
 def load():
-    d = pd.concat([pd.read_csv(f) for f in sorted(LAD.glob("*.csv*"))], ignore_index=True)
+    d = pd.concat([pd.read_csv(f) for f in sorted(p for p in LAD.glob("*.csv*") if p.name.endswith((".csv", ".csv.gz")))], ignore_index=True)
     d = d[(d.strike_type == "greater") & (d.yes_bid > 0) & (d.yes_ask < 1) & (d.yes_ask - d.yes_bid <= 0.03)]
     d["ts"] = pd.to_datetime(d.end_ts, unit="s", utc=True)
     d["T"] = pd.to_datetime(d.close_time, utc=True)

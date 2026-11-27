@@ -28,6 +28,7 @@ from __future__ import annotations
 import threading
 import time
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pandas as pd
 
@@ -296,9 +297,19 @@ def _step_ok(strikes: pd.DataFrame, ranges: bool) -> pd.Series:
     return (k % HIST_STRIKE_STEP == 0) if native < HIST_STRIKE_STEP else pd.Series(True, index=strikes.index)
 
 
+def _marker(f):
+    """Where we note "this day was re-downloaded with the spacing-aware strike filter".
+
+    It must NOT end in .csv: readers glob `*.csv*`, and a marker named `2026-01-19.csv.dense` was parsed as data —
+    "Usecols do not match columns" killed twenty studies. Old files are still recognised, see `_sparse`.
+    """
+    return f.parent / (f.name.split(".csv")[0] + ".dense")
+
+
 def _sparse(f) -> bool:
     """A day downloaded with the old $200 filter while strikes were $250+ apart: 2-3 strikes per event."""
-    if f.with_suffix(".dense").exists():
+    # new name, then the two legacy shapes: `X.csv.dense` (from `X.csv.gz`) and `X.csv.dense` (from `X.csv`)
+    if _marker(f).exists() or Path(str(f) + ".dense").exists() or f.with_suffix(".dense").exists():
         return False
     try:
         prev = pd.read_csv(f, usecols=["event", "ticker"])
@@ -396,7 +407,7 @@ def _one_day_impl(http: Http, day, *, minutes: int, series: str, hour_step: int,
     if rows:
         pd.concat(rows, ignore_index=True).to_csv(f, index=False)
         if refetched:
-            f.with_suffix(".dense").write_text("re-downloaded with the spacing-aware strike filter", encoding="utf-8")
+            _marker(f).write_text("re-downloaded with the spacing-aware strike filter", encoding="utf-8")
     per_strike = events_n + strikes_n          # one markets call + one candle call per strike, worst case
     log(f"kalshi: {day} ({sum(len(r) for r in rows)} candle rows, {events_n} событий, {strikes_n} страйков "
         f"→ ~{per_strike} запросов, если пачка не работает){workers_note}")

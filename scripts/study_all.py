@@ -65,7 +65,7 @@ REGISTRY = [
     ("wings_ml", "крылья", "добавляют ли градиентный бустинг и нейросеть что-то к логиту", 180, True),
     ("wings_neighbors", "крылья", "цена по соседним страйкам и чувствительность к исполнению", 40, False),
     ("wings_execution", "крылья", "как исполнять: тейкером, мейкером или ждать", 25, False),
-    ("wings_maker", "крылья", "стоять в книге и ждать покупателя лотереи", 25, False),
+    ("wings_maker", "крылья", "стоять в книге и ждать покупателя лотереи", 1500, True),
     ("wings_regime", "крылья", "пауза по волатильности и аудит реальных входов W04/W06", 25, False),
     ("wings_regime_ml", "крылья", "хвосты по режимам против прямой классификации крыла", 25, False),
     ("wings_two_sided", "крылья", "согласие и противоположные стороны, хронологический реплей", 30, False),
@@ -161,6 +161,22 @@ def panel_is_stale() -> bool:
     return newest > PANEL_CACHE.stat().st_mtime
 
 
+def migrate_dense_markers(raw_dir: Path | None = None) -> int:
+    """Old re-download markers were named `2026-01-19.csv.dense` — i.e. they matched the readers' `*.csv*` glob and
+    were parsed as data ("Usecols do not match columns" killed twenty studies). Rename them to `<date>.dense`, which
+    `src/download/kalshi.py` uses now and `_sparse()` still recognises. Returns how many were renamed."""
+    n = 0
+    for marker in (Path(raw_dir) if raw_dir else LADDER_DIR).glob("*.csv.dense"):
+        target = marker.with_suffix("")           # 2026-01-19.csv.dense -> 2026-01-19.csv ... keep only the flag
+        target = Path(str(target)[:-len(".csv")] + ".dense") if str(target).endswith(".csv") else target
+        if target.exists():
+            marker.unlink()
+        else:
+            marker.rename(target)
+        n += 1
+    return n
+
+
 def _snapshot() -> dict[str, float]:
     out = {}
     for base in ("results", "reports", "docs"):
@@ -180,6 +196,9 @@ def classify(rc, log_text: str) -> tuple[str, str]:
         return "nopkg", f"нет пакета: {pkg.group(1) or pkg.group(2)}"
     if missing:
         return "nodata", f"нет данных: {missing.group(1)}"
+    window = re.findall(r"ValueError: нет данных в окне: ([^\n]+)", log_text)
+    if window:                                    # последняя строка traceback'а — сама причина, не исходник
+        return "nodata", f"нет данных в окне: {window[-1].strip()}"
     if re.search(r"No objects to concatenate|Empty DataFrame|No .* in the study window|not enough|empty", log_text,
                  re.IGNORECASE):
         return "nodata", "нет данных в окне"
@@ -268,6 +287,9 @@ def run(rows: list[dict], work: Path | None = None) -> dict:
     state = {"started": datetime.now().isoformat(timespec="seconds"), "studies": [], "artifacts": {}}
     t0 = time.time()
 
+    renamed = migrate_dense_markers()
+    if renamed:
+        _p(f"старые файлы-маркеры *.csv.dense переименованы в *.dense: {renamed} (они не данные, изучения их больше не читают)")
     if panel_is_stale():
         _p(f"кэш панели старше свежих свечей — пересобираю ({PANEL_CACHE.name})")
         PANEL_CACHE.unlink(missing_ok=True)

@@ -37,6 +37,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm
 
+from studies.ladders import LADDER_COLS, ladder_files, read_ladder_file   # noqa: F401 — re-exported for callers
+
 ROOT = Path(__file__).resolve().parents[1]
 LADDER_DIR = ROOT / "data/raw/kalshi_kxbtcd_60m"
 NOVEMBER_DIR = ROOT / "data/raw/wing_gap_candles"
@@ -149,12 +151,14 @@ def remaining_variance(v: pd.DataFrame, ts: pd.Series, end: pd.Series) -> np.nda
 # ------------------------------------------------------------------------------------- panel
 def _read_ladder() -> pd.DataFrame:
     parts = []
-    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    for path in sorted(LADDER_DIR.glob("*.csv*")):
-        d = pd.read_csv(path, usecols=["ticker", "end_ts", "yes_bid", "yes_ask", "volume", "strike",
-                                       "strike_type", "result", "expiration_value", "close_time", "event"])
+    for path in ladder_files(LADDER_DIR):
+        d = read_ladder_file(path)
+        if d is None or d.empty:
+            continue
         d = d[d.strike_type.eq("greater")]
         parts.append(d)
+    if not parts:
+        raise FileNotFoundError(f"нет ни одного файла-лестницы: '{LADDER_DIR}'")
     d = pd.concat(parts, ignore_index=True)
     d["ts"] = pd.to_datetime(d.end_ts, unit="s", utc=True)
     d["end"] = pd.to_datetime(d.close_time, utc=True)

@@ -80,6 +80,17 @@ def utcnow() -> pd.Timestamp:
     return pd.Timestamp.now(tz="UTC")
 
 
+def utc_index(hours) -> pd.DatetimeIndex:
+    """Hour index in UTC, whatever pandas 3 handed back.
+
+    `books()` builds its index from the `end` values it met; on pandas 3 those can arrive as a tz-naive
+    `datetime64[s]`, and every study then compares it with a tz-aware window (`START`, `SPLIT`, …) and dies with
+    `Invalid comparison between dtype=datetime64[s] and Timestamp`. Normalising here fixes all of them at once.
+    """
+    idx = pd.DatetimeIndex(hours)
+    return idx.tz_localize("UTC") if idx.tz is None else idx.tz_convert("UTC")
+
+
 def lab_http() -> Http:
     """Short retries: a slow venue must not stall the minute loop."""
     h = Http(min_interval=0.04, retries=2)
