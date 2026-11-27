@@ -32,3 +32,7 @@ data/interim/wing_panel.parquet
 
 # scratch work, not part of the repository
 .work/
+
+# локальные замеры и состояние прогонов: у каждой машины свои
+data/interim/study_times.json
+data/interim/study_state.json
