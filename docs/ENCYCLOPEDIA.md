@@ -553,6 +553,9 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt   # py3.11
 .venv/bin/python -m src.download.update --audit  # что из данных отстало и чем это докачать
 .venv/bin/python -m src.download.update --all    # докачать всё отставшее (без --all — только диагностика)
 .venv/bin/python scripts/get_code.py             # обновить только код (2 МБ вместо 350 МБ архива)
+.venv/bin/python scripts/night.py --dry-run      # план ночной докачки: окно, недостающие сутки, оценка часов
+.venv/bin/python scripts/night.py                # докачать всё в фон, отчёт в logs/night-*/summary.md
+.venv/bin/python scripts/night.py --status       # утром: что скачалось и что упало
 
 # research-слой и отчёты
 .venv/bin/python -m src.pipeline               # download → build → models → evaluate
