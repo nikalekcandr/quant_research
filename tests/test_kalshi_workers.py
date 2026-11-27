@@ -21,8 +21,9 @@ from src.utils import Http
 
 LATENCY = 0.25          # seconds per request: roughly one Kalshi round-trip
 POISON: set[str] = set()  # event tickers the fake venue answers with 429 (to test failure isolation)
-# 7 strikes: below 6 per event the pipeline treats a day as "sparse" and re-downloads it
-STRIKES = [109700, 109800, 109900, 110000, 110100, 110200, 110300]
+# 7 strikes, $200 apart: closer together and the spacing filter keeps every second strike only, which leaves
+# fewer than 6 per event — then the pipeline treats the day as "sparse" and re-downloads it on every run.
+STRIKES = [109400, 109600, 109800, 110000, 110200, 110400, 110600]
 
 
 def _markets(event: str):

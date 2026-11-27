@@ -131,16 +131,30 @@ def _num(d: dict, key: str):
     return None
 
 
-def markets(http: Http, ev: str) -> tuple[list[dict], bool]:
-    """Strikes of one hourly event and whether it lives in the historical archive."""
-    _count()
-    res = http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000})
-    mk = (res or {}).get("markets") or []
+ARCHIVE_AFTER_DAYS = 7     # older than this, ask the archive first: the live call would only return nothing
+
+
+def markets(http: Http, ev: str, archived_hint: bool = False) -> tuple[list[dict], bool]:
+    """Strikes of one hourly event and whether it lives in the historical archive.
+
+    `archived_hint` saves one doomed request per event: for a day two months old the live endpoint is empty by
+    definition, so the archive is asked first (24 events x 212 days = 5 thousand requests saved).
+    """
+    def live():
+        _count()
+        return (http.get(f"{BASE}/markets", {"event_ticker": ev, "limit": 1000}) or {}).get("markets") or []
+
+    def hist():
+        _count()
+        return (http.get(f"{BASE}/historical/markets", {"event_ticker": ev, "limit": 1000}) or {}).get("markets") or []
+
+    if archived_hint:
+        mk = hist()
+        return (mk, True) if mk else (live(), False)
+    mk = live()
     if mk:
         return mk, False
-    _count()
-    res = http.get(f"{BASE}/historical/markets", {"event_ticker": ev, "limit": 1000})
-    return (res or {}).get("markets") or [], True
+    return hist(), True
 
 
 def _candle_row(ticker, c):
@@ -320,8 +334,10 @@ def _one_day(http: Http, day, **kw) -> None:
 
 def _one_day_impl(http: Http, day, *, minutes: int, series: str, hour_step: int, out_dir, center: dict,
                   lock, workers_note: str = "") -> None:
+    old_day = (pd.Timestamp(utcnow()).tz_convert(ET).date() - day).days > ARCHIVE_AFTER_DAYS
     """Download one calendar day into its own CSV (idempotent: an existing file is kept and skipped)."""
     f = out_dir / f"{day.isoformat()}.csv.gz"
+    events_n, strikes_n = 0, 0
     refetched = False
     if f.exists() and series == "KXBTCD" and _sparse(f):
         log(f"kalshi: {day} was downloaded with too few strikes; downloading it again")
@@ -340,7 +356,7 @@ def _one_day_impl(http: Http, day, *, minutes: int, series: str, hour_step: int,
         if close_utc > pd.Timestamp(utcnow()):
             break
         ev = event_ticker(close_et, series)
-        mk, archived = markets(http, ev)
+        mk, archived = markets(http, ev, archived_hint=old_day)
         if not mk:
             continue
         strikes = pd.DataFrame([{
@@ -368,6 +384,8 @@ def _one_day_impl(http: Http, day, *, minutes: int, series: str, hour_step: int,
             cs = pd.DataFrame(candles_hist(http, list(sel["ticker"]), t_open, t_end))
         if cs.empty:
             continue
+        events_n += 1
+        strikes_n += len(sel)
         cs = cs.merge(sel, on="ticker", how="left")
         cs["event"] = ev
         rows.append(cs)
@@ -379,7 +397,9 @@ def _one_day_impl(http: Http, day, *, minutes: int, series: str, hour_step: int,
         pd.concat(rows, ignore_index=True).to_csv(f, index=False)
         if refetched:
             f.with_suffix(".dense").write_text("re-downloaded with the spacing-aware strike filter", encoding="utf-8")
-    log(f"kalshi: {day} ({sum(len(r) for r in rows)} candle rows){workers_note}")
+    per_strike = events_n + strikes_n          # one markets call + one candle call per strike, worst case
+    log(f"kalshi: {day} ({sum(len(r) for r in rows)} candle rows, {events_n} событий, {strikes_n} страйков "
+        f"→ ~{per_strike} запросов, если пачка не работает){workers_note}")
 
 
 def probe_candles(http: Http | None = None, day: str | None = None, series: str = "KXBTCD") -> dict:
@@ -451,15 +471,21 @@ def download_history(since: str = config.KALSHI_START, until: str | None = None,
         if f.exists() and not (series == "KXBTCD" and _sparse(f)):
             continue
         days.append(d)
+    # Newest first: the studies live on the last months, and the newest days are exactly the ones the venue still
+    # serves in batches (cheap). Oldest first means the useful data arrives last, after days of history.
+    days.sort(reverse=True)
+    if not days:
+        log(f"kalshi: {series} {day} .. {last_day}: всё уже на диске ({len(window)} суток), качать нечего")
+        return
     log(f"kalshi: downloading {series} hourly ladders {day} .. {last_day}, {minutes} min of candles, "
         f"{len(days)} day(s) to fetch ({len(window) - len(days)} already on disk), {max(1, workers)} worker(s), "
         f"into {out_dir}")
     if probe:
-        probe_candles(http, series=series)
+        probe_candles(http, series=series)      # only when there is work: no days, no probe
     else:
         log(f"kalshi: about {1 / max(min_interval, 1e-3):.0f} requests/s shared by all workers")
-    log("kalshi: one line per finished day; progress with the ETA comes every "
-        f"{report_every:.0f} s — the first day takes several minutes, nothing is stuck")
+    log("kalshi: newest days first (the studies need the last months; those are also the cheapest); one line per "
+        f"finished day, progress with the ETA every {report_every:.0f} s")
     center, lock = {"v": None}, threading.Lock()
     kw = dict(minutes=minutes, series=series, hour_step=hour_step, out_dir=out_dir, center=center, lock=lock)
     with _STATS_LOCK:
