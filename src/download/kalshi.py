@@ -57,7 +57,12 @@ MIN_INTERVAL = 0.15        # seconds between requests, aggregate across threads 
 REPORT_EVERY = 30.0        # seconds between progress lines (a day can take a minute or two)
 
 # live counters, reset by every download_history() call: used for the progress line and the ETA
-STATS = {"requests": 0, "days_done": 0, "days_total": 0, "days_failed": 0, "failed": []}
+STATS = {"requests": 0, "days_done": 0, "days_total": 0, "days_failed": 0, "failed": [],
+         "ev_event": 0, "ev_batch": 0, "ev_ticker": 0, "req_per_day_prior": 60}
+# Which candle endpoints answer on this machine. Probed once per run: on some networks the event-level batch
+# works, on others only the per-ticker archive does — a factor of eight in both requests and hours.
+STRATEGY = {"order": ["event", "batch", "ticker"], "event_misses": 0}
+_STRATEGY_LOCK = threading.Lock()
 _STATS_LOCK = threading.Lock()
 
 
@@ -81,7 +86,7 @@ def _human(seconds: float) -> str:
     return f"{seconds:.0f} s"
 
 
-PRIOR_REQ_PER_DAY = 60      # until one day is done, estimate the ETA from this (24 events x ~2.5 requests)
+PRIOR_REQ_PER_DAY = 60      # fallback: 24 events x ~2.5 requests; the probe sets the real prior
 
 
 def _reporter(t0: float, total: int, stop: threading.Event, every: float, http: Http | None = None) -> None:
@@ -96,14 +101,19 @@ def _reporter(t0: float, total: int, stop: threading.Event, every: float, http: 
             failed = STATS["days_failed"]
         el = max(time.time() - t0, 1e-9)
         rate = req / el
+        with _STATS_LOCK:
+            prior = STATS.get("req_per_day_prior", PRIOR_REQ_PER_DAY)
+            ev_event, ev_batch, ev_ticker = STATS["ev_event"], STATS["ev_batch"], STATS["ev_ticker"]
         if done:
             eta = (total - done) * el / done
         else:                                   # no finished day yet: ETA from the requests we have spent
-            eta = max(total * PRIOR_REQ_PER_DAY - req, 0) / rate if rate > 0 else float("inf")
+            eta = max(total * prior - req, 0) / rate if rate > 0 else float("inf")
         gap = getattr(http, "min_interval", 0.0)
         n429 = (getattr(http, "stats", None) or {}).get("429", 0)
+        level = "пачка" if ev_event else ("батч" if ev_batch else "пострайково")
         log(f"kalshi: {done}/{total} days done, {el / 60:.1f} min elapsed, {req} requests ({rate:.1f}/s), "
-            f"gap {gap:.2f} s, 429: {n429}, ETA {_human(eta)}, {failed} failed")
+            f"gap {gap:.2f} s, 429: {n429}, {level} {ev_event + ev_batch + ev_ticker}/~24x{total} событий, "
+            f"ETA {_human(eta)}, {failed} failed")
 
 
 def event_ticker(close_et: datetime, series: str = "KXBTCD") -> str:
@@ -197,21 +207,68 @@ def candles_hist(http: Http, tickers: list[str], t0: int, t1: int) -> list[dict]
         return [r for part in ex.map(one, tickers) for r in part]
 
 
-def _event_candles(http: Http, series: str, ev: str, t0: int, t1: int, tickers: list[str], live: bool) -> list[dict]:
-    """One request for the whole event; if the endpoint is missing or empty, the old per-strike path.
+def _disable(level: str, ev: str, why: str) -> None:
+    """A dead endpoint is dropped for the rest of the run instead of costing one request per event."""
+    with _STRATEGY_LOCK:
+        if level == "event":
+            STRATEGY["event_misses"] += 1
+            if STRATEGY["event_misses"] >= 3 and "event" in STRATEGY["order"]:
+                STRATEGY["order"].remove("event")
+                log(f"kalshi: пачка по событию не отдаёт свечи ({why}); "
+                    f"дальше качаю {'батчем по тикерам' if 'batch' in STRATEGY['order'] else 'по одному страйку'}")
+        elif level in STRATEGY["order"]:
+            STRATEGY["order"].remove(level)
+            log(f"kalshi: {level}: не работает ({why}); остаётся {', '.join(STRATEGY['order']) or 'ничего'}")
 
-    The fallback matters more than the speed-up: a day must never be lost because one endpoint changed.
+
+def _event_candles(http: Http, series: str, ev: str, t0: int, t1: int, tickers: list[str], live: bool) -> list[dict]:
+    """All strikes of the event, trying the cheapest endpoint that still answers.
+
+    event  — one request per event (every strike in the response);
+    batch  — one request per 50 tickers (`/markets/candlesticks`), the live market endpoint;
+    ticker — one request per strike against the archive: 8x more requests, the old behaviour.
+
+    The order is probed once per run and re-checked only on failure, so a changed or blocked endpoint costs a
+    few requests, not a whole day.
     """
-    try:
-        rows = candles_event(http, series, ev, t0, t1)
-    except Exception as e:
-        log(f"kalshi: {ev}: event-level candlesticks unavailable ({type(e).__name__}: {str(e)[:120]}); "
-            f"falling back to one request per strike")
-        rows = []
-    if rows:
-        want = {str(t) for t in tickers}
-        return [r for r in rows if str(r["ticker"]) in want]
-    return (candles if live else candles_hist)(http, tickers, t0, t1)
+    want = {str(t) for t in tickers}
+    with _STRATEGY_LOCK:
+        order = list(STRATEGY["order"])
+    for level in order:
+        try:
+            if level == "event":
+                rows = candles_event(http, series, ev, t0, t1)
+                ok = bool(rows)
+                if rows:
+                    with _STATS_LOCK:
+                        STATS["ev_event"] += 1
+                        STRATEGY["event_misses"] = 0
+            elif level == "batch":
+                rows = candles(http, tickers, t0, t1)
+                ok = bool(rows)
+                if ok:
+                    with _STATS_LOCK:
+                        STATS["ev_batch"] += 1
+            else:
+                rows = candles_hist(http, tickers, t0, t1)
+                ok = bool(rows)
+                if ok:
+                    with _STATS_LOCK:
+                        STATS["ev_ticker"] += 1
+        except Exception as e:
+            _disable(level, ev, f"{type(e).__name__}: {str(e)[:90]}")
+            continue
+        if ok:
+            if level == "event":
+                picked = [r for r in rows if str(r["ticker"]) in want]
+                if picked:
+                    return picked
+                # the endpoint answered, but with tickers we do not hold: not the same markets, try the next
+                _disable(level, ev, "в ответе нет нужных страйков")
+                continue
+            return rows
+        _disable(level, ev, "пустой ответ")
+    return []
 
 
 def _step_ok(strikes: pd.DataFrame, ranges: bool) -> pd.Series:
@@ -325,11 +382,54 @@ def _one_day_impl(http: Http, day, *, minutes: int, series: str, hour_step: int,
     log(f"kalshi: {day} ({sum(len(r) for r in rows)} candle rows){workers_note}")
 
 
+def probe_candles(http: Http | None = None, day: str | None = None, series: str = "KXBTCD") -> dict:
+    """Which candle endpoint answers here — asked on one real archived event before a multi-hour run.
+
+    Without this the run looks identical whether a day costs 50 requests or 430, and the ETA is a guess.
+    """
+    http = http or Http(min_interval=0.25)
+    d = pd.Timestamp(day).date() if day else (pd.Timestamp(utcnow()).tz_convert(ET).date() - timedelta(days=10))
+    ev = event_ticker(datetime(d.year, d.month, d.day, 12, tzinfo=ET), series)
+    try:
+        mk, archived = markets(http, ev)
+    except Exception as e:
+        log(f"kalshi: проверка эндпоинтов не удалась ({type(e).__name__}: {str(e)[:100]})")
+        return {}
+    if not mk:
+        log(f"kalshi: проверка эндпоинтов: событие {ev} не найдено, проверяю вслепую")
+        return {}
+    tickers = [m["ticker"] for m in mk]
+    t_end = int(sec(to_utc(mk[0]["close_time"])))
+    t0 = t_end - 3600
+    found = {}
+    for level, fn in (("event", lambda: candles_event(http, series, ev, t0, t_end)),
+                      ("batch", lambda: candles(http, tickers[:50], t0, t_end)),
+                      ("ticker", lambda: candles_hist(http, tickers[:1], t0, t_end))):
+        try:
+            found[level] = bool(fn())
+        except Exception:
+            found[level] = False
+    best = next((lv for lv in ("event", "batch", "ticker") if found.get(lv)), None)
+    with _STRATEGY_LOCK:
+        STRATEGY["order"] = ([best] + [lv for lv in ("event", "batch", "ticker") if lv != best and found.get(lv)]
+                             if best else ["ticker"])
+    per_day = {"event": 60, "batch": 72, "ticker": 430, None: 430}[best]
+    with _STATS_LOCK:
+        STATS["req_per_day_prior"] = per_day
+    names = {"event": "все страйки события одной пачкой", "batch": "батч по 50 тикеров",
+             "ticker": "по одному страйку (архив)"}
+    log(f"kalshi: проверка на {ev} (архив): " + ", ".join(
+        f"{lv} — {'да' if found.get(lv) else 'нет'}" for lv in ("event", "batch", "ticker")))
+    log(f"kalshi: значит каждая пара «событие + страйки» стоит ~{per_day / 24:.0f} запросов; "
+        f"сутки ≈ {per_day} запросов, способ: {names.get(best, 'неизвестен')}")
+    return {"found": found, "best": best, "req_per_day": per_day}
+
+
 def download_history(since: str = config.KALSHI_START, until: str | None = None,
                      hour_step: int = config.KALSHI_HOUR_STEP, http: Http | None = None,
                      series: str = "KXBTCD", minutes: int = CANDLE_MINUTES,
                      workers: int = WORKERS, min_interval: float = MIN_INTERVAL,
-                     report_every: float = REPORT_EVERY):
+                     report_every: float = REPORT_EVERY, probe: bool = True):
     """One CSV per day: data/raw/kalshi/YYYY-MM-DD.csv.gz with strike metadata and the candles of the first
     `minutes` minutes of each hourly event (the last hour for the daily and weekly 17:00 ET events).
 
@@ -341,7 +441,8 @@ def download_history(since: str = config.KALSHI_START, until: str | None = None,
     t0 = time.time()
     day = pd.Timestamp(since).date()
     # only complete days: today's file would be saved half-empty and then skipped on the next run
-    last_day = pd.Timestamp(until).date() if until else pd.Timestamp(utcnow()).tz_convert(ET).date() - timedelta(days=1)
+    last_day = (pd.Timestamp(until).date() if until
+                else pd.Timestamp(utcnow()).tz_convert(ET).date() - timedelta(days=1))
     out_dir = ensure(raw_dir(series, minutes))
     window = [day + timedelta(days=i) for i in range((last_day - day).days + 1)]
     days = []
@@ -353,8 +454,10 @@ def download_history(since: str = config.KALSHI_START, until: str | None = None,
     log(f"kalshi: downloading {series} hourly ladders {day} .. {last_day}, {minutes} min of candles, "
         f"{len(days)} day(s) to fetch ({len(window) - len(days)} already on disk), {max(1, workers)} worker(s), "
         f"into {out_dir}")
-    log(f"kalshi: about {1 / max(min_interval, 1e-3):.0f} requests/s shared by all workers; a day costs ~24 "
-        f"events x 2 requests (the event ticker, then all its strikes in one batch)")
+    if probe:
+        probe_candles(http, series=series)
+    else:
+        log(f"kalshi: about {1 / max(min_interval, 1e-3):.0f} requests/s shared by all workers")
     log("kalshi: one line per finished day; progress with the ETA comes every "
         f"{report_every:.0f} s — the first day takes several minutes, nothing is stuck")
     center, lock = {"v": None}, threading.Lock()

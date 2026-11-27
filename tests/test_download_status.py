@@ -49,6 +49,13 @@ class ParseTest(unittest.TestCase):
         self.assertAlmostEqual(p["gap"], 0.35)
         self.assertEqual(p["n429"], 17)
 
+    def test_the_candle_strategy_is_parsed(self):
+        p = dl.parse_progress("[14:20:13] kalshi: 0/212 days done, 1.6 min elapsed, 257 requests (2.6/s), "
+                              "gap 0.28 s, 429: 32, пострайково 57/~5088 событий, ETA 79 min, 0 failed\n")
+        self.assertEqual(p["level"], "пострайково")
+        self.assertEqual(p["events"], 57)
+        self.assertEqual(p["eta"], "79 min")
+
     def test_old_lines_without_the_throttle_still_parse(self):
         p = dl.parse_progress("[13:02:11] kalshi: 5/211 days done, 10.0 min elapsed, 300 requests (0.5/s), "
                               "ETA 3.0 h, 0 failed\n")

@@ -44,6 +44,8 @@ class Http:
         self._cooldown_until = 0.0      # set by a 429: every thread waits, not just the unlucky one
         self._ok_streak = 0
         self._last_penalty = -1e9       # a burst of 429s must widen the gap once, not once per thread
+        self._floor = min_interval      # the pace that already earned a 429: recover towards it, not below
+        self._streak_total = 0
         self.stats = {"requests": 0, "429": 0, "errors": 0}
 
     def _wait(self):
@@ -70,6 +72,7 @@ class Http:
             self._cooldown_until = max(self._cooldown_until, now + pause)
             if self.adaptive and now - self._last_penalty > min(pause, 2.0):
                 self._last_penalty = now
+                self._floor = max(self._floor, self.min_interval)     # this pace was already too fast
                 self.min_interval = min(self.max_interval, max(self.min_interval * 1.25, 0.05))
                 self._ok_streak = 0
 
@@ -79,8 +82,11 @@ class Http:
             return
         with self._lock:
             self._ok_streak += 1
+            self._streak_total += 1
+            if self._streak_total % 500 == 0:      # a long clean run: probe a little faster than the floor
+                self._floor = max(self.base_interval, self._floor * 0.9)
             if self._ok_streak >= self.recover_after and self.min_interval > self.base_interval:
-                self.min_interval = max(self.base_interval, self.min_interval * 0.85)
+                self.min_interval = max(self.base_interval, self._floor, self.min_interval * 0.85)
                 self._ok_streak = 0
 
     @staticmethod

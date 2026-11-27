@@ -465,7 +465,8 @@ def summary_markdown(state: dict) -> str:
 # ------------------------------------------------------------------ status
 PROGRESS_RE = re.compile(
     r"kalshi: (\d+)/(\d+) days done, ([\d.]+) min elapsed, (\d+) requests \(([\d.]+)/s\)"
-    r"(?:, gap ([\d.]+) s)?(?:, 429: (\d+))?, ETA ([^,]+), (\d+) failed")
+    r"(?:, gap ([\d.]+) s)?(?:, 429: (\d+))?(?:, (пачка|батч|пострайково) (\d+)/~?(\d+) событий)?, "
+    r"ETA ([^,]+), (\d+) failed")
 STEP_RE = re.compile(r"\[(\d\d:\d\d:\d\d)\] === ([^\s:]+): ([^\n]*)")
 
 
@@ -473,9 +474,10 @@ def parse_progress(log_text: str) -> dict | None:
     hits = PROGRESS_RE.findall(log_text)
     if not hits:
         return None
-    done, total, minutes, requests, rps, gap, n429, eta, failed = hits[-1]
+    done, total, minutes, requests, rps, gap, n429, level, ev_done, ev_total, eta, failed = hits[-1]
     return {"done": int(done), "total": int(total), "minutes": float(minutes), "requests": int(requests),
             "rps": float(rps), "gap": float(gap) if gap else None, "n429": int(n429) if n429 else 0,
+            "level": level or None, "events": int(ev_done) if ev_done else 0,
             "eta": eta.strip(), "failed": int(failed)}
 
 
@@ -531,6 +533,8 @@ def render_status(root: Path) -> int:
         if prog.get("gap") or prog.get("n429"):
             throttle = (f", пауза {prog['gap']:.2f} с" if prog.get("gap") else "") + \
                        (f", 429: {prog['n429']}" if prog.get("n429") else "")
+        if prog.get("level"):
+            throttle += f", способ: {prog['level']} ({prog['events']} событий)"
         _p(f"  Kalshi: {prog['done']}/{prog['total']} суток ({pct:.0f}%), {prog['requests']} запросов "
            f"({prog['rps']:.1f}/с){throttle}, осталось ~{prog['eta']}, упало дней: {prog['failed']}")
     elif step and step[0] == "kalshi" and alive:
