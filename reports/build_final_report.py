@@ -19,7 +19,14 @@ ROOT = HERE.parent
 TAB = HERE / "final" / "tables"
 FIG = HERE / "final" / "figures"
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(ROOT / "scripts"))                     # report_facts.py живёт в scripts/
 from final_report_analysis import load_forecasts, _model_series, _actual_series  # noqa: E402
+from report_facts import compute as _facts_compute, describe as _facts_describe  # noqa: E402
+from report_facts import substitute as _facts_substitute, fmt as _facts_fmt  # noqa: E402
+
+# Все заголовочные числа берутся из таблиц (scripts/report_facts.py), а не вписываются руками: вписанные
+# «0 из 53» и «2 399 сделок» разошлись с данными, и отчёт начал противоречить своим же таблицам.
+FACTS = _facts_compute()
 
 # --------------------------------------------------------------------------- helpers
 def read(name: str) -> pd.DataFrame:
@@ -120,6 +127,12 @@ lab = read("lab.csv")
 implied = read("implied_bias.csv")
 regimes = read("regimes.csv")
 inventory = read("data_inventory.csv")
+# Строку про журнал лаборатории считаем из самого журнала: CSV-инвентарь собирается отдельным прогоном
+# и успевает устареть (в нём стояло «2 399 закрытий» при 2 035 в файле).
+_led = inventory["Где лежит"].astype(str).str.contains("ledger.csv")
+if _led.any():
+    inventory.loc[_led, "Объём"] = (f"{_facts_fmt(FACTS.get('n_open_trades'))} открытий, "
+                                    f"{_facts_fmt(FACTS.get('n_closed_trades'))} закрытий")
 
 LBL = dict(zip(sc.model, sc.model_label))
 LBL.update({"har_m": "HAR + лесенка", "mkt_ln_raw": "Лесенка: центр (логнорм.)",
@@ -632,7 +645,7 @@ P.append(f"""
   <h1>Волатильность биткоина<br>по лесенкам <em>Polymarket</em> и <em>Kalshi</em></h1>
   <p class="lead">Прогнозируем реализованную дисперсию BTC на 55 минут, 24 часа и 6 дней; сравниваем с опционами Deribit
   и проверяем, можно ли заработать на разнице после спредов и комиссий. В отчёте — три года минутных данных,
-  весь путь «факт против прогноза» по времени и 2 399 сделок живой лаборатории.</p>
+  весь путь «факт против прогноза» по времени и __N_CLOSED_TRADES__ сделок живой лаборатории.</p>
   <div class="meta"><b>Александр Шестаков</b><span class="dotsep"></span><b>Александр Шилин</b>
     <span class="dotsep"></span>сдача 01.11.2026<span class="dotsep"></span>данные до 31.10.2026 01:05 UTC</div>
   <div class="kpis">
@@ -640,7 +653,7 @@ P.append(f"""
     <div class="kpi"><div class="v">6 891</div><div class="l">часовой снимок<br>Kalshi с лесенкой</div></div>
     <div class="kpi accent"><div class="v">0,329</div><div class="l">CRPS центра лесенки —<br>лучший на 55 минут</div></div>
     <div class="kpi accent"><div class="v">−0,0215</div><div class="l">QLIKE даёт лесенка<br>сверх Deribit (DM −6,1)</div></div>
-    <div class="kpi red"><div class="v">0<small> из 53</small></div><div class="l">гипотез прошли Холма<br>с положительным P&amp;L</div></div>
+    <div class="kpi red"><div class="v">__N_HOLM_POSITIVE__<small> из __N_HYPOTHESES__</small></div><div class="l">гипотез прошли Холма<br>с положительным P&amp;L</div></div>
   </div>
 </div></header>""")
 
@@ -691,7 +704,7 @@ P.append(f"""
   </div>
   <div class="card">
     <h3>4. После комиссий не выживает ничего</h3>
-    <p>53 правила в каталоге, 19 активных, <b>2 399</b> закрытых сделок на реальных bid/ask — и <b>ни одной</b>
+    <p>__N_CATALOG_IDS__ ID в каталоге, __N_CATALOG_ACTIVE__ с исполненными сделками, <b>__N_CLOSED_TRADES__</b> закрытых сделок на реальных bid/ask — и <b>ни одной</b>
     гипотезы, прошедшей Холма с плюсом. Пять «альф» оказались артефактами данных: устаревший листинг Kalshi,
     пустая сторона стакана как 0, снимок опционов против живого перпа, один месяц вместо истории, метки времени
     с разницей 20–40 секунд.</p>
@@ -711,7 +724,7 @@ P.append(f"""
   <h3>Что добавилось в этом снимке</h3>
   <div class="grid4">
     <div class="stat"><div class="v" style="font-size:20px">389</div><div class="l">часов после 13.10<br>в новой выборке (было 344)</div></div>
-    <div class="stat"><div class="v" style="font-size:20px">2 399</div><div class="l">закрытых сделок<br>лаборатории 28–29.10</div></div>
+    <div class="stat"><div class="v" style="font-size:20px">__N_CLOSED_TRADES__</div><div class="l">закрытых сделок<br>лаборатории 28–29.10</div></div>
     <div class="stat"><div class="v" style="font-size:20px">111 тыс.</div><div class="l">строк стаканов<br>коротких бинарных рынков</div></div>
     <div class="stat"><div class="v" style="font-size:20px">10</div><div class="l">живых прогнозов<br>в SHA-256 цепочке (13 файлов)</div></div>
   </div>
@@ -764,10 +777,10 @@ P.append(f"""
 
 <div class="card">
 <h3>Инвентарь данных</h3>
-{table(list(inventory.columns), [[esc(x).replace("51 замороженная гипотеза", "53 ID (19 активных)") for x in r] for r in inventory.values.tolist()],
+{table(list(inventory.columns), [[esc(x).replace("51 замороженная гипотеза", "__N_CATALOG_IDS__ ID (__N_CATALOG_ACTIVE__ торговали)") for x in r] for r in inventory.values.tolist()],
        aligns=["left"]*6, note="Все источники публичные, без аккаунта. Полные пути и объёмы — в reports/final/tables/data_inventory.csv.")}
 <p class="small muted" style="margin-top:12px">Снимок кода и данных: <b>31.10.2026</b>. Основные артефакты: 275 485 строк прогнозов kx1h,
-  167 863 строки оценок, 1,03 млн строк свечей Kalshi, 30 141 рынок KXBTC15M, 2 399 закрытых сделок лаборатории.
+  167 863 строки оценок, 1,03 млн строк свечей Kalshi, 30 141 рынок KXBTC15M, __N_CLOSED_TRADES__ закрытых сделок лаборатории.
   Суммарно около 200 МБ сырых данных и 97 МБ очищенных таблиц.</p>
 </div>
 
@@ -1153,12 +1166,12 @@ P.append(f"""
 # ------------------------------------------------------------------ alpha
 P.append(f"""
 <section id="alpha"><div class="wrap">
-<div class="sechead"><div class="num">08</div><div><h2>Альфа: 53 гипотезы и ноль выживших</h2>
+<div class="sechead"><div class="num">08</div><div><h2>Альфа: __N_HYPOTHESES__ гипотез и ноль выживших</h2>
 <p class="dek">Параллельно с курсовым вопросом круглосуточная лаборатория проверяла торговые правила на живых
 стаканах семи площадок. Ни одно не прошло поправку на множественность с положительным P&amp;L.</p></div></div>
 
-{img("fig17_alpha_funnel.png", "Рис. 15. Воронка: от 53 замороженных правил до нуля, прошедших Холма с плюсом.",
-     "Каталог STRATEGIES.md; 2 399 закрытых сделок в data/lab/ledger.csv (28–29.10.2026).")}
+{img("fig17_alpha_funnel.png", "Рис. 15. Воронка: от __N_HYPOTHESES__ проверенных правил до нуля, прошедших Холма с плюсом.",
+     "Каталог STRATEGIES.md; __N_CLOSED_TRADES__ закрытых сделок в data/lab/ledger.csv.")}
 
 <div class="grid2">
 <div class="card"><h3>Лаборатория: что показали живые сделки</h3>
@@ -1219,7 +1232,7 @@ P.append(f"""
          num(r.t, 2) if pd.notna(r.t) else "—", pval(r.holm) if pd.notna(r.holm) else "—", live_verdict(r.verdict)]
         for _, r in lab[lab.trades >= 5].sort_values("mean_net", ascending=False).head(12).iterrows()],
        aligns=["left","center","left","right","right","right","right","center"],
-       note="Отрицательный P&L — убыток. p — поправка Холма на 53 гипотезы; 1,0 означает, что эффект неотличим от нуля, «—» — слишком мало сделок для теста.")}
+       note="Отрицательный P&L — убыток. p — поправка Холма на __N_HYPOTHESES__ гипотез; 1,0 означает, что эффект неотличим от нуля, «—» — слишком мало сделок для теста.")}
 </div>
 
 {img("fig14_research.png", "Рис. 17. Двадцать две исследовательские гипотезы: четыре подтверждены после Холма, четыре — на грани (BH 10%), остальные — шум.",
@@ -1273,7 +1286,7 @@ P.append(f"""
 
 <div class="card">
 <h3>Расхождения в снимке</h3>
-<p class="small">README фиксирует 51 гипотезу (снимок 29.10), каталог <code>STRATEGIES.md</code> — 53 ID (19 активных,
+<p class="small">README фиксирует 51 гипотезу (снимок 29.10), каталог <code>STRATEGIES.md</code> — __N_CATALOG_IDS__ ID (__N_CATALOG_ACTIVE__ торговали,
   34 выведенных). В отчёте используется 53 как более свежее число; live-таблица содержит 46 строк, потому что часть
   правил ещё не совершила ни одной сделки. Предыдущий замороженный срез заканчивался 28.10; здесь данные продлены
   до 31.10 01:05 UTC, поэтому числа в разделе 04 немного отличаются от <code>reports/oos_report.md</code> —
@@ -1327,7 +1340,7 @@ python reports/build_final_report.py      <span># HTML + Markdown + интера
         ["Brier рынка, 55 мин", "0,10139", "brier.csv"],
         ["Brier лучшей модели, 55 мин", "0,10162", "brier.csv"],
         ["QLIKE GBM, 1 час / HAR", "0,253 / 0,330", "horserace.csv"],
-        ["Закрытых сделок лаборатории", "2 399", "ledger.csv"],
+        ["Закрытых сделок лаборатории", "__N_CLOSED_TRADES__", "ledger.csv"],
         ["Правил, прошедших Холма с плюсом", "0", "lab.csv"]],
        aligns=["left","right","left"])}
 </div>
@@ -1348,8 +1361,11 @@ P.append(f"""<script>window.VOL_DATA = {json.dumps(VOL_DATA, ensure_ascii=False)
 <script>{JS}</script></body></html>""")
 
 out = "".join(P).replace("< ", "&lt; ")
+# Числа подставляются здесь и только здесь: неизвестный маркер в шаблоне — ошибка сборки, а не тихая заглушка.
+out = _facts_substitute(out, FACTS)
 (HERE / "final_report.html").write_text(out, encoding="utf-8")
 print("html", len(out) / 1e6, "MB")
+print("факты:", _facts_describe(FACTS))
 
 # --------------------------------------------------------------------------- markdown
 md = []
@@ -1359,7 +1375,7 @@ md.append("_Курсовой проект РЭШ «Introduction to Forecasting»
 md.append("**Главный вывод.** На 55 минутах центр лесенки Kalshi — лучший прогноз волатильности "
           "(CRPS 0,329 против 0,358 у HAR и 0,614 у Deribit). Лесенка добавляет информацию сверх опционов "
           "Deribit (Δ QLIKE −0,0215, DM −6,08). На 24 часах и 6 днях рынок и опционы неразличимы. "
-          "После комиссий не выживает ни одна из 53 торговых гипотез.\n")
+          "После комиссий не выживает ни одна из __N_HYPOTHESES__ торговых гипотез.\n")
 md.append("Полная версия с интерактивным графиком и всеми таблицами: **[final_report.html](final_report.html)**.\n")
 
 md.append("## 1. Ключевые числа\n")
@@ -1372,8 +1388,8 @@ md.append(md_table(pd.DataFrame([
     ["Δ QLIKE от лесенки сверх Deribit, 6 дн", "+0,199 (DM +0,98)", "незначимо, шум"],
     ["GBM: QLIKE к HAR, 15 мин / 1 час / 1 день", "−27% / −23% / +22%", "вне выборки 2024–2026"],
     ["Brier рынка / лучшей модели, 55 мин", "0,10139 / 0,10162", "рынок не хуже (p = 0,069)"],
-    ["Живых сделок лаборатории", "2 399", "28–29.10.2026"],
-    ["Гипотез, прошедших Холма с плюсом", "0 из 53", "—"],
+    ["Живых сделок лаборатории", "__N_CLOSED_TRADES__", "28–29.10.2026"],
+    ["Гипотез, прошедших Холма с плюсом", "__N_HOLM_POSITIVE__ из __N_HYPOTHESES__", "—"],
 ]), headers=["Показатель", "Значение", "Комментарий"]))
 
 md.append("\n## 2. Факт и прогноз волатильности во времени\n")
@@ -1425,7 +1441,7 @@ md.append("\nНа 55 минутах рынок лучше HAR-X (DM +3,67), HAR-
           "HAR-X + Deribit + лесенка (DM +1,82, p = 0,069). На 24 часах и 6 днях разницы нет.\n")
 
 md.append("\n## 7. Альфа\n")
-md.append("![Воронка](final/figures/fig17_alpha_funnel.png)\n\n_Рис. 10. 53 правила → 19 активных → 2 399 сделок → 0 выживших._\n")
+md.append("![Воронка](final/figures/fig17_alpha_funnel.png)\n\n_Рис. 10. __N_HYPOTHESES__ проверенных правил → __N_CATALOG_ACTIVE__ торговали → __N_CLOSED_TRADES__ сделок → 0 выживших._\n")
 md.append("![Лаборатория](final/figures/fig15_lab.png)\n\n_Рис. 11. Средний чистый P&L на сделку._\n")
 _labmd = lab[lab.trades >= 5].sort_values("mean_net", ascending=False).head(10).copy()
 _labmd["verdict"] = _labmd.verdict.map({"nothing": "ничего", "collecting": "собирает данные",
@@ -1456,6 +1472,6 @@ md.append("```bash\npython reports/final_report_analysis.py   # таблицы �
 md.append("Таблицы: `reports/final/tables/*.csv`; рисунки: `reports/final/figures/*.png`. "
           "Live-прогнозы: 10 записей, цепочка SHA-256 цела, код совпадает с замороженным.\n")
 
-(HERE / "final_report.md").write_text("\n".join(md), encoding="utf-8")
+(HERE / "final_report.md").write_text(_facts_substitute("\n".join(md), FACTS), encoding="utf-8")
 print("md", (HERE / "final_report.md").stat().st_size / 1e3, "KB")
 print("done")

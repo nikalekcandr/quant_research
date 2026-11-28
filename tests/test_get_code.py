@@ -21,7 +21,7 @@ class CodeDirsTest(unittest.TestCase):
     """
 
     def test_every_code_directory_is_synced(self):
-        skip = {"data", "results", "reports", "logs", "docs_assets", "node_modules"}
+        skip = {"data", "results", "logs", "docs_assets", "node_modules"}
         on_disk = {p.name for p in (ROOT).iterdir()
                    if p.is_dir() and any(p.rglob("*.py")) and p.name not in skip
                    and not p.name.startswith((".", "__"))}
