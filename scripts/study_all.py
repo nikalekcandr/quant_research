@@ -472,7 +472,7 @@ def run(rows: list[dict], work: Path | None = None, *, rerun: bool = False, chec
                   "log": "", "tail": [], "stamp": stamp})
     total_est = sum(r["est"] for r in rows)
     state = {"started": datetime.now().isoformat(timespec="seconds"), "studies": [], "artifacts": {},
-             "version": code_stamp(), "stamp": stamp, "skipped": len(skipped)}
+             "version": code_stamp(), "stamp": stamp, "skipped": len(skipped), "work": str(work)}
     t0 = time.time()
 
     renamed = migrate_dense_markers()

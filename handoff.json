@@ -1,0 +1,420 @@
+{
+ "generated": "2026-11-28T19:15:58",
+ "stages_run": [
+  "check",
+  "compute",
+  "audit"
+ ],
+ "stages_kept_from_previous_run": [
+  "compute",
+  "audit"
+ ],
+ "check": {
+  "version": "e1040d5",
+  "python": "3.11.2",
+  "pandas": "3.1.1",
+  "imports": {},
+  "inputs": {
+   "data/raw/kalshi_kxbtcd_60m": {
+    "what": "часовые лесенки Kalshi",
+    "exists": true,
+    "files": 119
+   },
+   "data/raw/wing_gap_candles": {
+    "what": "ноябрьские снимки книги",
+    "exists": true,
+    "files": 405
+   },
+   "data/lab/markets": {
+    "what": "журнал книги лаборатории",
+    "exists": true,
+    "files": 2
+   },
+   "data/interim/minutes.parquet": {
+    "what": "минуты Binance",
+    "exists": true,
+    "files": null
+   },
+   "STRATEGIES.md": {
+    "what": "каталог правил",
+    "exists": true,
+    "files": null
+   }
+  },
+  "ok": true,
+  "coverage": {
+   "total": 57,
+   "with_result": 8,
+   "missing": [
+    {
+     "name": "wing_panel",
+     "group": "панель",
+     "what": "собрать панель крыльев из свечей (кэш для остальных)",
+     "est_min": 180
+    },
+    {
+     "name": "wings_ladder",
+     "group": "крылья",
+     "what": "продажа дешёвых крыльев на часовой лесенке",
+     "est_min": 95
+    },
+    {
+     "name": "wings_calibration",
+     "group": "крылья",
+     "what": "калибровка дешёвой стороны крыла по архивным исходам",
+     "est_min": 60
+    },
+    {
+     "name": "wings_neighbors",
+     "group": "крылья",
+     "what": "цена по соседним страйкам и чувствительность к исполнению",
+     "est_min": 40
+    },
+    {
+     "name": "wings_execution",
+     "group": "крылья",
+     "what": "как исполнять: тейкером, мейкером или ждать",
+     "est_min": 25
+    },
+    {
+     "name": "wings_maker",
+     "group": "крылья",
+     "what": "стоять в книге и ждать покупателя лотереи",
+     "est_min": 1500
+    },
+    {
+     "name": "wings_regime",
+     "group": "крылья",
+     "what": "пауза по волатильности и аудит реальных входов W04/W06",
+     "est_min": 25
+    },
+    {
+     "name": "wings_regime_ml",
+     "group": "крылья",
+     "what": "хвосты по режимам против прямой классификации крыла",
+     "est_min": 25
+    },
+    {
+     "name": "wings_two_sided",
+     "group": "крылья",
+     "what": "согласие и противоположные стороны, хронологический реплей",
+     "est_min": 30
+    },
+    {
+     "name": "wings_old_replay",
+     "group": "крылья",
+     "what": "старые двусторонние правила на архивных котировках",
+     "est_min": 25
+    },
+    {
+     "name": "wings_varfix",
+     "group": "крылья",
+     "what": "какая модель дисперсии соответствует живой лаборатории",
+     "est_min": 30
+    },
+    {
+     "name": "wings_odds_pool",
+     "group": "крылья",
+     "what": "пул лог-шансов, замороженный до сентября",
+     "est_min": 30
+    },
+    {
+     "name": "wings_scale_in",
+     "group": "крылья",
+     "what": "ступенчатые входы на сигналах W04 и снимках книги",
+     "est_min": 25
+    },
+    {
+     "name": "wings_weekend2",
+     "group": "крылья",
+     "what": "выходные: одна сторона против одной на час (W11 против W08)",
+     "est_min": 25
+    },
+    {
+     "name": "wings_edge_timing",
+     "group": "крылья",
+     "what": "политики остановки edge на полной часовой лесенке",
+     "est_min": 30
+    },
+    {
+     "name": "wing_consensus",
+     "group": "крылья",
+     "what": "консервативные прогнозы на одинаковых возможностях",
+     "est_min": 30
+    },
+    {
+     "name": "wing_filters",
+     "group": "крылья",
+     "what": "фиксированные гейты на модели соседей",
+     "est_min": 40
+    },
+    {
+     "name": "wing_shapes",
+     "group": "крылья",
+     "what": "десять кривых вероятности leave-one-strike-out",
+     "est_min": 40
+    },
+    {
+     "name": "wing_sizing",
+     "group": "крылья",
+     "what": "десять политик размера на одних и тех же сигналах",
+     "est_min": 30
+    },
+    {
+     "name": "wing_stopping",
+     "group": "крылья",
+     "what": "десять причинных правил остановки",
+     "est_min": 60
+    },
+    {
+     "name": "wing_ten",
+     "group": "крылья",
+     "what": "десять альтернатив на замороженных ноябрьских свечах",
+     "est_min": 60
+    },
+    {
+     "name": "wing_capacity_ml",
+     "group": "крылья",
+     "what": "ёмкость показанных уровней, метки исполнения, HMM",
+     "est_min": 90
+    },
+    {
+     "name": "wing_ledger_capacity",
+     "group": "крылья",
+     "what": "ёмкость верхней строки книги на реальных сигналах W01–W12",
+     "est_min": 40
+    },
+    {
+     "name": "wing_quant_replay",
+     "group": "крылья",
+     "what": "CAViaR, цифровые опционы SVI, OFI/очередь, два транша",
+     "est_min": 60
+    },
+    {
+     "name": "wing_quant_archive",
+     "group": "крылья",
+     "what": "независимый тест CAViaR на наблюдаемых свечах архива",
+     "est_min": 45
+    },
+    {
+     "name": "wings_flow",
+     "group": "крылья",
+     "what": "кто платит премию крыла: печатные ленты Kalshi",
+     "est_min": 40
+    },
+    {
+     "name": "wing_sleep_replay",
+     "group": "крылья",
+     "what": "октябрьский отсеч и ноябрьский реплей по минутам",
+     "est_min": 45
+    },
+    {
+     "name": "w04_entry_stress",
+     "group": "крылья",
+     "what": "стресс продолжения на одну минуту для входов W04",
+     "est_min": 30
+    },
+    {
+     "name": "vol_horserace",
+     "group": "волатильность",
+     "what": "гонка моделей волатильности на минутах Binance",
+     "est_min": 90
+    },
+    {
+     "name": "invariance_vol",
+     "group": "волатильность",
+     "what": "прогнозы волатильности по микроструктуре",
+     "est_min": 60
+    },
+    {
+     "name": "gbm_kx1h",
+     "group": "волатильность",
+     "what": "градиентный бустинг на трёх годах минут Binance",
+     "est_min": 120
+    },
+    {
+     "name": "short_lags",
+     "group": "волатильность",
+     "what": "дисперсия последнего часа и короткие лаги",
+     "est_min": 40
+    },
+    {
+     "name": "test_100_ideas",
+     "group": "волатильность",
+     "what": "сто идей и моделей прогноза волатильности",
+     "est_min": 200
+    },
+    {
+     "name": "microstructure_leadlag",
+     "group": "волатильность",
+     "what": "ведёт ли спот короткие бинарные контракты",
+     "est_min": 30
+    },
+    {
+     "name": "brti_proxy",
+     "group": "волатильность",
+     "what": "насколько наш спот близок к CF BRTI",
+     "est_min": 30
+    },
+    {
+     "name": "funding_carry",
+     "group": "волатильность",
+     "what": "фандинг и базис: предсказывает ли экстремум дрейф",
+     "est_min": 20
+    },
+    {
+     "name": "gamma_intraday",
+     "group": "опционы",
+     "what": "внутридневная гамма на дневных опционах Deribit",
+     "est_min": 200
+    },
+    {
+     "name": "o04_straddle",
+     "group": "опционы",
+     "what": "бэктест ATM-стрэддла ближайшей дневной экспирации",
+     "est_min": 200
+    },
+    {
+     "name": "o04_report",
+     "group": "опционы",
+     "what": "таблицы для текста O04",
+     "est_min": 30
+    },
+    {
+     "name": "options_arb_audit",
+     "group": "опционы",
+     "what": "аудит и строгий реплей «арбитражей» O01",
+     "est_min": 60
+    },
+    {
+     "name": "kx15_study",
+     "group": "Kalshi 15m",
+     "what": "KXBTC15M: печатные ленты, кто платит тейкеру",
+     "est_min": 60
+    },
+    {
+     "name": "kx15_flow_deep",
+     "group": "Kalshi 15m",
+     "what": "глубже по 15-минутным печатям",
+     "est_min": 40
+    },
+    {
+     "name": "kx15_makers",
+     "group": "Kalshi 15m",
+     "what": "кто зарабатывает на 15-минутных рынках",
+     "est_min": 40
+    },
+    {
+     "name": "kx_15m_vs_hourly",
+     "group": "Kalshi 15m",
+     "what": "15-минутный рынок против часового на одном сеттлменте",
+     "est_min": 90
+    },
+    {
+     "name": "kx_pm_15m_arb",
+     "group": "Kalshi 15m",
+     "what": "Kalshi 15m против Polymarket 15m в одном квартале",
+     "est_min": 40
+    },
+    {
+     "name": "tape_strategies",
+     "group": "Kalshi 15m",
+     "what": "бэктесты стратегий по печатям KXBTC15M",
+     "est_min": 40
+    },
+    {
+     "name": "wing_atlas",
+     "group": "отчёты",
+     "what": "интерактивные графики ноябрьского исследования",
+     "est_min": 60
+    },
+    {
+     "name": "wing_public_report",
+     "group": "отчёты",
+     "what": "публичный снимок Alpha Lab из агрегатов",
+     "est_min": 30
+    },
+    {
+     "name": "gen_ideas100_doc",
+     "group": "отчёты",
+     "what": "docs/IDEAS_100.md из results/ideas100",
+     "est_min": 10
+    }
+   ],
+   "missing_min": 70.8,
+   "have": [
+    {
+     "name": "wings_sleep",
+     "group": "крылья",
+     "what": "сон, пропуски и залипание книги: смещает ли это результат",
+     "when": "2026-11-28T19:08"
+    },
+    {
+     "name": "wings_alpha",
+     "group": "крылья",
+     "what": "относительная стоимость внутри лесенки, DSR/PBO",
+     "when": "2026-11-28T19:08"
+    },
+    {
+     "name": "wings_ten",
+     "group": "крылья",
+     "what": "десять профессиональных проверок на записанных лентах",
+     "when": "2026-11-28T19:08"
+    },
+    {
+     "name": "wings_scale",
+     "group": "крылья",
+     "what": "семь способов заработать больше: комиссии, выходы, спреды",
+     "when": "2026-11-28T19:08"
+    },
+    {
+     "name": "wings_accuracy",
+     "group": "крылья",
+     "what": "насколько точна вероятность крыла и платит ли точность",
+     "when": "2026-11-28T19:08"
+    },
+    {
+     "name": "wings_capacity",
+     "group": "крылья",
+     "what": "лестница ёмкости: сколько модель выдерживает данных",
+     "when": "2026-11-28T19:08"
+    },
+    {
+     "name": "wings_ml",
+     "group": "крылья",
+     "what": "добавляют ли градиентный бустинг и нейросеть что-то к логиту",
+     "when": "2026-11-28T19:08"
+    },
+    {
+     "name": "carry_portfolio",
+     "group": "волатильность",
+     "what": "керри как второй рукав портфеля",
+     "when": "2026-11-28T19:08"
+    }
+   ]
+  }
+ },
+ "compute": {
+  "studies": 1,
+  "ok": 1,
+  "skipped": 0,
+  "failed": [],
+  "seconds": 1.0,
+  "summary": "/home/user/quant_research/logs/studies-20261128-191230"
+ },
+ "report": null,
+ "audit": {
+  "facts": {
+   "n_hypotheses": 46,
+   "n_with_trades": 15,
+   "n_holm_positive": 0,
+   "n_catalog_ids": 54,
+   "n_catalog_active": 23,
+   "n_closed_trades": 2035,
+   "n_open_trades": 2122
+  },
+  "issues": [],
+  "checked": 7,
+  "ok": true
+ }
+}
